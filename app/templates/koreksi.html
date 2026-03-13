@@ -213,7 +213,7 @@
         formData.append('file', file);
 
         try {
-            const response = await fetch('/proses-kunci', { method: 'POST', body: formData });
+            const response = await fetch('/api/proses-kunci', { method: 'POST', body: formData });
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -253,7 +253,7 @@
         }
 
         try {
-            const response = await fetch('/scan-bulk', { method: 'POST', body: formData });
+            const response = await fetch('/api/scan-bulk', { method: 'POST', body: formData });
             const result = await response.json();
 
             if (result.status === 'success') {
