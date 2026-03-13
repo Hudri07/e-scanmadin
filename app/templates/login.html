@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% set no_sidebar = True %}
+{% block title %}Login - E-SCAN MADIN{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        padding: 20px;
+    }
+
+    /* Neo-Brutalism Form Style */
+    .form {
+        --input-focus: #2d8cf0;
+        --font-color: #323232;
+        --main-color: #323232;
+        --bg-color: #fff;
+        padding: 40px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        box-shadow: 8px 8px var(--main-color);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .title { 
+        color: var(--font-color); 
+        font-weight: 900; 
+        font-size: 25px; 
+        margin-bottom: 10px; 
+        line-height: 1.2;
+    }
+    
+    .title span { color: #666; font-weight: 600; font-size: 16px; }
+
+    .input-group {
+        position: relative;
+        width: 100%;
+    }
+
+    .input {
+        width: 100%; 
+        height: 45px; 
+        border-radius: 5px; 
+        border: 2px solid var(--main-color);
+        background-color: var(--bg-color); 
+        box-shadow: 4px 4px var(--main-color);
+        font-size: 15px; 
+        font-weight: 600; 
+        padding: 5px 15px; 
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .input:focus { 
+        border-color: var(--input-focus);
+        transform: translate(-1px, -1px);
+        box-shadow: 5px 5px var(--main-color);
+    }
+
+    /* Password Toggle Button Style */
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 5px;
+        height: 35px;
+        width: 35px;
+        background: white;
+        border: 2px solid var(--main-color);
+        box-shadow: 2px 2px var(--main-color);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.1s;
+        z-index: 10;
+    }
+
+    .password-toggle:active {
+        box-shadow: 0px 0px var(--main-color);
+        transform: translate(2px, 2px);
+    }
+
+    .button-confirm {
+        margin-top: 10px; 
+        width: 100%; 
+        height: 45px; 
+        border-radius: 5px;
+        border: 2px solid var(--main-color); 
+        background-color: var(--bg-color);
+        box-shadow: 4px 4px var(--main-color); 
+        font-size: 17px; 
+        font-weight: 900;
+        cursor: pointer; 
+        transition: 0.2s;
+    }
+
+    .button-confirm:hover {
+        background-color: #f8f8f8;
+    }
+
+    .button-confirm:active { 
+        box-shadow: 0px 0px var(--main-color); 
+        transform: translate(4px, 4px); 
+    }
+
+    #error-msg { 
+        color: #e11d48; 
+        font-weight: 700; 
+        font-size: 14px; 
+        display: none; 
+        padding: 10px;
+        border: 2px solid #e11d48;
+        background: #fff1f2;
+        box-shadow: 3px 3px #e11d48;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <form class="form" id="loginForm">
+        <div class="title">E-SCAN MADIN<br><span>Silahkan masuk ke sistem</span></div>
+        
+        <div id="error-msg">
+            <i class="fas fa-exclamation-triangle mr-2"></i> Username atau password salah!
+        </div>
+
+        <div class="input-group">
+            <input type="text" placeholder="Username" name="username" id="username" class="input" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" placeholder="Password" name="password" id="password" class="input" required>
+            <button type="button" onclick="togglePassword()" class="password-toggle" title="Lihat Password">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+        </div>
+        
+        <button type="submit" class="button-confirm">MASUK →</button>
+        
+        <p class="text-xs text-gray-500 mt-4 text-center font-bold">
+            MADRASAH DINIYAH DIGITAL © 2026
+        </p>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fungsi Toggle Password
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Handle Login Form
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('error-msg');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorMsg.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
+
+        try {
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Redirect ke dashboard
+                window.location.href = '/dashboard';
+            } else {
+                errorMsg.style.display = 'block';
+                // Reset password field untuk keamanan
+                document.getElementById('password').value = '';
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            alert("Gagal menghubungi server. Pastikan aplikasi FastAPI sudah berjalan.");
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Manajemen Siswa - E-SCAN MADIN{% endblock %}
+{% block page_title %}Manajemen Siswa & Nilai{% endblock %}
+{% block page_subtitle %}Kelola data siswa dan lihat rincian hasil ujian{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-1 space-y-4">
+        <div class="card p-4 rounded-xl shadow-sm border-2 border-black bg-white">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Daftar Kelas</h3>
+            <div class="space-y-2">
+                {% if kelas_list %}
+                    {% for k in kelas_list %}
+                    <button onclick="filterSiswa('{{ k }}')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 border-transparent hover:border-black hover:bg-yellow-50 transition group">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-chalkboard-teacher text-gray-400 group-hover:text-black"></i>
+                            <span class="font-bold text-gray-700">{{ k }}</span>
+                        </div>
+                        <i class="fas fa-arrow-right text-xs text-gray-300 group-hover:text-black"></i>
+                    </button>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-sm text-gray-400 text-center py-4">Belum ada data kelas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="md:col-span-2">
+        <div id="welcomeMessage" class="card h-64 flex flex-col items-center justify-center rounded-xl border-dashed border-4 border-gray-200">
+            <i class="fas fa-user-graduate text-5xl text-gray-200 mb-3"></i>
+            <p class="text-gray-400 font-medium">Pilih kelas untuk mengelola data siswa</p>
+        </div>
+
+        <div id="siswaContainer" class="hidden space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+                <div>
+                    <h2 id="selectedClassName" class="text-2xl font-black uppercase">Nama Kelas</h2>
+                    <span id="studentCount" class="bg-black text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-tighter">0 Siswa</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="eksporSemua()" class="bg-green-600 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs">
+                        <i class="fas fa-file-excel mr-2"></i>REKAP KELAS
+                    </button>
+                    <button onclick="openAddModal()" class="bg-blue-500 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs">
+                        <i class="fas fa-plus mr-2"></i>TAMBAH SISWA
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card overflow-hidden rounded-xl border-2 border-black shadow-sm bg-white">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-100 border-b-2 border-black">
+                        <tr>
+                            <th class="px-6 py-4 font-bold text-black uppercase text-xs">Identitas</th>
+                            <th class="px-6 py-4 font-bold text-black uppercase text-xs">Nilai Terakhir</th>
+                            <th class="px-6 py-4 font-bold text-black uppercase text-xs text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="siswaModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] w-full max-w-md overflow-hidden">
+        <div class="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center">
+            <h3 id="modalTitle" class="font-black uppercase tracking-tight text-black">Form Siswa</h3>
+            <button onclick="closeModal()" class="text-black hover:rotate-90 transition-transform"><i class="fas fa-times fa-lg"></i></button>
+        </div>
+        <form id="siswaForm" class="p-6 space-y-4">
+            <input type="hidden" id="old_nomor_peserta">
+            <div>
+                <label class="block text-xs font-black uppercase mb-1">Nomor Peserta</label>
+                <input type="text" id="nomor_peserta" name="nomor_peserta" class="w-full border-2 border-black p-3 rounded font-bold outline-none focus:bg-yellow-50" required>
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase mb-1">Nama Lengkap</label>
+                <input type="text" id="nama" name="nama" class="w-full border-2 border-black p-3 rounded font-bold outline-none focus:bg-yellow-50" required>
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase mb-1">Kelas</label>
+                <input type="text" id="kelas" name="kelas" class="w-full border-2 border-black p-3 rounded font-bold outline-none focus:bg-yellow-50" required>
+            </div>
+            <button type="submit" class="w-full bg-black text-white py-4 font-black uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                SIMPAN DATA
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let allStudents = JSON.parse('{{ (siswa | default([])) | tojson | safe }}');
+    let currentFilteredClass = "";
+
+    function filterSiswa(namaKelas) {
+        currentFilteredClass = namaKelas;
+        const container = document.getElementById('siswaContainer');
+        const welcome = document.getElementById('welcomeMessage');
+        const tableBody = document.getElementById('studentTableBody');
+        const classNameDisplay = document.getElementById('selectedClassName');
+        const countDisplay = document.getElementById('studentCount');
+
+        const filtered = allStudents.filter(s => s.kelas === namaKelas);
+        classNameDisplay.innerText = "Kelas " + namaKelas;
+        countDisplay.innerText = filtered.length + " Siswa";
+        
+        tableBody.innerHTML = "";
+
+        filtered.forEach((s, index) => {
+            let nilaiHtml = "";
+            let aksiEkspor = "";
+
+            if (s.nilai_lengkap && s.nilai_lengkap.length > 0) {
+                // Tampilkan 2 nilai terakhir saja agar tidak kepanjangan
+                nilaiHtml = s.nilai_lengkap.slice(0, 2).map(n => `
+                    <div class="flex justify-between items-center bg-gray-50 border border-black/10 p-2 mb-1 rounded">
+                        <span class="text-[9px] font-black uppercase text-gray-500">${n.mapel}</span>
+                        <span class="font-black text-sm ${n.skor >= 75 ? 'text-green-600' : 'text-red-600'}">${n.skor}</span>
+                    </div>
+                `).join('');
+
+                // Tombol PDF khusus untuk data yang ada nilainya
+                aksiEkspor = `
+                    <button onclick="unduhPDF(${index})" class="text-red-500 hover:scale-110 transition" title="Cetak PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                `;
+            } else {
+                nilaiHtml = `<span class="text-gray-400 italic text-xs">Belum ada nilai</span>`;
+            }
+
+            const row = `
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 align-top">
+                        <div class="font-black text-gray-900">${s.nama}</div>
+                        <div class="text-[10px] font-bold text-gray-400 mono uppercase">${s.nomor_peserta}</div>
+                    </td>
+                    <td class="px-6 py-4 align-top w-48">
+                        ${nilaiHtml}
+                    </td>
+                    <td class="px-6 py-4 text-center align-top">
+                        <div class="flex justify-center items-center gap-4 text-lg">
+                            ${aksiEkspor}
+                            <button onclick="openEditModal('${s.nomor_peserta}')" class="text-blue-600 hover:scale-110 transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteSiswa('${s.nomor_peserta}')" class="text-gray-300 hover:text-red-600 hover:scale-110 transition">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        welcome.classList.add('hidden');
+        container.classList.remove('hidden');
+    }
+
+    // --- FUNGSI EKSPOR ---
+
+    async function eksporSemua() {
+        const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
+        if (filtered.length === 0) return alert("Tidak ada data");
+
+        const dataEkspor = filtered.map(s => ({
+            nomor_peserta: s.nomor_peserta,
+            nama: s.nama,
+            mapel: (s.nilai_lengkap && s.nilai_lengkap.length > 0) ? s.nilai_lengkap[0].mapel : "-",
+            skor: (s.nilai_lengkap && s.nilai_lengkap.length > 0) ? s.nilai_lengkap[0].skor : 0,
+        }));
+
+        const response = await fetch('/unduh/ekspor-excel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataEkspor)
+        });
+        const blob = await response.blob();
+        saveBlob(blob, `Rekap_Kelas_${currentFilteredClass}.xlsx`);
+    }
+
+    async function unduhPDF(index) {
+        const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
+        const s = filtered[index];
+        const n = s.nilai_lengkap[0];
+
+        const dataKirim = {
+            nama: s.nama,
+            nomor_peserta: s.nomor_peserta,
+            mapel: n.mapel,
+            skor: n.skor,
+        };
+
+        const response = await fetch('/ekspor-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataKirim)
+        });
+        const blob = await response.blob();
+        saveBlob(blob, `Hasil_${s.nama}.pdf`);
+    }
+
+    function saveBlob(blob, filename) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    // --- LOGIC CRUD MODAL ---
+    const modal = document.getElementById('siswaModal');
+    const form = document.getElementById('siswaForm');
+
+    function openAddModal() {
+        form.reset();
+        document.getElementById('old_nomor_peserta').value = "";
+        document.getElementById('modalTitle').innerText = "Tambah Siswa Baru";
+        document.getElementById('kelas').value = currentFilteredClass;
+        modal.classList.remove('hidden');
+    }
+
+    function openEditModal(no) {
+        const s = allStudents.find(x => x.nomor_peserta === no);
+        if(!s) return;
+        document.getElementById('modalTitle').innerText = "Edit Data Siswa";
+        document.getElementById('old_nomor_peserta').value = s.nomor_peserta;
+        document.getElementById('nomor_peserta').value = s.nomor_peserta;
+        document.getElementById('nama').value = s.nama;
+        document.getElementById('kelas').value = s.kelas;
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() { modal.classList.add('hidden'); }
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const oldNo = document.getElementById('old_nomor_peserta').value;
+        const formData = new FormData(form);
+        const url = oldNo ? `/siswa/update/${oldNo}` : '/siswa/add';
+        
+        const res = await fetch(url, { method: 'POST', body: formData });
+        if (res.ok) window.location.reload();
+        else alert("Gagal menyimpan data");
+    };
+
+    async function deleteSiswa(no) {
+        if(confirm(`Hapus siswa ${no}?`)) {
+            const res = await fetch(`/siswa/delete/${no}`, { method: 'DELETE' });
+            if(res.ok) window.location.reload();
+        }
+    }
+</script>
+{% endblock %}

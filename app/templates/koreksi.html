@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+
+{% block title %}Koreksi Ujian - E-SCAN MADIN{% endblock %}
+
+{% block page_title %}Koreksi LJK{% endblock %}
+{% block page_subtitle %}Proses pemindaian lembar jawaban otomatis berbasis AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Animasi Halus */
+    .animate-slide-up { 
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Neo-Brutalism Utility */
+    .card-neo {
+        @apply bg-white border-2 border-black rounded-2xl p-6 transition-all duration-300;
+        box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
+    }
+    .card-neo:hover { 
+        transform: translate(-2px, -2px); 
+        box-shadow: 8px 8px 0px 0px rgba(0,0,0,1); 
+    }
+
+    /* Grid Kunci Responsive */
+    .grid-table {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+    }
+    @media (min-width: 768px) { 
+        .grid-table { grid-template-columns: repeat(10, minmax(0, 1fr)); } 
+    }
+
+    .grid-cell-neo {
+        @apply border-2 border-black rounded-lg p-2 flex flex-col items-center justify-center bg-white transition-colors;
+    }
+    .grid-cell-neo input { 
+        @apply w-full text-center font-black text-lg bg-transparent outline-none border-none p-0 focus:ring-0 uppercase; 
+    }
+
+    /* Skeleton Loading Effect */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 pb-20 animate-slide-up">
+    
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-12 h-12 bg-yellow-400 border-2 border-black rounded-xl flex items-center justify-center font-black text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">1</div>
+        <div>
+            <h2 class="text-2xl font-black uppercase italic tracking-tight">Konfigurasi Kunci Jawaban</h2>
+            <p class="text-gray-500 font-medium text-sm">Tentukan kunci jawaban sebelum memproses LJK siswa</p>
+        </div>
+    </div>
+
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+        <div class="lg:col-span-4 space-y-6">
+            <div class="card-neo bg-blue-50">
+                <label class="block text-[10px] font-black uppercase mb-2 tracking-widest text-blue-600">Gunakan Database</label>
+                <select id="selectKunci" class="w-full p-3 border-2 border-black rounded-xl font-bold focus:ring-0 outline-none mb-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" onchange="pakaiKunciLama(this)">
+                    <option value="">-- Kunci Tersimpan --</option>
+                </select>
+
+                <div class="relative my-6 text-center">
+                    <span class="bg-blue-50 px-4 text-[10px] font-black text-gray-400 uppercase relative z-10">Atau Scan Baru</span>
+                    <hr class="border-gray-300 absolute top-1/2 w-full z-0">
+                </div>
+
+                <button onclick="document.getElementById('fileKunci').click()" class="w-full py-6 border-2 border-dashed border-black rounded-xl bg-white hover:bg-yellow-50 transition-colors flex flex-col items-center group">
+                    <input type="file" id="fileKunci" class="hidden" accept="image/*">
+                    <i class="fas fa-camera-retro text-3xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-black text-xs uppercase">UPLOAD FOTO KUNCI</span>
+                </button>
+            </div>
+
+            <div class="card-neo">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mapel</label>
+                        <input type="text" id="mapel" class="w-full bg-gray-50 border-b-2 border-black p-2 font-bold outline-none" readonly placeholder="...">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Kelas</label>
+                        <input type="text" id="kelas" class="w-full bg-gray-50 border-b-2 border-black p-2 font-bold outline-none" readonly placeholder="...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div id="tableKunciContainer" class="card-neo min-h-[400px] flex flex-col justify-center relative overflow-hidden bg-white">
+                
+                <div id="emptyState" class="text-center py-20">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-gray-300">
+                        <i class="fas fa-table text-2xl text-gray-300"></i>
+                    </div>
+                    <p class="font-bold text-gray-400 italic">Data kunci akan muncul setelah upload/pilih</p>
+                </div>
+
+                <div id="loadingGemini" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-10 text-center">
+                    <div class="relative w-24 h-24 mb-6">
+                        <div class="absolute inset-0 border-8 border-gray-100 rounded-full"></div>
+                        <div class="absolute inset-0 border-8 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                        <i class="fas fa-brain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-blue-600"></i>
+                    </div>
+                    <h4 class="text-xl font-black italic uppercase tracking-tighter">Gemini AI Processing</h4>
+                    <p class="text-sm text-gray-500 max-w-xs mt-2 font-medium">Mengekstrak data jawaban dari gambar...</p>
+                </div>
+
+                <div id="gridKunci" class="grid-table hidden p-4"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="flex items-center gap-4 mb-8">
+        <div id="step2Icon" class="w-12 h-12 bg-gray-200 border-2 border-gray-300 rounded-xl flex items-center justify-center font-black text-xl transition-all shadow-[4px_4px_0px_0px_rgba(200,200,200,1)]">2</div>
+        <div>
+            <h2 id="step2Title" class="text-2xl font-black uppercase italic tracking-tight text-gray-300">Scan LJK Siswa</h2>
+            <p class="text-gray-400 font-medium text-sm">Unggah satu atau banyak foto LJK sekaligus</p>
+        </div>
+    </div>
+
+    <section id="step2Section" class="opacity-40 transition-all duration-700 pointer-events-none">
+        <div class="card-neo bg-black text-white p-10 text-center relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-2 bg-yellow-400"></div>
+            <input type="file" id="fileLJK" class="hidden" accept="image/*" multiple>
+            
+            <i class="fas fa-file-invoice text-5xl mb-6 text-yellow-400 group-hover:rotate-12 transition-transform"></i>
+            <h3 class="text-3xl font-black mb-2 uppercase italic">Siap Koreksi Otomatis?</h3>
+            <p class="text-gray-400 mb-8 max-w-md mx-auto font-medium">Pilih file foto LJK siswa yang ingin diperiksa nilainya secara massal.</p>
+            
+            <button id="btnMulaiScan" disabled onclick="document.getElementById('fileLJK').click()"
+                    class="bg-yellow-400 text-black px-12 py-4 rounded-xl font-black uppercase text-lg shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 active:scale-95">
+                <i class="fas fa-bolt mr-2"></i> MULAI SCAN SEKARANG
+            </button>
+        </div>
+    </section>
+
+    <section id="resultSection" class="mt-20 space-y-8 hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-4 border-black pb-6">
+            <h3 class="text-4xl font-black uppercase italic tracking-tighter">
+                <i class="fas fa-chart-line mr-3 text-blue-600"></i>Laporan Hasil
+            </h3>
+            <button onclick="location.href='/dashboard'" class="card-neo bg-green-500 text-white py-3 px-10 font-black uppercase hover:bg-green-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                SIMPAN & SELESAI
+            </button>
+        </div>
+        <div id="containerHasil" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // LOAD DAFTAR KUNCI
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const res = await fetch('/api/list-kunci');
+            const data = await res.json();
+            const select = document.getElementById('selectKunci'); 
+            
+            data.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k.id;
+                opt.text = `${k.mapel} - Kelas ${k.kelas}`;
+                opt.dataset.json = JSON.stringify(k.kunci);
+                opt.dataset.mapel = k.mapel;
+                opt.dataset.kelas = k.kelas;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error("Gagal memuat daftar kunci"); }
+    });
+
+    // FUNGSI PAKAI KUNCI LAMA
+    function pakaiKunciLama(select) {
+        const opt = select.options[select.selectedIndex];
+        if (!opt.value) return;
+
+        document.getElementById('mapel').value = opt.dataset.mapel;
+        document.getElementById('kelas').value = opt.dataset.kelas;
+        
+        renderGrid(JSON.parse(opt.dataset.json));
+        activateStep2();
+    }
+
+    // 3. HANDLER UPLOAD KUNCI BARU (GEMINI AI)
+    document.getElementById('fileKunci').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        const container = document.getElementById('tableKunciContainer');
+        const loading = document.getElementById('loadingGemini');
+        const gridKunci = document.getElementById('gridKunci');
+
+        loading.classList.remove('hidden');
+        gridKunci.classList.add('hidden');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/proses-kunci', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                document.getElementById('mapel').value = result.mata_pelajaran || "NA";
+                document.getElementById('kelas').value = result.kelas || "NA";
+                
+                renderGrid(result.data); 
+                activateStep2();
+            } else {
+                alert("Gagal: " + result.message);
+            }
+        } catch (error) {
+            alert("Sistem error saat memproses kunci.");
+        } finally {
+            loading.classList.add('hidden');
+        }
+    });
+
+    // HANDLER SCAN LJK SISWA (BULK)
+    document.getElementById('fileLJK').addEventListener('change', async function(e) {
+        const fileList = e.target.files;
+        if (fileList.length === 0) return;
+
+        const btn = document.getElementById('btnMulaiScan');
+        const resultSection = document.getElementById('resultSection');
+        const containerHasil = document.getElementById('containerHasil');
+        const mapelAktif = document.getElementById('mapel').value;
+        const originalContent = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> MEMPROSES...';
+
+        const formData = new FormData();
+        formData.append('mapel_aktif', mapelAktif);
+        for (let i = 0; i < fileList.length; i++) {
+            formData.append('files', fileList[i]);
+        }
+
+        try {
+            const response = await fetch('/scan-bulk', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                resultSection.classList.remove('hidden');
+                containerHasil.innerHTML = ""; 
+
+                result.data.forEach((siswa, index) => {
+                    const cardId = `detail-${index}`;
+                    const perbandingan = siswa.perbandingan || [];
+                    
+                    if (siswa.is_duplicate) {
+                        containerHasil.innerHTML += `
+                            <div class="card-neo bg-yellow-50 border-yellow-400">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-black text-yellow-800 uppercase italic">${siswa.nama}</h4>
+                                        <p class="text-xs font-bold text-yellow-600">DUPLIKAT: Sudah ada nilai ${siswa.skor} pada mapel ini.</p>
+                                    </div>
+                                    <i class="fas fa-exclamation-triangle text-2xl text-yellow-400"></i>
+                                </div>
+                            </div>`;
+                        return;
+                    }
+
+                    containerHasil.innerHTML += `
+                        <div class="card-neo">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-black text-yellow-400 rounded-2xl flex flex-col items-center justify-center border-2 border-black shadow-[3px_3px_0px_0px_rgba(251,191,36,1)]">
+                                        <span class="text-[9px] font-black leading-none">SCORE</span>
+                                        <span class="text-3xl font-black">${siswa.skor}</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black uppercase text-xl italic leading-none">${siswa.nama}</h4>
+                                        <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase">Peserta: ${siswa.nomor_peserta}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[11px] font-black text-green-600 uppercase">Benar: ${siswa.detail.benar}</div>
+                                    <div class="text-[11px] font-black text-red-600 uppercase">Salah: ${siswa.detail.salah}</div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="toggleDetail('${cardId}')" class="w-full py-3 bg-gray-50 border-2 border-black rounded-xl text-xs font-black uppercase hover:bg-black hover:text-white transition-all">
+                                ANALISIS JAWABAN <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+
+                            <div id="${cardId}" class="mt-6 pt-6 border-t-2 border-dashed border-gray-200 hidden">
+                                <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                                    ${perbandingan.map(item => `
+                                        <div class="p-2 border-2 rounded-lg text-center ${item.status === 'correct' ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'}">
+                                            <div class="text-[8px] font-black text-gray-400">${item.no}</div>
+                                            <div class="font-black text-sm ${item.status === 'correct' ? 'text-green-700' : 'text-red-700'}">${item.siswa}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        } catch (error) {
+            alert("Kesalahan saat memproses scan massal.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            e.target.value = "";
+        }
+    });
+
+    // UTILITY FUNCTIONS
+    function renderGrid(data) {
+        const gridKunci = document.getElementById('gridKunci');
+        const empty = document.getElementById('emptyState');
+        gridKunci.innerHTML = "";
+        empty.classList.add('hidden');
+        gridKunci.classList.remove('hidden');
+
+        data.forEach((val, i) => {
+            gridKunci.innerHTML += `
+                <div class="grid-cell-neo">
+                    <span class="text-[10px] font-black text-gray-300 uppercase mb-1">${i+1}</span>
+                    <input type="text" maxlength="1" value="${val}">
+                </div>`;
+        });
+    }
+
+    function activateStep2() {
+        const step2Icon = document.getElementById('step2Icon');
+        const step2Title = document.getElementById('step2Title');
+        const step2Section = document.getElementById('step2Section');
+        const btn = document.getElementById('btnMulaiScan');
+
+        step2Icon.classList.replace('bg-gray-200', 'bg-yellow-400');
+        step2Icon.classList.replace('border-gray-300', 'border-black');
+        step2Icon.classList.replace('shadow-[4px_4px_0px_0px_rgba(200,200,200,1)]', 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]');
+        
+        step2Title.classList.remove('text-gray-300');
+        step2Section.classList.remove('opacity-40', 'pointer-events-none');
+        btn.disabled = false;
+        
+        setTimeout(() => step2Section.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+
+    function toggleDetail(id) {
+        const el = document.getElementById(id);
+        el.classList.toggle('hidden');
+    }
+</script>
+{% endblock %}
