@@ -1,7 +1,19 @@
 import os
+import socket
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+
+# Memaksa Python agar hanya menggunakan alamat IPv4 (AF_INET)
+# untuk setiap koneksi ke database Supabase
+def force_ipv4():
+    def getaddrinfo(*args, **kwargs):
+        # Memaksa agar hanya mengambil alamat IPv4
+        return [r for r in socket.getaddrinfo(*args, **kwargs) if r[0] == socket.AF_INET]
+    socket.getaddrinfo = getaddrinfo
+
+force_ipv4()
+# ---------------------------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
