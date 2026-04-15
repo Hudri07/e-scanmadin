@@ -6,13 +6,12 @@ from sqlalchemy import func
 
 # Import Internal
 from app.database.connection import get_db
+from app.core.templates import templates
 from app.api.dependencies import get_current_user
 from app.database.models import UserTable, SiswaTable, HasilUjianTable
 
 # Definisikan Router
 router = APIRouter()
-
-templates = Jinja2Templates(directory="app/templates")
 
 # --- PUBLIC ROUTES ---
 
@@ -20,7 +19,10 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """Halaman Login"""
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html"
+        )
 
 
 # --- PROTECTED ROUTES ---
@@ -60,17 +62,20 @@ async def dashboard(
     labels_grafik = [d[0] for d in grafik_data]
     values_grafik = [round(float(d[1]), 1) for d in grafik_data]
     
-    return templates.TemplateResponse("dashboard.html",{
-        "request": request,
-        "user": current_user,
-        "total_siswa": total_siswa,
-        "ujian_aktif": ujian_aktif,
-        "rata_nilai": rata_nilai,
-        "aktivitas": aktivitas_terbaru,
-        "labels_grafik": labels_grafik,
-        "values_grafik": values_grafik,
-        "perlu_koreksi": 0
-    })
+    return templates.TemplateResponse(
+        request= request,
+        name="dashboard.html",
+        context={
+            "user": current_user,
+            "total_siswa": total_siswa,
+            "ujian_aktif": ujian_aktif,
+            "rata_nilai": rata_nilai,
+            "aktivitas": aktivitas_terbaru,
+            "labels_grafik": labels_grafik,
+            "values_grafik": values_grafik,
+            "perlu_koreksi": 0
+            }
+        )
 
 @router.get("/koreksi", response_class=HTMLResponse)
 async def koreksi_page(
@@ -78,10 +83,13 @@ async def koreksi_page(
     current_user: UserTable = Depends(get_current_user)
 ):
     """Halaman Proses Scan LJK"""
-    return templates.TemplateResponse("koreksi.html", {
-        "request": request, 
-        "user": current_user
-    })
+    return templates.TemplateResponse(
+        request= request, 
+        name="koreksi.html", 
+        context={
+            "user": current_user
+            }
+        )
 
 
 @router.get("/manajemen-kelas", response_class=HTMLResponse)
@@ -117,17 +125,23 @@ async def manajemen_kelas(
             "nilai_lengkap": nilai_lengkap
         })
     
-    return templates.TemplateResponse("kelas.html", {
-        "request": request, 
+    return templates.TemplateResponse(
+        request= request, 
+        nama= "kelas.html", 
+        context={
         "user": current_user,
         "siswa": siswa_data,
         "kelas_list": kelas_list
-    })
+        }
+    )
 
 # Menampilkan Halaman Profile
 @router.get("/profile", response_class=HTMLResponse)
 async def get_profile(request: Request, user: UserTable = Depends(get_current_user)):
-    return templates.TemplateResponse("profile.html", {
-        "request": request, 
-        "user": user
-    })
+    return templates.TemplateResponse(
+        request= request, 
+        name="profile.html",
+        context= {
+            "user": user
+            }
+    )

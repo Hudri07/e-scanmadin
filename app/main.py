@@ -16,6 +16,7 @@ from app.database.connection import engine, get_db
 
 
 app = FastAPI(title=settings.PROJECT_NAME)
+templates = Jinja2Templates(directory="app/templates")
 
 # Buat tabel saat startup
 @app.on_event("startup")
