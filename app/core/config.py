@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
+from typing import List, Any
 
 class Settings(BaseSettings):
     # --- APP SETTINGS ---
@@ -12,9 +12,16 @@ class Settings(BaseSettings):
 
     # --- GEMINI SETTINGS ---
     GEMINI_API_KEY: str
+    GEMINI_MODEL_ID: str = "gemini-2.5-flash" 
 
     # --- DATABASE SETTINGS ---
     DATABASE_URL: str 
+
+    # --- HELPER UNTUK ROTASI KUNCI ---
+    @property
+    def api_key_list(self) -> List[str]:
+        # Mengubah string "KEY1,KEY2,KEY3" menjadi list ["KEY1", "KEY2", "KEY3"]
+        return [k.strip() for k in self.GEMINI_API_KEY.split(",") if k.strip()]
 
     # --- CONFIGURATION ---
     model_config = SettingsConfigDict(

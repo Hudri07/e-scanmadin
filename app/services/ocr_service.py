@@ -19,7 +19,8 @@ def preprocessing(image_path):
 
     # Cara aman ganti nama file apapun ekstensinya
     base_name = os.path.splitext(image_path)[0] 
-    processed_path = f"{base_name}_cleaned.jpg" # simpan semua jadi .jpg agar Gemini nyaman
+    processed_path = f"{base_name}_cleaned.jpg" 
     
     cv2.imwrite(processed_path, im_final)
+    cv2.destroyAllWindows()
     return processed_path

@@ -2,7 +2,7 @@
 
 {% block title %}Koreksi Ujian - E-SCAN MADIN{% endblock %}
 
-{% block page_title %}Koreksi LJK{% endblock %}
+{% block page_title %}Koreksi Lembar Jawab{% endblock %}
 {% block page_subtitle %}Proses pemindaian lembar jawaban otomatis berbasis AI{% endblock %}
 
 {% block extra_css %}
@@ -63,7 +63,7 @@
         <div class="w-12 h-12 bg-yellow-400 border-2 border-black rounded-xl flex items-center justify-center font-black text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">1</div>
         <div>
             <h2 class="text-2xl font-black uppercase italic tracking-tight">Konfigurasi Kunci Jawaban</h2>
-            <p class="text-gray-500 font-medium text-sm">Tentukan kunci jawaban sebelum memproses LJK siswa</p>
+            <p class="text-gray-500 font-medium text-sm">Tentukan kunci jawaban sebelum memproses Lembar Jawab siswa</p>
         </div>
     </div>
 
@@ -129,8 +129,8 @@
     <div class="flex items-center gap-4 mb-8">
         <div id="step2Icon" class="w-12 h-12 bg-gray-200 border-2 border-gray-300 rounded-xl flex items-center justify-center font-black text-xl transition-all shadow-[4px_4px_0px_0px_rgba(200,200,200,1)]">2</div>
         <div>
-            <h2 id="step2Title" class="text-2xl font-black uppercase italic tracking-tight text-gray-300">Scan LJK Siswa</h2>
-            <p class="text-gray-400 font-medium text-sm">Unggah satu atau banyak foto LJK sekaligus</p>
+            <h2 id="step2Title" class="text-2xl font-black uppercase italic tracking-tight text-gray-300">Scan Lembar Jawab Siswa</h2>
+            <p class="text-gray-400 font-medium text-sm">Unggah satu atau banyak foto Lembar Jawab sekaligus</p>
         </div>
     </div>
 
@@ -141,7 +141,7 @@
             
             <i class="fas fa-file-invoice text-5xl mb-6 text-yellow-400 group-hover:rotate-12 transition-transform"></i>
             <h3 class="text-3xl font-black mb-2 uppercase italic">Siap Koreksi Otomatis?</h3>
-            <p class="text-gray-400 mb-8 max-w-md mx-auto font-medium">Pilih file foto LJK siswa yang ingin diperiksa nilainya secara massal.</p>
+            <p class="text-gray-400 mb-8 max-w-md mx-auto font-medium">Pilih file foto Lembar Jawab siswa yang ingin diperiksa nilainya secara massal.</p>
             
             <button id="btnMulaiScan" disabled onclick="document.getElementById('fileLJK').click()"
                     class="bg-yellow-400 text-black px-12 py-4 rounded-xl font-black uppercase text-lg shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 active:scale-95">
@@ -182,13 +182,20 @@
                 opt.dataset.kelas = k.kelas;
                 select.appendChild(opt);
             });
-        } catch (e) { console.error("Gagal memuat daftar kunci"); }
+        } catch (e) { 
+
+            showToast("Gagal memuat daftar kunci dari server", "error");
+
+            console.error("Gagal memuat daftar kunci"); 
+        }
     });
 
     // FUNGSI PAKAI KUNCI LAMA
     function pakaiKunciLama(select) {
         const opt = select.options[select.selectedIndex];
         if (!opt.value) return;
+
+        showToast("Kunci jawaban dari database berhasil dimuat", "success");
 
         document.getElementById('mapel').value = opt.dataset.mapel;
         document.getElementById('kelas').value = opt.dataset.kelas;
@@ -197,7 +204,7 @@
         activateStep2();
     }
 
-    // 3. HANDLER UPLOAD KUNCI BARU (GEMINI AI)
+    //  HANDLER UPLOAD KUNCI BARU (GEMINI AI)
     document.getElementById('fileKunci').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if(!file) return;
@@ -213,29 +220,34 @@
         formData.append('file', file);
 
         try {
-            const response = await fetch('/proses-kunci', { method: 'POST', body: formData });
+            const response = await fetch('/api/proses-kunci', { method: 'POST', body: formData });
             const result = await response.json();
 
             if (result.status === 'success') {
+
+                showToast("Kunci Jawaban berhasil diproses!", "success");
+
                 document.getElementById('mapel').value = result.mata_pelajaran || "NA";
                 document.getElementById('kelas').value = result.kelas || "NA";
                 
                 renderGrid(result.data); 
                 activateStep2();
             } else {
-                alert("Gagal: " + result.message);
+                showToast("Gagal: " + result.message, "error");
             }
         } catch (error) {
-            alert("Sistem error saat memproses kunci.");
+            showToast("Sistem error saat memproses kunci.", "error");
         } finally {
             loading.classList.add('hidden');
         }
     });
 
-    // HANDLER SCAN LJK SISWA (BULK)
+    // HANDLER SCAN Lembar Jawab SISWA (BULK)
     document.getElementById('fileLJK').addEventListener('change', async function(e) {
         const fileList = e.target.files;
         if (fileList.length === 0) return;
+
+        showToast(`Memproses ${fileList.length} LJK siswa...`, "info");
 
         const btn = document.getElementById('btnMulaiScan');
         const resultSection = document.getElementById('resultSection');
@@ -253,10 +265,13 @@
         }
 
         try {
-            const response = await fetch('/scan-bulk', { method: 'POST', body: formData });
+            const response = await fetch('/api/scan-bulk', { method: 'POST', body: formData });
             const result = await response.json();
 
             if (result.status === 'success') {
+
+                showToast("Scan Lembar Jawab Siswa selesai diproses!", "success");
+
                 resultSection.classList.remove('hidden');
                 containerHasil.innerHTML = ""; 
 
@@ -265,6 +280,8 @@
                     const perbandingan = siswa.perbandingan || [];
                     
                     if (siswa.is_duplicate) {
+
+                        showToast(`Data duplikat: ${siswa.nama}`, "warning");
                         containerHasil.innerHTML += `
                             <div class="card-neo bg-yellow-50 border-yellow-400">
                                 <div class="flex justify-between items-center">
@@ -288,7 +305,12 @@
                                     </div>
                                     <div>
                                         <h4 class="font-black uppercase text-xl italic leading-none">${siswa.nama}</h4>
-                                        <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase">Peserta: ${siswa.nomor_peserta}</p>
+                                        <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase">
+                                        Peserta:
+                                        <input id="peserta-${index}" 
+                                            value="${siswa.nomor_peserta}" 
+                                            class="border-b-2 border-black bg-transparent text-xs font-black w-24 text-center">
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -316,7 +338,7 @@
                 resultSection.scrollIntoView({ behavior: 'smooth' });
             }
         } catch (error) {
-            alert("Kesalahan saat memproses scan massal.");
+            showToast("Kesalahan saat memproses scan massal.", "error");
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalContent;

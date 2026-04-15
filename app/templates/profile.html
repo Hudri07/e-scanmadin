@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Profil Saya - E-SCAN MADIN{% endblock %}
+{% block page_title %}Profil Pengguna{% endblock %}
+{% block page_subtitle %}Pengaturan akun dan keamanan{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 md:px-0"> 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        
+        <div class="md:col-span-1">
+            <div class="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 text-center rounded-3xl">
+                
+                <div class="w-24 h-24 bg-black text-white border-4 border-black mx-auto mb-4 flex items-center justify-center rounded-2xl">
+                    <span class="text-4xl font-black uppercase">{{ user.username[:3] if user.username else 'ADM' }}</span>
+                </div>
+                
+                <h2 id="display_full_name" class="text-xl font-black uppercase italic">{{ user.full_name }}</h2>
+                
+                <div class="mt-6 pt-6 border-t-2 border-dashed border-black text-left">
+                    <p class="text-[10px] font-black uppercase text-gray-400">Username Sistem</p>
+                    <p class="font-bold text-sm truncate uppercase italic">@{{ user.username }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 space-y-8">
+            
+            <div class="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-3xl p-8">
+                <h3 class="text-lg font-black uppercase mb-6 flex items-center">
+                    <i class="fas fa-user-circle mr-3"></i> Informasi Dasar
+                </h3>
+                
+                <form id="updateProfileForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase mb-1">Nama Lengkap</label>
+                        <input type="text" name="full_name" value="{{ user.full_name }}" 
+                            class="w-full border-2 border-black p-3 font-bold focus:bg-gray-100 outline-none" 
+                            placeholder="Contoh: Ahmad Hudri" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase mb-1">Alamat Email</label>
+                        <input type="email" name="email" value="{{ user.email or '' }}" 
+                            class="w-full border-2 border-black p-3 font-bold focus:bg-gray-100 outline-none" 
+                            placeholder="email@contoh.com">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-white text-black py-3 font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all border-2 border-black active:translate-x-1 active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        SIMPAN PERUBAHAN
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-3xl p-8">
+                <h3 class="text-lg font-black uppercase mb-6 flex items-center">
+                    <i class="fas fa-shield-halved mr-3"></i> Keamanan Akun
+                </h3>
+                
+                <form id="updatePasswordForm" class="space-y-4">
+                    <div class="relative">
+                        <label class="block text-xs font-black uppercase mb-1">Password Baru</label>
+                        <div class="relative">
+                            <input type="password" id="new_password" name="new_password" 
+                                class="w-full border-2 border-black p-3 font-bold focus:bg-gray-100 outline-none pr-12" 
+                                placeholder="••••••••" required>
+                            <button type="button" onclick="togglePassword('new_password', this)" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <label class="block text-xs font-black uppercase mb-1">Konfirmasi Password</label>
+                        <div class="relative">
+                            <input type="password" id="confirm_password" name="confirm_password" 
+                                class="w-full border-2 border-black p-3 font-bold focus:bg-gray-100 outline-none pr-12" 
+                                placeholder="••••••••" required>
+                            <button type="button" onclick="togglePassword('confirm_password', this)" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-black text-white py-4 font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all border-2 border-black active:translate-x-1 active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        PERBARUI PASSWORD
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle Eye Icon
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Update Profile (Nama & Email)
+    document.getElementById('updateProfileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        try {
+            const res = await fetch('/profile/update', {
+                method: 'POST',
+                body: formData
+            });
+
+            if(res.ok) {
+                showToast("Profil berhasil diperbarui", "success");
+                // Update nama di sidebar secara instan tanpa reload
+                document.getElementById('display_full_name').innerText = formData.get('full_name');
+            } else {
+                showToast("Gagal memperbarui profil", "error");
+            }
+        } catch(err) {
+            showToast("Kesalahan sistem", "error");
+        }
+    };
+
+    // Update Password
+    document.getElementById('updatePasswordForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        if(formData.get('new_password') !== formData.get('confirm_password')) {
+            return showToast("Password tidak cocok!", "error");
+        }
+
+        try {
+            const res = await fetch('/profile/change-password', {
+                method: 'POST',
+                body: formData
+            });
+
+            if(res.ok) {
+                showToast("Password berhasil diganti", "success");
+                e.target.reset();
+                document.getElementById('new_password').type = 'password';
+                document.getElementById('confirm_password').type = 'password';
+            } else {
+                const errDetail = await res.json();
+                showToast(errDetail.detail || "Gagal ganti password", "error");
+            }
+        } catch(err) {
+            showToast("Kesalahan sistem", "error");
+        }
+    };
+</script>
+{% endblock %}

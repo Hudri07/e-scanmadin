@@ -1,15 +1,18 @@
+import os
+from dotenv import load_dotenv
+
+# Load file .env 
+load_dotenv() 
+
+# Pastikan URL terbaca
+print(f"DEBUG: URL Database adalah -> {os.getenv('DATABASE_URL')}")
+
 from app.database.connection import SessionLocal, engine 
 from app.database.models import Base, UserTable 
-from app.core.security import get_password_hash # Sesuaikan dengan lokasi security kamu
-import os
+from app.core.security import get_password_hash 
 
 def create_initial_admin():
-    # Pastikan folder data ada di root sebelum membuat database
-    if not os.path.exists("data"):
-        os.makedirs("data")
-        print("Folder 'data' dibuat di root.")
-
-    # Membuat file .db dan tabel users di folder data root
+    # Membuat tabel di database (Neon/Postgres)
     Base.metadata.create_all(bind=engine)
     
     db = SessionLocal()
@@ -19,15 +22,15 @@ def create_initial_admin():
             admin = UserTable(
                 username="admin",
                 full_name="Administrator Madin",
-                email="saepoo334@gmail.com",
+                email="hudri366@gmail.com",
                 hashed_password=get_password_hash("Madin2026*"), 
                 disabled=False
             )
             db.add(admin)
             db.commit()
-            print("Akun admin berhasil dibuat!")
+            print("Akun admin berhasil dibuat di Neon!")
         else:
-            print("Admin sudah ada di database.")
+            print("ℹAdmin sudah ada di database.")
     except Exception as e:
         print(f"Terjadi kesalahan: {e}")
     finally:

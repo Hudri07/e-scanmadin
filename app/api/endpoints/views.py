@@ -123,3 +123,11 @@ async def manajemen_kelas(
         "siswa": siswa_data,
         "kelas_list": kelas_list
     })
+
+# Menampilkan Halaman Profile
+@router.get("/profile", response_class=HTMLResponse)
+async def get_profile(request: Request, user: UserTable = Depends(get_current_user)):
+    return templates.TemplateResponse("profile.html", {
+        "request": request, 
+        "user": user
+    })

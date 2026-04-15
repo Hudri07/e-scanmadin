@@ -33,13 +33,18 @@
 
     .title { 
         color: var(--font-color); 
-        font-weight: 900; 
-        font-size: 25px; 
-        margin-bottom: 10px; 
+        display: flex;             
+        flex-direction: column;    
+        align-items: center;       
+        justify-content: center;   
+        text-align: center;        
         line-height: 1.2;
     }
-    
-    .title span { color: #666; font-weight: 600; font-size: 16px; }
+
+    .title span {
+        color: #666; 
+        font-weight: 600; 
+        font-size: 16px; }
 
     .input-group {
         position: relative;
@@ -129,7 +134,11 @@
 {% block content %}
 <div class="login-container">
     <form class="form" id="loginForm">
-        <div class="title">E-SCAN MADIN<br><span>Silahkan masuk ke sistem</span></div>
+        <div class="title">
+            <img src="{{ url_for('static', path='/images/logo.svg') }}" 
+                alt="E-SCAN MADIN">
+            <span>Silahkan masuk ke sistem</span>
+        </div>
         
         <div id="error-msg">
             <i class="fas fa-exclamation-triangle mr-2"></i> Username atau password salah!

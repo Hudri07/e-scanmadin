@@ -20,7 +20,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # Setup Static Files
-# app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Daftarkan Global Exception Handler
 app.add_exception_handler(401, unauthorized_handler)

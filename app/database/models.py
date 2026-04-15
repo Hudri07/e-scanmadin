@@ -27,9 +27,13 @@ class KunciJawabanTable(Base):
 class HasilUjianTable(Base):
     __tablename__ = "hasil_ujian"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    nomor_peserta = Column(String, ForeignKey("siswa.nomor_peserta", onupdate="CASCADE"))
+    nomor_peserta = Column(
+        String, 
+        ForeignKey("siswa.nomor_peserta", onupdate="CASCADE", ondelete="CASCADE")
+    )
     mapel = Column(String)
     skor = Column(Float)
     tanggal = Column(DateTime(timezone=True), server_default=func.now())
+    telegram_file_id = Column(String, nullable=True)
     
-    __table_args__ = (UniqueConstraint('nomor_peserta', 'mapel', name='_siswa_mapel_uc'),)
+    __table_args__ = (UniqueConstraint('nomor_peserta', 'mapel', name='siswa_mapel_uc'),)

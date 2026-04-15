@@ -36,34 +36,43 @@ async def update_siswa(
     db: Session = Depends(get_db),
     _ = Depends(get_current_user)
 ):
-    # Cari data siswa yang mau diedit
-    siswa = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == old_nomor_peserta).first()
+    # Cari apakah siswa ada
+    query = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == old_nomor_peserta)
+    siswa = query.first()
+    
     if not siswa:
         raise HTTPException(status_code=404, detail="Siswa tidak ditemukan")
     
-    # Jika nomor peserta diubah, cek apakah nomor baru sudah ada yang punya
+    # Jika nomor peserta diubah, cek duplikasi
     if nomor_peserta != old_nomor_peserta:
         existing = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == nomor_peserta).first()
         if existing:
-            raise HTTPException(status_code=400, detail=f"Nomor {nomor_peserta} sudah digunakan siswa lain")
+            raise HTTPException(status_code=400, detail=f"Nomor {nomor_peserta} sudah digunakan")
 
-    # Eksekusi perubahan
+    # Eksekusi menggunakan .update()
     try:
-        siswa.nomor_peserta = nomor_peserta
-        siswa.nama = nama
-        siswa.kelas = kelas
+        query.update({
+            SiswaTable.nomor_peserta: nomor_peserta,
+            SiswaTable.nama: nama,
+            SiswaTable.kelas: kelas
+        }, synchronize_session='fetch') # Penting agar session sinkron
+        
         db.commit()
         return {"status": "success", "message": "Data berhasil diperbarui"}
     except Exception as e:
         db.rollback()
-        # Cetak error ke terminal uvicorn untuk debug lebih lanjut
-        print(f"Update Error: {str(e)}")
-        raise HTTPException(status_code=400, detail="Gagal memperbarui data database")
+        print(f"Update Error Detail: {str(e)}")
+        raise HTTPException(status_code=400, detail="Gagal memperbarui database. Pastikan format benar.")
 
 # Hapus siswa
 @router.delete("/delete/{nomor_peserta}")
-async def delete_siswa(nomor_peserta: str, db: Session = Depends(get_db), _ = Depends(get_current_user)):
-    siswa = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == nomor_peserta).first()
+async def delete_siswa(
+    nomor_peserta: str, 
+    db: Session = Depends(get_db), 
+    _ = Depends(get_current_user)
+    ):
+    siswa = db.query(SiswaTable).filter(
+        SiswaTable.nomor_peserta == nomor_peserta).first()
     if not siswa:
         raise HTTPException(status_code=404, detail="Siswa tidak ditemukan")
     
