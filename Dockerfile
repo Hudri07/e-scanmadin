@@ -1,27 +1,17 @@
-# Gunakan image Python slim yang ringan
-FROM python:3.12-slim
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Gunakan image resmi uv yang sudah siap pakai
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 WORKDIR /app
 
-# Install uv (tools untuk manajemen package yang cepat)
-RUN pip install uv
-
-# Copy file konfigurasi dependency
+# Copy file konfigurasi dependency saja
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies
-RUN uv sync --frozen
+# Install dependencies menggunakan uv secara langsung
+# Ini menggantikan kebutuhan akan skrip eksternal .sh
+RUN uv sync --frozen --no-dev
 
 # Copy seluruh source code
 COPY . .
 
-# Beritahu port yang digunakan
-EXPOSE 8000
-
-# Command untuk menjalankan aplikasi
-# Pastikan main.py ada di dalam folder app/
+# Jalankan aplikasi (sesuaikan path ke main.py Anda)
 CMD ["uv", "run", "fastapi", "run", "app/main.py", "--port", "8000"]
