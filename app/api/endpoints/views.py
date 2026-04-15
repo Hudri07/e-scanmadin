@@ -127,7 +127,7 @@ async def manajemen_kelas(
     
     return templates.TemplateResponse(
         request= request, 
-        nama= "kelas.html", 
+        name= "kelas.html", 
         context={
         "user": current_user,
         "siswa": siswa_data,
