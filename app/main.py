@@ -14,10 +14,13 @@ from app.core.exceptions import unauthorized_handler, forbidden_handler
 from app.database import models
 from app.database.connection import engine, get_db
 
-# Inisialisasi Tabel Database
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=settings.PROJECT_NAME)
+
+# Buat tabel saat startup
+@app.on_event("startup")
+def startup():
+    models.Base.metadata.create_all(bind=engine)
 
 # Setup Static Files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
