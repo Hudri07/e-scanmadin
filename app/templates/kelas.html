@@ -203,22 +203,41 @@
     async function unduhPDF(index) {
         const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
         const s = filtered[index];
-        const n = s.nilai_lengkap[0];
+        
+        if (!s.nilai_lengkap || s.nilai_lengkap.length === 0){
+            return showToast("Siswa belum memiliki nilai !", "error");
+        }
+
+        const daftarNilai = s.nilai_lengkap && s.nilai_lengkap.length > 0 ? s.nilai_lengkap : [];
 
         const dataKirim = {
             nama: s.nama,
             nomor_peserta: s.nomor_peserta,
-            mapel: n.mapel,
-            skor: n.skor,
+            list_nilai: daftarNilai.map(n =>({
+                mapel: n.mapel,
+                skor: n.skor,
+            })),
+            tahun_hijriyah: "1447",
+            tahun_masehi: "2026",
+            lokasi: "Slawi",
+            kepala_madrasah: "Nasikhah S.Pd.I"
         };
+        try{
+            const response = await fetch('/ekspor-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataKirim)
+            });
 
-        const response = await fetch('/ekspor-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataKirim)
-        });
-        const blob = await response.blob();
-        saveBlob(blob, `Hasil_${s.nama}.pdf`);
+            if(!response.ok) throw new Error("Gagal Generate PDF")
+
+            const blob = await response.blob();
+            saveBlob(blob, `Hasil_${s.nama}.pdf`);
+
+        }catch (err){
+            showToast(err.message, "Error")
+        }
+
     }
 
     function saveBlob(blob, filename) {

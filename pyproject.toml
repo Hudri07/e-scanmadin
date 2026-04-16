@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.135.3",
     "fpdf2>=2.8.7",
     "google-genai>=1.73.1",
+    "hijri-converter>=2.3.2.post1",
     "imutils>=0.5.4",
     "jinja2>=3.1.6",
     "numpy==1.26.4",
