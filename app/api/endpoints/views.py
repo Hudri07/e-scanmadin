@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from datetime import datetime, timedelta
 
 # Import Internal
 from app.database.connection import get_db
@@ -72,8 +73,7 @@ async def dashboard(
             "rata_nilai": rata_nilai,
             "aktivitas": aktivitas_terbaru,
             "labels_grafik": labels_grafik,
-            "values_grafik": values_grafik,
-            "perlu_koreksi": 0
+            "values_grafik": values_grafik
             }
         )
 
