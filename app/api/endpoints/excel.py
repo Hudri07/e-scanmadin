@@ -42,6 +42,17 @@ async def ekspor_excel(data: List[dict]):
             worksheet.merge_cells('B1:B2')
             worksheet['B1'] = 'Nama Siswa'
 
+            # AUTO-FIT UNTUK KOLOM MAPEL (Mulai dari kolom C dan seterusnya)
+            for i, mapel in enumerate(list_mapel, start=3): # start=3 artinya kolom C
+                kolom_letter = get_column_letter(i)
+                
+                # Hitung panjang teks (judul mapel)
+                # beri sedikit padding agar tidak terlalu mepet
+                panjang_teks = len(str(mapel)) +  10
+                
+                # Atur lebar kolom berdasarkan panjang judul mapel
+                worksheet.column_dimensions[kolom_letter].width = panjang_teks
+
             # MERGE HORIZONTAL (Mata Pelajaran)
             if jumlah_mapel > 0:
                 kolom_awal_mapel = "C"
