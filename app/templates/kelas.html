@@ -8,8 +8,8 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="md:col-span-1 space-y-4">
         <div class="card p-4 rounded-xl shadow-sm border-2 border-black bg-white">
-            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Daftar Kelas</h3>
-            <div class="space-y-2">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Daftar Kelas</h3>
+            <div class="space-y-2 mb-6">
                 {% if kelas_list %}
                     {% for k in kelas_list %}
                     <button onclick="filterSiswa('{{ k }}')" 
@@ -25,11 +25,22 @@
                     <p class="text-sm text-gray-400 text-center py-4">Belum ada data kelas.</p>
                 {% endif %}
             </div>
+
+            <hr class="border-t-2 border-gray-100 mb-4">
+
+            <div class="space-y-2">
+                <h3 class="font-black text-[10px] uppercase text-gray-400 tracking-widest">Cari di Kelas Ini</h3>
+                <div class="relative">
+                    <input type="text" id="fastSearch" placeholder="Ketik nama..." 
+                        class="w-full p-3 border-2 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-all text-sm">
+                    <i class="fas fa-search absolute right-3 top-4 text-gray-400 text-xs"></i>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="md:col-span-2">
-        <div id="welcomeMessage" class="card h-64 flex flex-col items-center justify-center rounded-xl border-dashed border-4 border-gray-200">
+        <div id="welcomeMessage" class="card h-64 flex flex-col items-center justify-center rounded-xl border-dashed border-4 border-gray-200 bg-white">
             <i class="fas fa-user-graduate text-5xl text-gray-200 mb-3"></i>
             <p class="text-gray-400 font-medium">Pilih kelas untuk mengelola data siswa</p>
         </div>
@@ -41,22 +52,22 @@
                     <span id="studentCount" class="bg-black text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-tighter">0 Siswa</span>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="eksporSemua()" class="bg-green-600 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs">
-                        <i class="fas fa-file-excel mr-2"></i>REKAP KELAS
+                    <button onclick="eksporSemua()" class="bg-green-600 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs uppercase">
+                        <i class="fas fa-file-excel mr-2"></i>Rekap
                     </button>
-                    <button onclick="openAddModal()" class="bg-blue-500 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs">
-                        <i class="fas fa-plus mr-2"></i>TAMBAH SISWA
+                    <button onclick="openAddModal()" class="bg-blue-500 text-white px-4 py-2 rounded border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all font-bold text-xs uppercase">
+                        <i class="fas fa-plus mr-2"></i>Tambah
                     </button>
                 </div>
             </div>
             
             <div class="card overflow-hidden rounded-xl border-2 border-black shadow-sm bg-white">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-gray-100 border-b-2 border-black">
+                    <thead class="bg-gray-100 border-b-2 border-black text-[10px] uppercase tracking-widest">
                         <tr>
-                            <th class="px-6 py-4 font-bold text-black uppercase text-xs">Identitas</th>
-                            <th class="px-6 py-4 font-bold text-black uppercase text-xs">Nilai Terakhir</th>
-                            <th class="px-6 py-4 font-bold text-black uppercase text-xs text-center">Aksi</th>
+                            <th class="px-6 py-4 font-bold text-black">Identitas</th>
+                            <th class="px-6 py-4 font-bold text-black">Nilai Terakhir</th>
+                            <th class="px-6 py-4 font-bold text-black text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody">
@@ -68,7 +79,7 @@
 </div>
 
 <div id="siswaModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] w-full max-w-md overflow-hidden">
+    <div class="bg-white rounded-xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
         <div class="bg-yellow-400 p-4 border-b-4 border-black flex justify-between items-center">
             <h3 id="modalTitle" class="font-black uppercase tracking-tight text-black">Form Siswa</h3>
             <button onclick="closeModal()" class="text-black hover:rotate-90 transition-transform"><i class="fas fa-times fa-lg"></i></button>
@@ -94,26 +105,32 @@
     </div>
 </div>
 
-<div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+<div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
     <div class="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full max-w-sm mx-4 rounded-xl">
-        <h3 class="text-xl font-black uppercase mb-4">Konfirmasi Hapus</h3>
-        <p id="deleteMessage" class="mb-6 font-bold">Apakah Anda yakin ingin menghapus data ini?</p>
+        <h3 class="text-xl font-black uppercase mb-2">Konfirmasi Hapus</h3>
+        <p id="deleteMessage" class="mb-6 font-bold text-gray-500 text-sm">Apakah Anda yakin ingin menghapus data ini?</p>
         <div class="flex gap-4">
-            <button onclick="closeDeleteModal()" class="flex-1 border-2 border-black py-2 font-black uppercase hover:bg-gray-100">Batal</button>
-            <button onclick="confirmDelete()" class="flex-1 bg-red-500 text-white border-2 border-black py-2 font-black uppercase hover:bg-red-600">Hapus</button>
+            <button onclick="closeDeleteModal()" class="flex-1 border-2 border-black py-2 font-black uppercase text-xs hover:bg-gray-100">Batal</button>
+            <button onclick="confirmDelete()" class="flex-1 bg-red-500 text-white border-2 border-black py-2 font-black uppercase text-xs hover:bg-red-600">Hapus</button>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Inisialisasi Data dari Backend
     let allStudents = JSON.parse('{{ (siswa | default([])) | tojson | safe }}');
     let currentFilteredClass = "";
+    let targetDeleteNo = null;
 
+    // FUNGSI FILTER KELAS
     function filterSiswa(namaKelas) {
         currentFilteredClass = namaKelas;
+        
+        // Bersihkan input cari saat ganti kelas
+        document.getElementById('fastSearch').value = "";
+
         const container = document.getElementById('siswaContainer');
         const welcome = document.getElementById('welcomeMessage');
         const tableBody = document.getElementById('studentTableBody');
@@ -126,12 +143,11 @@
         
         tableBody.innerHTML = "";
 
-        filtered.forEach((s, index) => {
+        filtered.forEach((s) => {
             let nilaiHtml = "";
             let aksiEkspor = "";
 
             if (s.nilai_lengkap && s.nilai_lengkap.length > 0) {
-                // Tampilkan 2 nilai terakhir saja agar tidak kepanjangan
                 nilaiHtml = s.nilai_lengkap.slice(0, 2).map(n => `
                     <div class="flex justify-between items-center bg-gray-50 border border-black/10 p-2 mb-1 rounded">
                         <span class="text-[9px] font-black uppercase text-gray-500">${n.mapel}</span>
@@ -139,9 +155,8 @@
                     </div>
                 `).join('');
 
-                // Tombol PDF khusus untuk data yang ada nilainya
                 aksiEkspor = `
-                    <button onclick="unduhPDF(${index})" class="text-red-500 hover:scale-110 transition" title="Cetak PDF">
+                    <button onclick='unduhPDF(${JSON.stringify(s)})' class="text-red-500 hover:scale-110 transition" title="Cetak PDF">
                         <i class="fas fa-file-pdf"></i>
                     </button>
                 `;
@@ -150,9 +165,9 @@
             }
 
             const row = `
-                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                <tr class="student-row border-b border-gray-100 hover:bg-gray-50 transition">
                     <td class="px-6 py-4 align-top">
-                        <div class="font-black text-gray-900">${s.nama}</div>
+                        <div class="font-black text-gray-900 student-name">${s.nama}</div>
                         <div class="text-[10px] font-bold text-gray-400 mono uppercase">${s.nomor_peserta}</div>
                     </td>
                     <td class="px-6 py-4 align-top w-48">
@@ -178,11 +193,24 @@
         container.classList.remove('hidden');
     }
 
-    // --- FUNGSI EKSPOR ---
+    // LOGIKA CARI CEPAT 
+    const searchInput = document.getElementById('fastSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.student-row');
+            
+            rows.forEach(row => {
+                const name = row.querySelector('.student-name').textContent.toLowerCase();
+                row.style.display = name.includes(filter) ? "" : "none";
+            });
+        });
+    }
 
+    // FUNGSI EKSPOR EXCEL
     async function eksporSemua() {
         const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
-        if (filtered.length === 0) return alert("Tidak ada data");
+        if (filtered.length === 0) return showToast("Tidak ada data", "info");
 
         const dataEkspor = filtered.map(s => ({
             nomor_peserta: s.nomor_peserta,
@@ -191,53 +219,46 @@
             skor: (s.nilai_lengkap && s.nilai_lengkap.length > 0) ? s.nilai_lengkap[0].skor : 0,
         }));
 
-        const response = await fetch('/unduh/ekspor-excel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataEkspor)
-        });
-        const blob = await response.blob();
-        saveBlob(blob, `Rekap_Kelas_${currentFilteredClass}.xlsx`);
+        try {
+            const response = await fetch('/unduh/ekspor-excel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataEkspor)
+            });
+            const blob = await response.blob();
+            saveBlob(blob, `Rekap_Kelas_${currentFilteredClass}.xlsx`);
+        } catch(e) { 
+            showToast("Gagal ekspor data", "error"); }
     }
 
-    async function unduhPDF(index) {
-        const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
-        const s = filtered[index];
-        
-        if (!s.nilai_lengkap || s.nilai_lengkap.length === 0){
-            return showToast("Siswa belum memiliki nilai !", "error");
+    // FUNGSI EKSPOR PDF
+    async function unduhPDF(s) {
+        if (!s.nilai_lengkap || s.nilai_lengkap.length === 0) {
+            return showToast("Siswa belum memiliki nilai!", "info");
         }
-
-        const daftarNilai = s.nilai_lengkap && s.nilai_lengkap.length > 0 ? s.nilai_lengkap : [];
 
         const dataKirim = {
             nama: s.nama,
             nomor_peserta: s.nomor_peserta,
-            list_nilai: daftarNilai.map(n =>({
-                mapel: n.mapel,
-                skor: n.skor,
-            })),
+            list_nilai: s.nilai_lengkap.map(n => ({ mapel: n.mapel, skor: n.skor })),
             tahun_hijriyah: "1447",
             tahun_masehi: "2026",
             lokasi: "Slawi",
             kepala_madrasah: "Nasikhah S.Pd.I"
         };
-        try{
+
+        try {
             const response = await fetch('/ekspor-pdf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataKirim)
             });
-
-            if(!response.ok) throw new Error("Gagal Generate PDF")
-
+            if(!response.ok) throw new showToast("Gagal Generate PDF", "error");
             const blob = await response.blob();
             saveBlob(blob, `Hasil_${s.nama}.pdf`);
-
-        }catch (err){
-            showToast(err.message, "Error")
+        } catch (err) { 
+            showToast("Terjadi Kesalahan sistem", "error"); 
         }
-
     }
 
     function saveBlob(blob, filename) {
@@ -249,7 +270,7 @@
         window.URL.revokeObjectURL(url);
     }
 
-    // --- LOGIC CRUD MODAL ---
+    // LOGIKA MODAL CRUD
     const modal = document.getElementById('siswaModal');
     const form = document.getElementById('siswaForm');
 
@@ -264,7 +285,6 @@
     function openEditModal(no) {
         const s = allStudents.find(x => x.nomor_peserta === no);
         if(!s) return;
-        
         document.getElementById('modalTitle').innerText = "Edit Data Siswa";
         document.getElementById('old_nomor_peserta').value = s.nomor_peserta;
         document.getElementById('nomor_peserta').value = s.nomor_peserta;
@@ -281,43 +301,37 @@
         const formData = new FormData(form);
         const url = oldNo ? `/siswa/update/${oldNo}` : '/siswa/add';
         
-        // Ambil data dari form untuk update lokal
         const dataBaru = {
             nomor_peserta: document.getElementById('nomor_peserta').value,
             nama: document.getElementById('nama').value,
             kelas: document.getElementById('kelas').value,
-            nilai_lengkap: [] // Inisialisasi kosong jika tambah baru
+            nilai_lengkap: [] 
         };
 
         try {
             const res = await fetch(url, { method: 'POST', body: formData });
             if (res.ok) {
                 if (oldNo) {
-                    // UPDATE LOKAL: Cari indeks data lama dan ganti
-                    const index = allStudents.findIndex(s => s.nomor_peserta === oldNo);
-                    if (index !== -1) {
-                        // Pertahankan nilai_lengkap yang sudah ada
-                        dataBaru.nilai_lengkap = allStudents[index].nilai_lengkap;
-                        allStudents[index] = dataBaru;
+                    const idx = allStudents.findIndex(s => s.nomor_peserta === oldNo);
+                    if (idx !== -1) {
+                        dataBaru.nilai_lengkap = allStudents[idx].nilai_lengkap;
+                        allStudents[idx] = dataBaru;
                     }
                 } else {
-                    // TAMBAH LOKAL: Masukkan ke array
                     allStudents.push(dataBaru);
                 }
-
                 showToast("Data berhasil disimpan", "success");
                 closeModal();
-                
-                // Re-render tabel tanpa refresh halaman
                 filterSiswa(dataBaru.kelas); 
-            } else {
-                showToast("Gagal menyimpan data", "error");
+            } else { 
+                showToast("Gagal menyimpan data", "error"); 
             }
-        } catch (err) {
+        } catch (err) { 
             showToast("Terjadi kesalahan sistem", "error");
         }
     };
 
+    // LOGIKA HAPUS
     function deleteSiswa(no) {
         targetDeleteNo = no;
         document.getElementById('deleteMessage').innerText = `Hapus siswa ${no}? Data akan hilang permanen.`;
@@ -325,27 +339,23 @@
     }
 
     function closeDeleteModal() {
-        targetDeleteNo = null;
         document.getElementById('deleteModal').classList.add('hidden');
     }
 
     async function confirmDelete() {
         if (!targetDeleteNo) return;
-        
         try {
             const res = await fetch(`/siswa/delete/${targetDeleteNo}`, { method: 'DELETE' });
             if (res.ok) {
                 allStudents = allStudents.filter(s => s.nomor_peserta !== targetDeleteNo);
-                filterSiswa(currentFilteredClass); // Refresh tampilan
-
+                filterSiswa(currentFilteredClass);
                 showToast("Data berhasil dihapus", "success");
-
                 closeDeleteModal();
             } else {
-                alert("Gagal menghapus");
+                showToast("Data Gagal dihapus", "error");
             }
-        } catch (err) {
-            console.error(err);
+        } catch (e) { 
+            showToast("Terjadi kesalahan sistem", "error");
         }
     }
 </script>

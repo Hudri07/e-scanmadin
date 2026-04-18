@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Request, Depends, status
+from fastapi import APIRouter, Request, Depends, status, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from datetime import datetime, timedelta
 
 # Import Internal
@@ -95,45 +95,69 @@ async def koreksi_page(
 @router.get("/manajemen-kelas", response_class=HTMLResponse)
 async def manajemen_kelas(
     request: Request, 
+    page: int = Query(1, ge=1),
+    search: str = Query(None),
+    kelas: str = Query(None),
     db: Session = Depends(get_db), 
     current_user: UserTable = Depends(get_current_user)
 ):
-    """Halaman Pengaturan Data Siswa"""
-    # Ambil semua data siswa dari database
-    semua_siswa = db.query(SiswaTable).all()
-
-    kelas_list = db.query(SiswaTable.kelas).distinct().all()
-    kelas_list = [k[0] for k in kelas_list if k[0]]
-
-   # Susun data siswa beserta seluruh nilai mapelnya
+    # 1. Base query
+    query = db.query(SiswaTable)
+    
+    # 2. Filter kelas
+    if kelas:
+        query = query.filter(SiswaTable.kelas == kelas)
+        
+    # 3. Filter pencarian
+    if search:
+        search_filter = f"%{search}%"
+        query = query.filter(
+            or_(
+                SiswaTable.nama.ilike(search_filter),
+                SiswaTable.nomor_peserta.ilike(search_filter)
+            )
+        )
+    
+    # 4. Pagination (Limit 10 per halaman)
+    limit = 10
+    total_siswa = query.count()
+    total_pages = (total_siswa + limit - 1) // limit if total_siswa > 0 else 1
+    offset = (page - 1) * limit
+    
+    # 5. Eksekusi data
+    data_siswa_raw = query.offset(offset).limit(limit).all()
+    
+    # 6. Susun data dengan nilai
     siswa_data = []
-    for s in semua_siswa:
-        # Cari Semua hasil ujian untuk nomor peserta ini
+    for s in data_siswa_raw:
         daftar_hasil = db.query(HasilUjianTable).filter(
             HasilUjianTable.nomor_peserta == s.nomor_peserta
         ).all()
-        
-        # Format menjadi list of dict agar mudah di-loop di JavaScript
-        nilai_lengkap = [
-            {"mapel": h.mapel, "skor": h.skor} for h in daftar_hasil
-        ]
-        
         siswa_data.append({
             "nomor_peserta": s.nomor_peserta,
             "nama": s.nama,
             "kelas": s.kelas,
-            "nilai_lengkap": nilai_lengkap
+            "nilai_lengkap": [{"mapel": h.mapel, "skor": h.skor} for h in daftar_hasil]
         })
     
+    # 7. Ambil daftar kelas untuk menu (tetap ambil semua untuk dropdown)
+    kelas_list = [k[0] for k in db.query(SiswaTable.kelas).distinct().all() if k[0]]
+
     return templates.TemplateResponse(
-        request= request, 
-        name= "kelas.html", 
-        context={
-        "user": current_user,
-        "siswa": siswa_data,
-        "kelas_list": kelas_list
+        request= request,
+        name="kelas.html", 
+        context= {
+            "request": request,
+            "user": current_user,
+            "siswa": siswa_data,
+            "kelas_list": kelas_list,
+            "current_page": page,
+            "total_pages": total_pages,
+            "search": search,
+            "active_kelas": kelas
         }
     )
+
 
 # Menampilkan Halaman Profile
 @router.get("/profile", response_class=HTMLResponse)
