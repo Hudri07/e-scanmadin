@@ -79,3 +79,4 @@ async def delete_siswa(
     db.delete(siswa)
     db.commit()
     return{"status":"success"}
+
