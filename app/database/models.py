@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, DateTime, Boolean, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, DateTime, Boolean, UniqueConstraint, BigInteger
 from sqlalchemy.sql import func
 from .connection import Base
 
@@ -34,6 +34,6 @@ class HasilUjianTable(Base):
     mapel = Column(String)
     skor = Column(Float)
     tanggal = Column(DateTime(timezone=True), server_default=func.now())
-    telegram_file_id = Column(String, nullable=True)
+    telegram_message_id = Column(BigInteger, nullable=True)
     
     __table_args__ = (UniqueConstraint('nomor_peserta', 'mapel', name='siswa_mapel_uc'),)

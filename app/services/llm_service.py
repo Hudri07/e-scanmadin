@@ -57,34 +57,23 @@ def get_data_from_gemini(image_path: str):
         return json.dumps({"error": str(e)})
 
 def get_identitas_siswa(image_path: str):
-    """Fungsi untuk ekstraksi NAMA & NOMOR PESERTA."""
+    """Fungsi untuk ekstraksi NAMA"""
     img = Image.open(image_path)
     
     prompt = """
-    Ekstrak data dari LJK Madin ini. Fokus utama adalah pada kolom "NOMOR PESERTA" (تُوْمُوْرْ قَسَرْتَا).
-
-    Perhatikan hanya 3 kolom paling kanan di bawah label 'NOMOR PESERTA' (تُوْمُوْرْ قَسَرْتَا). Setiap kolom adalah digit tunggal (0-9) yang ditentukan oleh arsiran lingkaran hitam.
-
-    ATURAN EKSTRAKSI:
-    1. Bagian depan nomor peserta sudah diketahui: "26-06-0056-1-".
-    2. TUGAS ANDA: Ekstrak 3 digit terakhir (XXX) dari arsiran bulatan pada 3 kolom paling kanan di bagian "NOMOR PESERTA" (تُوْمُوْرْ قَسَرْتَا).
-    3. ABAIKAN teks tulisan tangan di atas kotak, gunakan HANYA posisi arsiran bulatan untuk menentukan angka.
-    4. Gabungkan prefix statis dengan 3 digit hasil arsiran tersebut.
-
+    Ekstrak data dari LJK Madin ini.
+   
     FORMAT OUTPUT (JSON MURNI):
     {
-    "nama": "NAMA LENGKAP SISWA",
-    "nomor_peserta": "26-06-0056-1-XXX"
+    "nama": "NAMA LENGKAP SISWA"
     }
-    Contoh: Jika arsiran pada 3 kolom terakhir menunjukkan 0, 0, 5, maka "nomor_peserta": "26-06-0056-1-005".
     """
     try:
         response = call_gemini(img, prompt) # Panggil lewat fungsi retry
         data = json.loads(response.text)
         return {
             "nama": data.get("nama", "TIDAK TERDETEKSI").upper(),
-            "nomor_peserta": data.get("nomor_peserta", "-")
         }
     except Exception as e:
         print(f"Error LLM Identitas setelah retry: {e}")
-        return {"nama": "TIDAK TERDETEKSI", "nomor_peserta": "-"}
+        return {"nama": "TIDAK TERDETEKSI"}

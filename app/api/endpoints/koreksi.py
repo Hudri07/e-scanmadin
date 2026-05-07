@@ -1,3 +1,4 @@
+import cv2
 import os
 import io
 import shutil
@@ -14,10 +15,11 @@ from app.services.ocr_service import preprocessing
 from app.services.llm_service import get_data_from_gemini, get_identitas_siswa
 from app.services.omr_service import scan_jawaban
 from app.services.scorer_service import hitung_skor
-from app.services.telegram_service import send_to_telegram
+from app.services.telegram_service import send_to_telegram, edit_telegram_caption
 from app.api.dependencies import get_current_user
 from app.database.connection import get_db
 from app.database import models
+from app.schemas.hasil import PayloadSimpanHasil
 
 # Definisikan Router
 router = APIRouter()
@@ -116,6 +118,8 @@ async def scan_bulk(
     if not kunci_db:
         raise HTTPException(status_code=400, detail="Kunci jawaban tidak ditemukan!")
 
+    kelas_asli = kunci_db.kelas
+
     # Jika data sudah list, jangan di-json.loads lagi
     if isinstance(kunci_db.kunci_json, str):
         kunci_jawaban = json.loads(kunci_db.kunci_json)
@@ -126,17 +130,27 @@ async def scan_bulk(
     
     for file in files:
         file_content = await file.read()
-        file_path = os.path.join(UPLOAD_DIR, f"temp_{file.filename}")
+        file_path = os.path.join(UPLOAD_DIR, f"temp_{uuid.uuid4().hex}_{file.filename}")
         
         with open(file_path, "wb") as buffer:
             buffer.write(file_content)
 
         try:
-            time.sleep(1.5)
-            identitas = get_identitas_siswa(file_path)
-            nomor_peserta = identitas.get("nomor_peserta")
+            # Berikan sedikit jeda agar proses file sistem stabil
+            time.sleep(0.2)
+
+            # Jalankan OMR
+            hasil_omr = scan_jawaban(file_path)
+            jawaban_siswa = hasil_omr["jawaban"]
+            nomor_omr = hasil_omr["nomor"]
+
+            # Kirim Ke LLM GEMINI 
+            identitas = get_identitas_siswa(file_path) 
             nama_siswa = identitas.get("nama", "Tanpa Nama")
             
+            # Gabungkan format nomor peserta
+            nomor_peserta = f"26-06-0056-1-{nomor_omr}"
+
             # --- CEK DUPLIKAT NILAI ---
             exists = db.query(models.HasilUjianTable).filter(
                 and_(
@@ -155,13 +169,6 @@ async def scan_bulk(
                 })
                 continue
 
-            # --- AUTO REGISTER SISWA ---
-            siswa = db.query(models.SiswaTable).filter_by(nomor_peserta=nomor_peserta).first()
-            if not siswa:
-                siswa = models.SiswaTable(nomor_peserta=nomor_peserta, nama=nama_siswa, kelas=kunci_db.kelas)
-                db.add(siswa)
-                db.flush()
-
             # INTEGRASI TELEGRAM
             caption = (f" Koreksi Berhasil\n\n"
                        f" Siswa: {nama_siswa}\n"
@@ -169,21 +176,11 @@ async def scan_bulk(
                        f" Mapel: {mapel_aktif}\n"
             )
             
-            tele_file_id = await send_to_telegram(file_content, file.filename, caption)
+            tele_msg_id = await send_to_telegram(file_content, file.filename, caption)
 
             # --- PROSES SKOR ---
-            jawaban_siswa = scan_jawaban(file_path)
             if jawaban_siswa:
                 skor, benar, salah, perbandingan = hitung_skor(jawaban_siswa, kunci_jawaban)
-                
-                new_hasil = models.HasilUjianTable(
-                    nomor_peserta=nomor_peserta,
-                    mapel=mapel_aktif,
-                    skor=float(skor),
-                    telegram_file_id=tele_file_id
-                )
-                db.add(new_hasil)
-                db.commit()
 
                 hasil_bulk.append({
                     "nama": nama_siswa,
@@ -192,15 +189,81 @@ async def scan_bulk(
                     "is_duplicate": False,
                     "detail": {"benar": benar, "salah": salah}, 
                     "perbandingan": perbandingan, 
+                    "telegram_message_id": tele_msg_id
+                })
+            else:
+                hasil_bulk.append({
+                    "nama": file.filename, 
+                    "message": "Gagal mendeteksi jawaban pada lembar LJK",
+                    "status": "error"
                 })
                 
         except Exception as e:
             print(f"ERROR processing {file.filename}: {e}")
             db.rollback()
-            hasil_bulk.append({"nama": file.filename, "message": f"Gagal proses: {str(e)}"})
+            hasil_bulk.append({
+                "nama": file.filename, 
+                "message": f"Gagal proses: {str(e)}",
+                "status": "error"
+                })
             
         finally:
+            # Selalu hapus file temporary setelah diproses
             if os.path.exists(file_path): 
                 os.remove(file_path)
             
     return {"status": "success", "data": hasil_bulk}
+
+@router.post("/simpan-hasil")
+async def simpan_hasil_manual(payload: PayloadSimpanHasil, db: Session = Depends(get_db)):
+    try:
+        # Ambil info kelas dari Kunci Jawaban berdasarkan Mapel
+        kunci_info = db.query(models.KunciJawabanTable).filter_by(mapel=payload.mapel).first()
+        kelas_asli = kunci_info.kelas if kunci_info else "Tidak Diketahui"
+        
+        for s in payload.siswa:
+            # 1. Logic Pencarian/Pendaftaran Siswa
+            siswa = db.query(models.SiswaTable).filter_by(nomor_peserta=s.nomor_peserta_baru).first()
+            if not siswa:
+                siswa = models.SiswaTable(
+                    nomor_peserta=s.nomor_peserta_baru, 
+                    nama=s.nama,
+                    kelas=kelas_asli
+                )
+                db.add(siswa)
+                db.flush()
+
+            # 2. Update atau Insert Nilai
+            hasil = db.query(models.HasilUjianTable).filter(
+                and_(
+                    models.HasilUjianTable.nomor_peserta == s.nomor_peserta_baru,
+                    models.HasilUjianTable.mapel == payload.mapel
+                )
+            ).first()
+
+            if hasil:
+                hasil.skor = s.skor
+                hasil.telegram_message_id = s.telegram_message_id
+            else:
+                hasil = models.HasilUjianTable(
+                    nomor_peserta=s.nomor_peserta_baru,
+                    mapel=payload.mapel,
+                    skor=s.skor
+                )
+                db.add(hasil)
+            
+            # KIRIM KE TELEGRAM 
+            caption_final = (
+                f" **HASIL UJIAN TERVERIFIKASI**\n\n"
+                f" Nama: {s.nama}\n"
+                f" Nomor Peserta: {s.nomor_peserta_baru}\n"
+                f" Mata Pelajaran: {payload.mapel}\n"
+                f" **Skor Akhir: {s.skor}**"
+            )
+            await edit_telegram_caption(s.telegram_message_id, caption_final)
+        
+        db.commit()
+        return {"status": "success", "message": "Data berhasil diperbarui dan dikirim ke Telegram"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

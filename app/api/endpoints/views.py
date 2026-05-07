@@ -22,7 +22,10 @@ async def login_page(request: Request):
     """Halaman Login"""
     return templates.TemplateResponse(
         request=request,
-        name="login.html"
+        name="login.html",
+        context={
+            "user": None
+            }
         )
 
 

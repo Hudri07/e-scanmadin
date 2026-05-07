@@ -66,16 +66,21 @@ async def update_siswa(
 
 # Hapus siswa
 @router.delete("/delete/{nomor_peserta}")
-async def delete_siswa(
-    nomor_peserta: str, 
-    db: Session = Depends(get_db), 
-    _ = Depends(get_current_user)
-    ):
-    siswa = db.query(SiswaTable).filter(
-        SiswaTable.nomor_peserta == nomor_peserta).first()
-    if not siswa:
-        raise HTTPException(status_code=404, detail="Siswa tidak ditemukan")
+async def delete_siswa(nomor_peserta: str, db: Session = Depends(get_db)):
+    # Cari siswanya
+    siswa = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == nomor_peserta).first()
     
-    db.delete(siswa)
-    db.commit()
-    return{"status":"success"}
+    if not siswa:
+        # Jika tidak ketemu, bersihkan whitespace 
+        siswa = db.query(SiswaTable).filter(SiswaTable.nomor_peserta == nomor_peserta.strip()).first()
+
+    if not siswa:
+        raise HTTPException(status_code=404, detail=f"Siswa {nomor_peserta} tidak ditemukan")
+
+    try:
+        db.delete(siswa)
+        db.commit()
+        return {"status": "success", "message": f"Data {nomor_peserta} berhasil dihapus!"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Gagal menghapus: {str(e)}")

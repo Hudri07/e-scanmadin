@@ -4,191 +4,221 @@
 
 {% block extra_css %}
 <style>
+    /* Hope UI Theme Colors & Smoothness */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
     .login-container {
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f0f0f0;
-        padding: 20px;
+        padding: 24px;
+        background-image: radial-gradient(#d1d5db 0.5px, transparent 0.5px);
+        background-size: 24px 24px; /* Dot pattern subtle background */
     }
 
-    /* Neo-Brutalism Form Style */
-    .form {
-        --input-focus: #2d8cf0;
-        --font-color: #323232;
-        --main-color: #323232;
-        --bg-color: #fff;
-        padding: 40px;
+    .login-card {
         background: white;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        border-radius: 5px;
-        border: 2px solid var(--main-color);
-        box-shadow: 8px 8px var(--main-color);
+        padding: 2.5rem;
+        border-radius: 2rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
         width: 100%;
-        max-width: 400px;
+        max-width: 450px;
+        border: 1px solid rgba(229, 231, 235, 0.5);
     }
 
-    .title { 
-        color: var(--font-color); 
-        display: flex;             
-        flex-direction: column;    
-        align-items: center;       
-        justify-content: center;   
-        text-align: center;        
-        line-height: 1.2;
+    .logo-box {
+        margin-bottom: 2rem;
+        text-align: center;
     }
 
-    .title span {
-        color: #666; 
-        font-weight: 600; 
-        font-size: 16px; }
+    .logo-box img {
+        height: 50px;
+        margin: 0 auto 1rem;
+    }
 
-    .input-group {
-        position: relative;
+    .login-card h2 {
+        color: #1f2937;
+        font-weight: 800;
+        font-size: 1.5rem;
+        letter-spacing: -0.025em;
+    }
+
+    .login-card p {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .input-wrapper {
+        margin-bottom: 1.25rem;
+    }
+
+    .input-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #9ca3af;
+        margin-bottom: 0.5rem;
+        padding-left: 0.25rem;
+    }
+
+    .hope-input {
         width: 100%;
-    }
-
-    .input {
-        width: 100%; 
-        height: 45px; 
-        border-radius: 5px; 
-        border: 2px solid var(--main-color);
-        background-color: var(--bg-color); 
-        box-shadow: 4px 4px var(--main-color);
-        font-size: 15px; 
-        font-weight: 600; 
-        padding: 5px 15px; 
+        padding: 0.875rem 1.25rem;
+        background-color: #f3f4f6;
+        border: 2px solid transparent;
+        border-radius: 1rem;
+        font-weight: 600;
+        color: #374151;
+        transition: all 0.3s ease;
         outline: none;
-        transition: all 0.2s;
     }
 
-    .input:focus { 
-        border-color: var(--input-focus);
-        transform: translate(-1px, -1px);
-        box-shadow: 5px 5px var(--main-color);
+    .hope-input:focus {
+        background-color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
-    /* Password Toggle Button Style */
+    /* Password Toggle Inside Input */
+    .password-group {
+        position: relative;
+    }
+
     .password-toggle {
         position: absolute;
-        right: 12px;
-        top: 5px;
-        height: 35px;
-        width: 35px;
-        background: white;
-        border: 2px solid var(--main-color);
-        box-shadow: 2px 2px var(--main-color);
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
         cursor: pointer;
-        transition: 0.1s;
-        z-index: 10;
+        transition: color 0.2s;
+        border: none;
+        background: none;
     }
 
-    .password-toggle:active {
-        box-shadow: 0px 0px var(--main-color);
-        transform: translate(2px, 2px);
+    .password-toggle:hover {
+        color: #3b82f6;
     }
 
-    .button-confirm {
-        margin-top: 10px; 
-        width: 100%; 
-        height: 45px; 
-        border-radius: 5px;
-        border: 2px solid var(--main-color); 
-        background-color: var(--bg-color);
-        box-shadow: 4px 4px var(--main-color); 
-        font-size: 17px; 
-        font-weight: 900;
-        cursor: pointer; 
-        transition: 0.2s;
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        margin-top: 1rem;
     }
 
-    .button-confirm:hover {
-        background-color: #f8f8f8;
+    .btn-login:hover {
+        background-color: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
     }
 
-    .button-confirm:active { 
-        box-shadow: 0px 0px var(--main-color); 
-        transform: translate(4px, 4px); 
+    .btn-login:active {
+        transform: translateY(0);
     }
 
-    #error-msg { 
-        color: #e11d48; 
-        font-weight: 700; 
-        font-size: 14px; 
-        display: none; 
-        padding: 10px;
-        border: 2px solid #e11d48;
-        background: #fff1f2;
-        box-shadow: 3px 3px #e11d48;
+    #error-msg {
+        display: none;
+        background-color: #fff1f2;
+        border: 1px solid #fda4af;
+        color: #e11d48;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="login-container">
-    <form class="form" id="loginForm">
-        <div class="title">
-            <img src="{{ url_for('static', path='/images/logo.svg') }}" 
-                alt="E-SCAN MADIN">
-            <span>Silahkan masuk ke sistem</span>
+    <div class="login-card">
+        <div class="logo-box">
+            <img src="{{ url_for('static', path='/images/logo.svg') }}" alt="Logo">
+            <h2>Selamat Datang!</h2>
+            <p>E-SCAN MADIN Management System</p>
         </div>
-        
+
         <div id="error-msg">
-            <i class="fas fa-exclamation-triangle mr-2"></i> Username atau password salah!
+            <i class="fas fa-exclamation-circle mr-2"></i> Username/Password salah!
         </div>
 
-        <div class="input-group">
-            <input type="text" placeholder="Username" name="username" id="username" class="input" required>
-        </div>
+        <form id="loginForm">
+            <div class="input-wrapper">
+                <label class="input-label">Username</label>
+                <input type="text" name="username" id="username" class="hope-input" placeholder="Masukkan username" required>
+            </div>
 
-        <div class="input-group">
-            <input type="password" placeholder="Password" name="password" id="password" class="input" required>
-            <button type="button" onclick="togglePassword()" class="password-toggle" title="Lihat Password">
-                <i class="fas fa-eye" id="eyeIcon"></i>
+            <div class="input-wrapper">
+                <label class="input-label">Password</label>
+                <div class="password-group">
+                    <input type="password" name="password" id="password" class="hope-input" placeholder="••••••••" required>
+                    <button type="button" onclick="togglePassword()" class="password-toggle">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Masuk Sekarang <i class="fas fa-arrow-right ml-2"></i>
             </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Madrasah Diniyah Digital &copy; 2026
+            </p>
         </div>
-        
-        <button type="submit" class="button-confirm">MASUK →</button>
-        
-        <p class="text-xs text-gray-500 mt-4 text-center font-bold">
-            MADRASAH DINIYAH DIGITAL © 2026
-        </p>
-    </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Fungsi Toggle Password
     function togglePassword() {
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eyeIcon');
         
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
+            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
         } else {
             passwordInput.type = 'password';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
+            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 
-    // Handle Login Form
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('error-msg');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.style.display = 'none';
+
+        // Efek loading pada tombol
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
 
         const formData = new FormData();
         formData.append('username', document.getElementById('username').value);
@@ -201,16 +231,17 @@
             });
 
             if (response.ok) {
-                // Redirect ke dashboard
                 window.location.href = '/dashboard';
             } else {
                 errorMsg.style.display = 'block';
-                // Reset password field untuk keamanan
                 document.getElementById('password').value = '';
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         } catch (err) {
-            console.error("Login error:", err);
-            alert("Gagal menghubungi server. Pastikan aplikasi FastAPI sudah berjalan.");
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            alert("Gagal menghubungi server.");
         }
     });
 </script>
