@@ -38,7 +38,7 @@ def get_data_from_gemini(image_path: str):
     prompt = """
     Ekstrak data dari LJK Madin ini (KUNCI JAWABAN):
     1. mata_pelajaran (string)
-    2. kelas (string)
+    2. kelas (string) Ambil data kelas. WAJIB konversi ke format Angka Romawi diikuti teks dalam kurung dengan huruf kapital di awal (Contoh: "IV (Empat)", "V (Lima)", "VI (Enam)")
     3. jawaban (array of string, contoh: ["A", "B", ...])
     
     Format JSON:

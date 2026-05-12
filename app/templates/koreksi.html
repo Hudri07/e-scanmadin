@@ -241,6 +241,20 @@
         </div>
     </div>
 
+    <div id="loadingGemini" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-sm">
+        <div class="text-center">
+            <div class="relative w-24 h-24 mx-auto mb-6">
+                <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-robot text-3xl text-blue-600 animate-bounce"></i>
+                </div>
+            </div>
+            <h3 class="text-xl font-jakarta font-black text-gray-800 mb-2">Gemini AI Memproses...</h3>
+            <p class="text-gray-400 font-medium animate-pulse">Sedang mengekstrak kunci jawaban dari foto</p>
+        </div>
+    </div>
+
     <div class="relative mb-12">
         <div class="flex items-start gap-6">
             <div id="step2Icon" class="w-12 h-12 bg-gray-100 text-gray-400 rounded-2xl flex-shrink-0 flex items-center justify-center font-bold text-xl transition-all z-10">2</div>
@@ -367,6 +381,7 @@
     document.getElementById('fileKunci').onchange = async function(e) {
         const file = e.target.files[0];
         if(!file) return;
+        
         const loading = document.getElementById('loadingGemini');
         loading.classList.remove('hidden');
         
@@ -381,9 +396,16 @@
                 document.getElementById('kelas').value = result.kelas || "NA";
                 renderGrid(result.data);
                 activateStep2();
+                showToast("Kunci Berhasil Diekstrak AI", "success");
+            } else {
+                showToast("Gagal memproses kunci", "error");
             }
+        } catch (error) {
+            console.error(error);
+            showToast("Koneksi bermasalah", "error");
         } finally {
             loading.classList.add('hidden');
+            e.target.value = '';
         }
     };
 
