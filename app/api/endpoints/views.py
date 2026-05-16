@@ -172,3 +172,17 @@ async def get_profile(request: Request, user: UserTable = Depends(get_current_us
             "user": user
             }
     )
+
+@router.get("/manajemen-kunci", response_class=HTMLResponse)
+async def manajemen_kunci_page(
+    request: Request, 
+    current_user: UserTable = Depends(get_current_user)
+):
+    """Halaman Master Data Kunci Jawaban"""
+    return templates.TemplateResponse(
+        request=request, 
+        name="manajemen_kunci.html",
+        context={
+            "user": current_user
+        }
+    )

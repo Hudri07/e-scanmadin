@@ -10,6 +10,17 @@
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
+    @font-face {
+        font-family: 'Gebuk';
+        src: url('/static/fonts/gebuk.regular.ttf') format('truetype'); /* Pastikan path benar */
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    .font-logo-gebuk {
+        font-family: 'Gebuk', sans-serif;
+    }
+
     .login-container {
         min-height: 100vh;
         display: flex;
@@ -35,9 +46,9 @@
         text-align: center;
     }
 
-    .logo-box img {
-        height: 50px;
-        margin: 0 auto 1rem;
+    .logo-box h1 {
+        line-height: 1;
+        padding-bottom: 5px;
     }
 
     .login-card h2 {
@@ -153,9 +164,9 @@
 <div class="login-container">
     <div class="login-card">
         <div class="logo-box">
-            <img src="{{ url_for('static', path='/images/logo.svg') }}" alt="Logo">
+            <h1 class="font-logo-gebuk text-5xl text-blue-600 mb-2 drop-shadow-sm">E-Tashih</h1>
             <h2>Selamat Datang!</h2>
-            <p>E-SCAN MADIN Management System</p>
+            <p>Sistem Verifikasi & Koreksi LJK Digital</p>
         </div>
 
         <div id="error-msg">

@@ -234,7 +234,12 @@
                                 <p class="font-bold text-gray-400 italic text-sm">Data kunci akan tampil di sini</p>
                             </div>
                             <div id="gridKunci" class="grid-table hidden p-2"></div>
+                            <div id="actionKunci" class="hidden p-4 border-t border-gray-50 flex justify-end">
+                                <button onclick="simpanPerubahanKunci()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all">
+                                    <i class="fas fa-save mr-2"></i> Simpan Perubahan Kunci
+                                </button>
                             </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -304,20 +309,23 @@
 
 {% block extra_js %}
 <script>
+    let currentKunciId = null;
     // FUNGSI RENDER GRID
     function renderGrid(data) {
         const gridKunci = document.getElementById('gridKunci');
         const empty = document.getElementById('emptyState');
+        const actionKunci = document.getElementById('actionKunci');
         gridKunci.innerHTML = "";
         empty.classList.add('hidden');
         gridKunci.classList.remove('hidden');
+        actionKunci.classList.remove('hidden');
 
         data.forEach((val, i) => {
             gridKunci.innerHTML += `
                 <div class="grid-cell-hope group">
                     <span class="text-[9px] font-black text-gray-300 uppercase mb-1 group-hover:text-blue-500 transition-colors">${i+1}</span>
                     <input type="text" maxlength="1" value="${val}" 
-                           class="w-full text-center font-jakarta font-black text-lg bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
+                        class="kunci-input w-full text-center font-jakarta font-black text-lg bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
                 </div>`;
         });
     }
@@ -371,6 +379,8 @@
     function pakaiKunciLama(select) {
         const opt = select.options[select.selectedIndex];
         if (!opt.value) return;
+
+        currentKunciId = opt.value;
         showToast("Kunci dimuat", "success");
         document.getElementById('mapel').value = opt.dataset.mapel;
         document.getElementById('kelas').value = opt.dataset.kelas;
@@ -392,6 +402,8 @@
             const res = await fetch('/api/proses-kunci', { method: 'POST', body: formData });
             const result = await res.json();
             if(result.status === 'success') {
+                currentKunciId = result.id;
+
                 document.getElementById('mapel').value = result.mata_pelajaran || "NA";
                 document.getElementById('kelas').value = result.kelas || "NA";
                 renderGrid(result.data);
@@ -408,6 +420,40 @@
             e.target.value = '';
         }
     };
+
+    async function simpanPerubahanKunci() {
+        if (!currentKunciId) {
+            showToast("ID Kunci tidak ditemukan. Silakan pilih atau upload kunci dulu.", "error");
+            return;
+        }
+
+        // Ambil nilai terbaru dari input Mapel dan Kelas
+        const mapelBaru = document.getElementById('mapel').value;
+        const kelasBaru = document.getElementById('kelas').value;
+
+        // Ambil semua jawaban dari grid
+        const inputs = document.querySelectorAll('.kunci-input');
+        const jawabanBaru = Array.from(inputs).map(input => input.value.toUpperCase() || "-");
+
+        const formData = new FormData();
+        formData.append('id_kunci', currentKunciId);
+        formData.append('mapel', mapelBaru);   
+        formData.append('kelas', kelasBaru);
+        formData.append('jawaban', JSON.stringify(jawabanBaru));
+
+        try {
+            const res = await fetch('/kunci/update-kunci-manual', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+            if (result.status === 'success') {
+                showToast("Perubahan kunci berhasil disimpan!", "success");
+            }
+        } catch (error) {
+            showToast("Gagal menyimpan perubahan", "error");
+        }
+    }
 
     document.getElementById('fileLJK').onchange = async function(e) {
         const fileList = e.target.files;

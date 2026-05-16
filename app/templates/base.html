@@ -1,321 +1,488 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}E-SCAN MADIN{% endblock %}</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <style>
-        body { font-family: "Inter", sans-serif; background: #f8f9fa; color: #232d42; overflow-x: hidden; }
-        .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8f9fa;
+        color: #232d42;
+        overflow-x: hidden;
+      }
+      @font-face {
+        font-family: "Gebuk";
+        src: url("/static/fonts/gebuk.regular.ttf") format("truetype"); /* Pastikan path benar */
+        font-weight: normal;
+        font-style: normal;
+      }
 
-        /* Container untuk background lengkungan */
-        .header-shape {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 320px; /* Sedikit lebih tinggi dari header */
-            background: linear-gradient(135deg, #3a57e8 0%, #1d36ad 100%);
-            z-index: -10;
-            overflow: hidden;
-            border-radius: 0 0 50px 50px; /* Lengkungan bawah container utama */
+      .font-logo-gebuk {
+        font-family: "Gebuk", sans-serif;
+      }
+
+      .font-jakarta {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      /* Container untuk background lengkungan */
+      .header-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 320px; /* Sedikit lebih tinggi dari header */
+        background: linear-gradient(135deg, #3a57e8 0%, #1d36ad 100%);
+        z-index: -10;
+        overflow: hidden;
+        border-radius: 0 0 50px 50px; /* Lengkungan bawah container utama */
+      }
+
+      /* Pseudo-element untuk membuat layer lengkungan tambahan */
+      .header-shape::before {
+        content: "";
+        position: absolute;
+        bottom: -50px;
+        left: -10%;
+        width: 120%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        transform: rotate(-5deg);
+      }
+
+      .header-shape::after {
+        content: "";
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 70%;
+        height: 120%;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        border-radius: 50%;
+      }
+
+      /* Sidebar Transition Logic */
+      /* Sidebar Default State */
+      #sidebar {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(0); /* Default terbuka */
+      }
+
+      #mainContent {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @media (max-width: 767px) {
+        #sidebar {
+          transform: translateX(-100%);
+        }
+        #mainContent {
+          margin-left: 0 !important;
         }
 
-        /* Pseudo-element untuk membuat layer lengkungan tambahan */
-        .header-shape::before {
-            content: "";
-            position: absolute;
-            bottom: -50px;
-            left: -10%;
-            width: 120%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            transform: rotate(-5deg);
+        /* State saat sidebar dibuka di mobile */
+        .sidebar-open #sidebar {
+          transform: translateX(0);
         }
+      }
 
-        .header-shape::after {
-            content: "";
-            position: absolute;
-            top: -20%;
-            right: -10%;
-            width: 70%;
-            height: 120%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-            border-radius: 50%;
-        }
+      /* Desktop: Logika toggle manual jika user ingin menutup sidebar di layar besar */
+      .sidebar-closed #sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar-closed #mainContent {
+        margin-left: 0 !important;
+      }
 
-        /* Sidebar Transition Logic */
-        #sidebar { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        #mainContent { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Sidebar Hidden State (Mobile & Desktop) */
-        .sidebar-closed #sidebar { transform: translateX(-100%); }
-        .sidebar-closed #mainContent { margin-left: 0; }
+      /* Menu Item Styles */
+      .menu-item {
+        transition: all 0.3s ease;
+        color: #8a92a6;
+      }
+      .menu-item:hover {
+        background: rgba(58, 87, 232, 0.05);
+        color: #3a57e8;
+      }
+      .menu-item.active {
+        background: #3a57e8;
+        color: #ffffff;
+        box-shadow: 0 10px 20px -10px rgba(58, 87, 232, 0.5);
+      }
 
-        /* Menu Item Styles */
-        .menu-item { transition: all 0.3s ease; color: #8a92a6; }
-        .menu-item:hover { background: rgba(58, 87, 232, 0.05); color: #3a57e8; }
-        .menu-item.active { 
-            background: #3a57e8; 
-            color: #ffffff; 
-            box-shadow: 0 10px 20px -10px rgba(58, 87, 232, 0.5); 
+      /* Animasi Dropdown Smooth Pop-up */
+      @keyframes dropdownShow {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.95);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
 
-        /* Animasi Dropdown Smooth Pop-up */
-        @keyframes dropdownShow {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px) scale(0.95); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
-        }
+      .dropdown-animate {
+        display: block !important;
+        animation: dropdownShow 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)
+          forwards;
+      }
 
-        .dropdown-animate {
-            display: block !important;
-            animation: dropdownShow 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-        }
+      /* Hover effect untuk menu dropdown */
+      .dropdown-item {
+        transition: all 0.2s ease;
+      }
+      .dropdown-item:hover i {
+        transform: translateX(3px);
+        transition: all 0.2s ease;
+      }
 
-        /* Hover effect untuk menu dropdown */
-        .dropdown-item {
-            transition: all 0.2s ease;
-        }
-        .dropdown-item:hover i {
-            transform: translateX(3px);
-            transition: all 0.2s ease;
-        }
+      /* Glassmorphism Header */
+      .glass-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
 
-        /* Glassmorphism Header */
-        .glass-header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+      /* Modern Toast Animation */
+      @keyframes toastIn {
+        from {
+          transform: translateX(100%) scale(0.9);
+          opacity: 0;
         }
-
-        /* Modern Toast Animation */
-        @keyframes toastIn {
-            from { transform: translateX(100%) scale(0.9); opacity: 0; }
-            to { transform: translateX(0) scale(1); opacity: 1; }
+        to {
+          transform: translateX(0) scale(1);
+          opacity: 1;
         }
-        .animate-toast { animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+      }
+      .animate-toast {
+        animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
     </style>
     {% block extra_css %}{% endblock %}
-</head>
-<body class="bg-gray-50">
-    
+  </head>
+  <body class="bg-gray-50">
     {% if not no_sidebar %}
     <div class="header-shape fixed">
-        <svg class="absolute bottom-0 left-0 w-full h-auto" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill="rgba(255,255,255,0.08)" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,213.3C960,224,1056,192,1152,165.3C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
+      <svg
+        class="absolute bottom-0 left-0 w-full h-auto"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(255,255,255,0.08)"
+          fill-opacity="1"
+          d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,213.3C960,224,1056,192,1152,165.3C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+        ></path>
+      </svg>
     </div>
 
-    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-100 shadow-sm overflow-y-auto">
-        <div class="p-8 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-10 px-2">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-200">
-                        <i class="fas fa-bolt text-white text-sm"></i>
-                    </div>
-                    <span class="text-xl font-jakarta font-extrabold tracking-tight text-gray-800 uppercase">Scan Madin</span>
-                </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 p-2"><i class="fas fa-times"></i></button>
-            </div>
-
-            <nav class="flex-1 space-y-2">
-                <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4 px-4">Menu Utama</p>
-                <a href="/dashboard" class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold">
-                    <i class="fas fa-home text-lg"></i>
-                    <span>Dashboard</span>
-                </a>
-                
-                <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] pt-6 mb-4 px-4">Akademik</p>
-                <a href="/manajemen-kelas" class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold">
-                    <i class="fas fa-user-graduate text-lg"></i>
-                    <span>Manajemen Siswa</span>
-                </a>
-                <a href="/koreksi" class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold">
-                    <i class="fas fa-camera-retro text-lg"></i>
-                    <span>Koreksi LJK</span>
-                </a>
-            </nav>
-
-            <div class="pt-6 border-t border-gray-50 mt-6">
-                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-gray-100">
-                        <i class="fas fa-user-check text-xs"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-black text-gray-800 truncate">Admin Madrasah</p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase truncate">
-                          {{ user.full_name if user.full_name else user.username if user else 'Administrator' }}
-                        </p>
-                    </div>
-                </div>
-            </div>
+    <aside
+      id="sidebar"
+      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-100 shadow-sm overflow-y-auto"
+    >
+      <div class="p-8 flex flex-col h-full">
+        <div class="flex items-center justify-between mb-10 px-2">
+          <div class="flex items-center space-x-3">
+            <span class="text-3xl font-logo-gebuk tracking-tight text-blue-600">
+              E-Tashih
+            </span>
+          </div>
+          <button onclick="toggleSidebar()" class="md:hidden text-gray-400 p-2">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+
+        <nav class="flex-1 space-y-2">
+          <p
+            class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4 px-4"
+          >
+            Menu Utama
+          </p>
+          <a
+            href="/dashboard"
+            class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+          >
+            <i class="fas fa-home text-lg"></i>
+            <span>Dashboard</span>
+          </a>
+
+          <p
+            class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] pt-6 mb-4 px-4"
+          >
+            Akademik
+          </p>
+          <a
+            href="/manajemen-kelas"
+            class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+          >
+            <i class="fas fa-user-graduate text-lg"></i>
+            <span>Manajemen Siswa</span>
+          </a>
+          <a
+            href="/manajemen-kunci"
+            class="menu-item {% if '/manajemen-kunci' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+          >
+            <i class="fas fa-key text-lg"></i>
+            <span>Kunci Jawaban</span>
+          </a>
+          <a
+            href="/koreksi"
+            class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+          >
+            <i class="fas fa-camera-retro text-lg"></i>
+            <span>Koreksi LJK</span>
+          </a>
+        </nav>
+
+        <div class="pt-6 border-t border-gray-50 mt-6">
+          <div
+            class="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl border border-gray-100"
+          >
+            <div
+              class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-gray-100"
+            >
+              <i class="fas fa-user-check text-xs"></i>
+            </div>
+            <div class="overflow-hidden">
+              <p class="text-xs font-black text-gray-800 truncate">
+                Admin Madrasah
+              </p>
+              <p class="text-[10px] text-gray-400 font-bold uppercase truncate">
+                {{ user.full_name if user.full_name else user.username if user
+                else 'Administrator' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
     {% endif %}
 
-    <div id="mainContent" class="{{ 'ml-0' if no_sidebar else 'ml-0 md:ml-72' }} min-h-screen transition-all duration-300">
-        {% if not no_sidebar %}
-        <header class="glass-header sticky top-0 z-40 border-b border-white/10">
-            <div class="flex items-center justify-between px-8 py-5">
-                <div class="flex items-center space-x-6">
-                    <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-50 hover:scale-105 active:scale-95 transition-all">
-                        <i class="fas fa-bars-staggered"></i>
-                    </button>
-                    <nav class="lg:flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-white/70">
-                      <span>
-                          {% if '/manajemen-kelas' in request.path or '/koreksi' in request.path %} Akademik {% else %} Utama {% endif %}
-                      </span>
-                      <i class="fas fa-chevron-right text-[8px] opacity-50"></i>
-                      <span class="text-white">
-                          {% block page_title %}
-                              {% if '/dashboard' in request.path %} Dashboard
-                              {% elif '/manajemen-kelas' in request.path %} Manajemen Siswa
-                              {% elif '/koreksi' in request.path %} Koreksi LJK
-                              {% elif '/profile' in request.path %} Profil Akun
-                              {% else %} Overview {% endif %}
-                          {% endblock %}
-                      </span>
-                    </nav>
-                </div>
+    <div
+      id="mainContent"
+      class="{{ 'ml-0' if no_sidebar else 'ml-0 md:ml-72' }} min-h-screen transition-all duration-300"
+    >
+      {% if not no_sidebar %}
+      <header class="glass-header sticky top-0 z-40 border-b border-white/10">
+        <div class="flex items-center justify-between px-8 py-5">
+          <div class="flex items-center space-x-6">
+            <button
+              onclick="toggleSidebar()"
+              class="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-50 hover:scale-105 active:scale-95 transition-all"
+            >
+              <i class="fas fa-bars-staggered"></i>
+            </button>
+            <nav
+              class="lg:flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-white/70"
+            >
+              <span>
+                {% if '/manajemen-kelas' in request.path or '/koreksi' in
+                request.path %} Akademik {% else %} Utama {% endif %}
+              </span>
+              <i class="fas fa-chevron-right text-[8px] opacity-50"></i>
+              <span class="text-white">
+                {% block page_title %} {% if '/dashboard' in request.path %}
+                Dashboard {% elif '/manajemen-kelas' in request.path %}
+                Manajemen Siswa {% elif '/koreksi' in request.path %} Koreksi
+                LJK {% elif '/profile' in request.path %} Profil Akun {% else %}
+                Overview {% endif %} {% endblock %}
+              </span>
+            </nav>
+          </div>
 
-                <div class="relative group">
-                    <button onclick="toggleDropdown(event)" id="profileButton" class="flex items-center space-x-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-all border border-white/30 text-white backdrop-blur-md active:scale-95">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=fff&color=3a57e8" class="w-8 h-8 rounded-full shadow-sm">
-                        <i class="fas fa-chevron-down text-[10px] pr-2 opacity-70 transition-transform duration-300" id="dropdownIcon"></i>
-                    </button>
-                    
-                    <div id="dropdown" class="hidden absolute right-0 mt-4 w-64 bg-white rounded-[2rem] shadow-[0px_20px_50px_rgba(0,0,0,0.15)] border border-gray-50 z-50 overflow-hidden py-3">
-                        <div class="px-6 py-4 border-b border-gray-50 mb-2">
-                            <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Akun Saya</p>
-                            <p class="text-sm font-bold text-gray-800 mt-1">
-                                {{ user.full_name if user.full_name else user.username if user else 'Administrator' }}
-                            </p>
-                        </div>
-                        <div class="space-y-1 px-2">
-                            <a href="/profile" class="dropdown-item flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500"><i class="fas fa-circle-user"></i></div>
-                                    <span>Profil Akun</span>
-                                </div>
-                                <i class="fas fa-chevron-right text-[10px] opacity-30"></i>
-                            </a>
-                        </div>
-                        <div class="mt-3 px-2 pt-2 border-t border-gray-50">
-                            <button onclick="handleLogout()" class="dropdown-item w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50">
-                                <div class="w-8 h-8 bg-red-50 rounded-xl flex items-center justify-center text-red-500"><i class="fas fa-power-off"></i></div>
-                                <span>Keluar Sistem</span>
-                             </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        {% endif %}
+          <div class="relative group">
+            <button
+              onclick="toggleDropdown(event)"
+              id="profileButton"
+              class="flex items-center space-x-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-all border border-white/30 text-white backdrop-blur-md active:scale-95"
+            >
+              <img
+                src="https://ui-avatars.com/api/?name=Admin&background=fff&color=3a57e8"
+                class="w-8 h-8 rounded-full shadow-sm"
+              />
+              <i
+                class="fas fa-chevron-down text-[10px] pr-2 opacity-70 transition-transform duration-300"
+                id="dropdownIcon"
+              ></i>
+            </button>
 
-        <main class="{{ 'p-0' if no_sidebar else 'p-8' }}">
-            {% if not no_sidebar %}
-            <div class="mb-12">
-                <h1 class="text-3xl md:text-5xl font-jakarta font-extrabold text-white tracking-tightest leading-none">
-                    {% block hero_title %}Dashboard Utama{% endblock %}
-                </h1>
-                <p class="text-blue-100/80 mt-4 font-medium text-lg leading-relaxed max-w-2xl">
-                    {% block hero_subtitle %}Selamat datang di sistem manajemen E-SCAN.{% endblock %}
+            <div
+              id="dropdown"
+              class="hidden absolute right-0 mt-4 w-64 bg-white rounded-[2rem] shadow-[0px_20px_50px_rgba(0,0,0,0.15)] border border-gray-50 z-50 overflow-hidden py-3"
+            >
+              <div class="px-6 py-4 border-b border-gray-50 mb-2">
+                <p
+                  class="text-[10px] font-black text-gray-300 uppercase tracking-widest"
+                >
+                  Akun Saya
                 </p>
+                <p class="text-sm font-bold text-gray-800 mt-1">
+                  {{ user.full_name if user.full_name else user.username if user
+                  else 'Administrator' }}
+                </p>
+              </div>
+              <div class="space-y-1 px-2">
+                <a
+                  href="/profile"
+                  class="dropdown-item flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div
+                      class="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500"
+                    >
+                      <i class="fas fa-circle-user"></i>
+                    </div>
+                    <span>Profil Akun</span>
+                  </div>
+                  <i class="fas fa-chevron-right text-[10px] opacity-30"></i>
+                </a>
+              </div>
+              <div class="mt-3 px-2 pt-2 border-t border-gray-50">
+                <button
+                  onclick="handleLogout()"
+                  class="dropdown-item w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50"
+                >
+                  <div
+                    class="w-8 h-8 bg-red-50 rounded-xl flex items-center justify-center text-red-500"
+                  >
+                    <i class="fas fa-power-off"></i>
+                  </div>
+                  <span>Keluar Sistem</span>
+                </button>
+              </div>
             </div>
-            {% endif %}
-            {% block content %}{% endblock %}
-        </main>
-        
-        <footer class="p-12 text-center">
-            <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">&copy; 2026 E-SCAN MADIN • UNIVERSITAS HARKAT NEGERI</p>
-        </footer>
+          </div>
+        </div>
+      </header>
+      {% endif %}
+
+      <main class="{{ 'p-0' if no_sidebar else 'p-8' }}">
+        {% if not no_sidebar %}
+        <div class="mb-12">
+          <h1
+            class="text-3xl md:text-5xl font-jakarta font-extrabold text-white tracking-tightest leading-none"
+          >
+            {% block hero_title %}Dashboard Utama{% endblock %}
+          </h1>
+          <p
+            class="text-blue-100/80 mt-4 font-medium text-lg leading-relaxed max-w-2xl"
+          >
+            {% block hero_subtitle %}Selamat datang di sistem manajemen
+            E-SCAN.{% endblock %}
+          </p>
+        </div>
+        {% endif %} {% block content %}{% endblock %}
+      </main>
+
+      <footer class="p-12 text-center">
+        <p
+          class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]"
+        >
+          &copy; 2026 E-SCAN MADIN • UNIVERSITAS HARKAT NEGERI
+        </p>
+      </footer>
     </div>
 
-    <div id="toast-container" class="fixed bottom-8 right-8 z-[9999] space-y-3 pointer-events-none"></div>
+    <div
+      id="toast-container"
+      class="fixed bottom-8 right-8 z-[9999] space-y-3 pointer-events-none"
+    ></div>
     <script>
-        // Fungsi Toggle Sidebar
-        function toggleSidebar() {
-            document.body.classList.toggle("sidebar-closed");
+      // Fungsi Toggle Sidebar
+      function toggleSidebar() {
+        if (window.innerWidth < 768) {
+          document.body.classList.toggle("sidebar-open");
+        } else {
+          document.body.classList.toggle("sidebar-closed");
         }
+      }
+      // Close dropdown logic
+      function toggleDropdown(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById("dropdown");
+        const isHidden = dropdown.classList.contains("hidden");
 
-        // AUTO-CLOSE SIDEBAR DI MOBILE SAAT HALAMAN DIMUAT
-        document.addEventListener("DOMContentLoaded", function() {
-            // Jika lebar layar kurang dari 768px (Mobile)
-            // Kita tambahkan class 'sidebar-closed' secara otomatis
-            if (window.innerWidth < 768) {
-                document.body.classList.add("sidebar-closed");
-            }
-        });
-
-        // Close dropdown logic
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById("dropdown");
-            const isHidden = dropdown.classList.contains("hidden");
-            
-            if (isHidden) {
-                dropdown.classList.remove("hidden");
-                dropdown.classList.add("dropdown-animate");
-            } else {
-                dropdown.classList.add("hidden");
-                dropdown.classList.remove("dropdown-animate");
-            }
+        if (isHidden) {
+          dropdown.classList.remove("hidden");
+          dropdown.classList.add("dropdown-animate");
+        } else {
+          dropdown.classList.add("hidden");
+          dropdown.classList.remove("dropdown-animate");
         }
+      }
 
-        window.addEventListener('click', (e) => {
-            if (!e.target.closest('.group')) {
-                const dropdown = document.getElementById("dropdown");
-                if (dropdown) {
-                    dropdown.classList.add("hidden");
-                    dropdown.classList.remove("dropdown-animate");
-                }
-            }
-        });
-         // Logout Logic
-        async function handleLogout() {
-            try {
-            const response = await fetch("/auth/logout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            });
-            if (response.ok) {
-                window.location.href = "/login";
-            }
-            } catch (error) {
-            console.error("Logout failed:", error);
+      window.addEventListener("click", (e) => {
+        if (!e.target.closest(".group")) {
+          const dropdown = document.getElementById("dropdown");
+          if (dropdown) {
+            dropdown.classList.add("hidden");
+            dropdown.classList.remove("dropdown-animate");
+          }
+        }
+      });
+      // Logout Logic
+      async function handleLogout() {
+        try {
+          const response = await fetch("/auth/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          if (response.ok) {
             window.location.href = "/login";
-            }
+          }
+        } catch (error) {
+          console.error("Logout failed:", error);
+          window.location.href = "/login";
         }
+      }
 
-        /**
-        * MODERN TOAST SYSTEM
-        */
-        function showToast(message, type = "success") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const styles = {
-                success: { bg: 'bg-green-500', icon: 'fa-check-circle', title: 'Berhasil' },
-                error: { bg: 'bg-red-500', icon: 'fa-triangle-exclamation', title: 'Kesalahan' },
-                info: { bg: 'bg-blue-600', icon: 'fa-info-circle', title: 'Informasi' }
-            };
-            const config = styles[type] || styles.info;
+      /**
+       * MODERN TOAST SYSTEM
+       */
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
 
-            toast.className = `animate-toast pointer-events-auto flex items-center p-5 rounded-[1.75rem] bg-white shadow-[0px_15px_40px_rgba(0,0,0,0.12)] border border-gray-50 min-w-[320px] max-w-[400px]`;
-            toast.innerHTML = `
+        const styles = {
+          success: {
+            bg: "bg-green-500",
+            icon: "fa-check-circle",
+            title: "Berhasil",
+          },
+          error: {
+            bg: "bg-red-500",
+            icon: "fa-triangle-exclamation",
+            title: "Kesalahan",
+          },
+          info: {
+            bg: "bg-blue-600",
+            icon: "fa-info-circle",
+            title: "Informasi",
+          },
+        };
+        const config = styles[type] || styles.info;
+
+        toast.className = `animate-toast pointer-events-auto flex items-center p-5 rounded-[1.75rem] bg-white shadow-[0px_15px_40px_rgba(0,0,0,0.12)] border border-gray-50 min-w-[320px] max-w-[400px]`;
+        toast.innerHTML = `
                 <div class="w-11 h-11 ${config.bg} text-white rounded-2xl flex items-center justify-center shadow-lg shadow-opacity-30 mr-4 flex-shrink-0">
                     <i class="fas ${config.icon} text-lg"></i>
                 </div>
@@ -325,16 +492,16 @@
                 </div>
             `;
 
-            container.appendChild(toast);
+        container.appendChild(toast);
 
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-                toast.style.transition = 'all 0.5s ease';
-                setTimeout(() => toast.remove(), 500);
-            }, 4000);
-        }
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateY(20px)";
+          toast.style.transition = "all 0.5s ease";
+          setTimeout(() => toast.remove(), 500);
+        }, 4000);
+      }
     </script>
     {% block extra_js %}{% endblock %}
-</body>
+  </body>
 </html>
