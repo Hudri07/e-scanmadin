@@ -17,7 +17,7 @@ async def login(
     password: str = Form(...), 
     db: Session = Depends(get_db)
 ):
-    # Cari user di Supabase
+    # Cari user
     user = db.query(UserTable).filter(UserTable.username == username).first()
     
     # Verifikasi Password

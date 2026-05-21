@@ -359,9 +359,11 @@
     // API CALLS 
     window.addEventListener('DOMContentLoaded', async () => {
         try {
+            // Ambil semua list kunci untuk dropdown
             const res = await fetch('/api/list-kunci');
             const data = await res.json();
             const select = document.getElementById('selectKunci'); 
+            
             data.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k.id;
@@ -371,19 +373,37 @@
                 opt.dataset.kelas = k.kelas;
                 select.appendChild(opt);
             });
+
+            // Cek apakah halaman ini dibuka karena tombol 'Edit' dari Manajemen Kunci
+            const urlParams = new URLSearchParams(window.location.search);
+            const editKunciId = urlParams.get('edit_kunci_id');
+
+            if (editKunciId) {
+                // Set nilai select option sesuai ID yang dikirim
+                select.value = editKunciId;
+                
+                // Trigger fungsi bawaan untuk memuat data ke form dan grid
+                pakaiKunciLama(select);
+                
+                if (typeof showToast === "function") {
+                    showToast("Kunci jawaban otomatis dimuat!", "success");
+                }
+            }
+
         } catch (e) {
-            console.error("Gagal muat list");
+            console.error("Gagal muat list master kunci:", e);
         }
     });
 
     function pakaiKunciLama(select) {
         const opt = select.options[select.selectedIndex];
-        if (!opt.value) return;
+        if (!opt || !opt.value) return;
 
         currentKunciId = opt.value;
-        showToast("Kunci dimuat", "success");
         document.getElementById('mapel').value = opt.dataset.mapel;
         document.getElementById('kelas').value = opt.dataset.kelas;
+        
+        // Render data array kunci ke bentuk kotak-kotak grid
         renderGrid(JSON.parse(opt.dataset.json));
         activateStep2();
     }

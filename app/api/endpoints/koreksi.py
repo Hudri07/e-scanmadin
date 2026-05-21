@@ -103,6 +103,20 @@ async def proses_kunci(file: UploadFile = File(...), db: Session = Depends(get_d
         if cleaned_path and os.path.exists(cleaned_path):
             os.remove(cleaned_path)
 
+@router.get("/get-kunci/{kunci_id}")
+async def get_single_kunci(kunci_id: int, db: Session = Depends(get_db)):
+    """Mengambil satu kunci jawaban spesifik untuk auto-fill form edit di Koreksi LJK"""
+    kunci = db.query(models.KunciJawabanTable).filter(models.KunciJawabanTable.id == kunci_id).first()
+    if not kunci:
+        raise HTTPException(status_code=404, detail="Kunci jawaban tidak ditemukan")
+        
+    return {
+        "id": kunci.id,
+        "mapel": kunci.mapel,
+        "kelas": kunci.kelas,
+        "kunci": json.loads(kunci.kunci_json) if isinstance(kunci.kunci_json, str) else kunci.kunci_json
+    }
+
 @router.post("/scan-bulk")
 async def scan_bulk(
     files: list[UploadFile] = File(...), 

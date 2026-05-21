@@ -141,7 +141,7 @@
                         </td>
                         <td class="text-center">
                             <div class="flex justify-center gap-2">
-                                <a href="/koreksi" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" title="Gunakan/Edit">
+                                <a href="/koreksi?edit_kunci_id=${k.id}" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" title="Gunakan / Edit Kunci">
                                     <i class="fas fa-edit text-xs"></i>
                                 </a>
                                 <button onclick="hapusKunci(${k.id}, '${k.mapel}')" class="btn-action bg-red-50 text-red-500 hover:bg-red-600 hover:text-white" title="Hapus">
@@ -159,7 +159,6 @@
         }
     }
 
-    // Fungsi Hapus dengan Konfirmasi
     async function hapusKunci(id, name) {
         if (!confirm(`Apakah Anda yakin ingin menghapus kunci "${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
             return;
