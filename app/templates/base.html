@@ -146,21 +146,22 @@
 
     <aside
       id="sidebar"
-      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-200/80 shadow-sm overflow-y-auto"
+      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-200/80 shadow-sm transition-all duration-400"
     >
-      <div class="p-6 flex flex-col h-full">
-        <div class="flex items-center justify-between mb-8 px-2">
+      <div class="flex flex-col h-full">
+        
+        <div class="p-6 pb-2 flex items-center justify-between px-6">
           <div class="flex items-center space-x-3">
             <span class="text-2xl font-logo-gebuk tracking-tight text-blue-600">
               E-Tashih
             </span>
           </div>
-          <button onclick="toggleSidebar()" class="md:hidden text-gray-400 p-2">
+          <button onclick="toggleSidebar()" class="md:hidden text-gray-400 p-2 hover:bg-gray-50 rounded-lg">
             <i class="fas fa-times"></i>
           </button>
         </div>
 
-        <nav class="flex-1 space-y-1.5">
+        <nav class="flex-1 p-6 pt-2 space-y-1.5 overflow-y-auto">
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">
             Menu Utama
           </p>
@@ -198,14 +199,14 @@
           </a>
         </nav>
 
-        <div class="pt-4 border-t border-gray-100 mt-4">
+        <div class="p-4 border-t border-gray-100 mt-auto bg-white">
           <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-200/60">
             <img
               src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}"
               alt="Avatar"
               class="w-9 h-9 rounded-full bg-blue-50 border border-gray-200 object-cover flex-shrink-0"
             />
-            <div class="overflow-hidden">
+            <div class="overflow-hidden flex-1">
               <p class="text-[11px] font-bold text-gray-800 truncate leading-none">
                 Admin Madrasah
               </p>
@@ -215,6 +216,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </aside>
     {% endif %}
@@ -375,7 +377,7 @@
       }
 
       /**
-       * MODERN TOAST SYSTEM (FIXED RADIUS & DESIGN SINKRON)
+       * MODERN TOAST SYSTEM
        */
       function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
@@ -388,7 +390,6 @@
         };
         const config = styles[type] || styles.info;
 
-        // Diubah dari rounded-[1.75rem] menjadi rounded-xl agar minimalis kotak rapi
         toast.className = `animate-toast pointer-events-auto flex items-center p-4 rounded-xl bg-white shadow-md border border-gray-200/80 min-w-[280px] max-w-[360px]`;
         toast.innerHTML = `
                 <div class="w-8 h-8 ${config.bg} text-white rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
