@@ -1,140 +1,135 @@
 {% extends "base.html" %}
 
-{% block title %}Profil Saya - E-SCAN MADIN{% endblock %}
+{% block title %}Profil Saya - E-Tashih{% endblock %}
 {% block page_title %}Profil Pengguna{% endblock %}
 {% block hero_title %}Profil Pengguna{% endblock %}
 {% block hero_subtitle %}Kelola informasi pribadi dan pastikan keamanan akun Anda tetap terjaga.{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 md:px-0"> 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <div class="md:col-span-1">
-            <div class="bg-white/80 backdrop-blur-md border border-white shadow-xl shadow-blue-900/5 p-8 text-center rounded-[2.5rem]">
-                <div class="relative inline-block mb-6">
-                    <div class="w-28 h-28 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white mx-auto flex items-center justify-center rounded-[2.5rem] shadow-lg shadow-blue-200">
-                        <span class="text-4xl font-jakarta font-black uppercase">
-                            {{ user.username[:2] if user.username else 'AD' }}
-                        </span>
-                    </div>
-                    <!-- <div class="absolute -bottom-1 -right-1 w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center text-blue-600 border border-gray-50">
-                        <i class="fas fa-camera text-xs"></i>
-                    </div> -->
+<div class="max-w-7xl mx-auto space-y-6"> 
+    
+    <div class="bg-white border border-gray-200/60 shadow-sm p-6 rounded-2xl">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+            
+            <div class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4">
+                <div class="w-20 h-20 bg-gray-50 flex items-center justify-center rounded-full border border-gray-200 p-1 flex-shrink-0">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}" 
+                         alt="Avatar" class="w-full h-full object-contain">
                 </div>
-                
-                <h2 id="display_full_name" class="text-2xl font-jakarta font-extrabold text-gray-800 leading-tight">
-                    {{ user.full_name if user.full_name else 'Administrator' }}
-                </h2>
-                <p class="text-blue-600 font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Admin Madrasah</p>
-                
-                <div class="mt-8 pt-8 border-t border-gray-100 text-left space-y-5">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[10px] font-black uppercase text-gray-400 tracking-wider">Username</p>
-                            <p class="font-bold text-gray-700 text-sm">@{{ user.username }}</p>
-                        </div>
-                        <i class="fas fa-at text-gray-200"></i>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[10px] font-black uppercase text-gray-400 tracking-wider">Status</p>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-green-50 text-green-600 text-[10px] font-black uppercase mt-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
-                                Aktif
-                            </span>
-                        </div>
+                <div>
+                    <h2 id="display_full_name" class="text-lg font-bold text-gray-800 tracking-tight leading-tight">
+                        {{ user.full_name if user.full_name else 'Administrator' }}
+                    </h2>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1.5">
+                        <span class="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                            Admin Madrasah
+                        </span>
+                        <span class="text-gray-500 bg-gray-50 border border-gray-200 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                            @{{ user.username }}
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="md:col-span-2 space-y-6">
-            
-            <div class="bg-white border border-gray-100 shadow-xl shadow-blue-900/5 rounded-[2.5rem] p-8 md:p-10">
-                <div class="flex items-center mb-8">
-                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mr-4 shadow-sm">
-                        <i class="fas fa-user-edit text-lg"></i>
+            <div class="flex items-center space-x-2 bg-green-50/60 border border-green-100 px-4 py-2.5 rounded-xl">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span class="text-[11px] font-bold text-green-700 uppercase tracking-wider">Sesi Akun Aktif</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="bg-white border border-gray-200/60 shadow-sm rounded-2xl p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center mb-5 border-b border-gray-50 pb-3">
+                    <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mr-3 border border-blue-100/50">
+                        <i class="fas fa-user text-xs"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-jakarta font-extrabold text-gray-800">Informasi Pribadi</h3>
-                        <p class="text-xs text-gray-400 font-medium">Perbarui identitas publik Anda dalam sistem.</p>
+                        <h3 class="text-xs font-bold text-gray-800 tracking-tight">Informasi Pribadi</h3>
+                        <p class="text-[10px] text-gray-400">Perbarui data identitas utama akun Anda.</p>
                     </div>
                 </div>
                 
-                <form id="updateProfileForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Nama Lengkap</label>
+                <form id="updateProfileForm" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Nama Lengkap</label>
                         <input type="text" name="full_name" value="{{ user.full_name }}" 
-                            class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 outline-none transition-all" 
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
                             placeholder="Contoh: Ahmad Hudri" required>
                     </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Alamat Email</label>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Alamat Email Resmi</label>
                         <input type="email" name="email" value="{{ user.email or '' }}" 
-                            class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 outline-none transition-all" 
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
                             placeholder="email@madrasah.sch.id">
                     </div>
                     
-                    <div class="md:col-span-2 pt-4">
-                        <button type="submit" class="w-full md:w-max px-10 bg-blue-600 text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95">
-                            Simpan Perubahan
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white border border-gray-100 shadow-xl shadow-blue-900/5 rounded-[2.5rem] p-8 md:p-10">
-                <div class="flex items-center mb-8">
-                    <div class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mr-4 shadow-sm">
-                        <i class="fas fa-shield-alt text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-jakarta font-extrabold text-gray-800">Keamanan Password</h3>
-                        <p class="text-xs text-gray-400 font-medium">Gunakan kombinasi password yang kuat dan unik.</p>
-                    </div>
-                </div>
-                
-                <form id="updatePasswordForm" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Password Baru</label>
-                            <div class="relative">
-                                <input type="password" id="new_password" name="new_password" 
-                                    class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                                    placeholder="••••••••" required>
-                                <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-blue-500 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Konfirmasi</label>
-                            <div class="relative">
-                                <input type="password" id="confirm_password" name="confirm_password" 
-                                    class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-gray-700 focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                                    placeholder="••••••••" required>
-                                <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-blue-500 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-4">
-                        <button type="submit" class="w-full md:w-max px-10 bg-blue-600 text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95">
-                            Perbarui Password
+                    <div class="pt-2">
+                        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
+                            Simpan Profil
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
+        <div class="bg-white border border-gray-200/60 shadow-sm rounded-2xl p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center mb-5 border-b border-gray-50 pb-3">
+                    <div class="w-9 h-9 bg-red-50 text-red-500 rounded-lg flex items-center justify-center mr-3 border border-red-100/50">
+                        <i class="fas fa-key text-xs"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-800 tracking-tight">Kredensial Keamanan</h3>
+                        <p class="text-[10px] text-gray-400">Kelola otentikasi kata sandi berkala.</p>
+                    </div>
+                </div>
+                
+                <form id="updatePasswordForm" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Password Baru</label>
+                        <div class="relative">
+                            <input type="password" id="new_password" name="new_password" 
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
+                                placeholder="••••••••" required>
+                            <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Konfirmasi Ulang</label>
+                        <div class="relative">
+                            <input type="password" id="confirm_password" name="confirm_password" 
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
+                                placeholder="••••••••" required>
+                            <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-eye text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
+                            Ganti Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // FUNGSI INTIP PASSWORD
     function togglePassword(inputId, btn) {
         const input = document.getElementById(inputId);
         const icon = btn.querySelector('i');
@@ -147,54 +142,42 @@
         }
     }
 
-    // UPDATE PROFIL VIA AJAX
+    // AJAX: UPDATE PROFIL
     document.getElementById('updateProfileForm').onsubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        
         try {
-            const res = await fetch('/profile/update', {
-                method: 'POST',
-                body: formData
-            });
-
+            const res = await fetch('/profile/update', { method: 'POST', body: formData });
             if(res.ok) {
-                showToast("Profil berhasil diperbarui!", "success");
-                // Update teks nama secara real-time di halaman
+                showToast("Informasi profil berhasil diperbarui!", "success");
                 const newName = formData.get('full_name');
                 document.getElementById('display_full_name').innerText = newName;
             } else {
-                showToast("Gagal menyimpan perubahan.", "error");
+                showToast("Gagal menyimpan pembaruan profil.", "error");
             }
         } catch(err) {
-            showToast("Terjadi kesalahan sistem.", "error");
+            showToast("Gagal menghubungi server database.", "error");
         }
     };
 
-    // UPDATE PASSWORD VIA AJAX
+    // AJAX: UPDATE PASSWORD
     document.getElementById('updatePasswordForm').onsubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        
         if(formData.get('new_password') !== formData.get('confirm_password')) {
-            return showToast("Konfirmasi password tidak cocok!", "error");
+            return showToast("Konfirmasi verifikasi kata sandi tidak cocok!", "error");
         }
-
         try {
-            const res = await fetch('/profile/change-password', {
-                method: 'POST',
-                body: formData
-            });
-
+            const res = await fetch('/profile/change-password', { method: 'POST', body: formData });
             if(res.ok) {
-                showToast("Password telah diperbarui.", "success");
+                showToast("Kata sandi berhasil dikonfigurasi ulang.", "success");
                 e.target.reset();
             } else {
                 const data = await res.json();
-                showToast(data.detail || "Gagal mengganti password.", "error");
+                showToast(data.detail || "Gagal memperbarui kredensial sandi.", "error");
             }
         } catch(err) {
-            showToast("Kesalahan saat menghubungi server.", "error");
+            showToast("Koneksi jaringan menuju server terputus.", "error");
         }
     };
 </script>

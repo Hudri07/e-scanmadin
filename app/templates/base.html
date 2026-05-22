@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}E-SCAN MADIN{% endblock %}</title>
+    <title>{% block title %}E-Tashih{% endblock %}</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
@@ -25,7 +25,7 @@
       }
       @font-face {
         font-family: "Gebuk";
-        src: url("/static/fonts/gebuk.regular.ttf") format("truetype"); /* Pastikan path benar */
+        src: url("/static/fonts/gebuk.regular.ttf") format("truetype");
         font-weight: normal;
         font-style: normal;
       }
@@ -38,52 +38,21 @@
         font-family: "Plus Jakarta Sans", sans-serif;
       }
 
-      /* Container untuk background lengkungan */
+      /* KOREKSI TOTAL: Buang gradasi lengkung norak, ganti flat top banner profesional */
       .header-shape {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 320px; /* Sedikit lebih tinggi dari header */
-        background: linear-gradient(135deg, #3a57e8 0%, #1d36ad 100%);
+        height: 280px;
+        background: #1e3a8a; /* Solid Navy Premium */
         z-index: -10;
         overflow: hidden;
-        border-radius: 0 0 50px 50px; /* Lengkungan bawah container utama */
       }
 
-      /* Pseudo-element untuk membuat layer lengkungan tambahan */
-      .header-shape::before {
-        content: "";
-        position: absolute;
-        bottom: -50px;
-        left: -10%;
-        width: 120%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50%;
-        transform: rotate(-5deg);
-      }
-
-      .header-shape::after {
-        content: "";
-        position: absolute;
-        top: -20%;
-        right: -10%;
-        width: 70%;
-        height: 120%;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.1) 0%,
-          rgba(255, 255, 255, 0) 100%
-        );
-        border-radius: 50%;
-      }
-
-      /* Sidebar Transition Logic */
-      /* Sidebar Default State */
       #sidebar {
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(0); /* Default terbuka */
+        transform: translateX(0);
       }
 
       #mainContent {
@@ -98,13 +67,11 @@
           margin-left: 0 !important;
         }
 
-        /* State saat sidebar dibuka di mobile */
         .sidebar-open #sidebar {
           transform: translateX(0);
         }
       }
 
-      /* Desktop: Logika toggle manual jika user ingin menutup sidebar di layar besar */
       .sidebar-closed #sidebar {
         transform: translateX(-100%);
       }
@@ -112,97 +79,79 @@
         margin-left: 0 !important;
       }
 
-      /* Menu Item Styles */
       .menu-item {
         transition: all 0.3s ease;
-        color: #8a92a6;
+        color: #6b7280;
       }
       .menu-item:hover {
-        background: rgba(58, 87, 232, 0.05);
-        color: #3a57e8;
+        background: rgba(37, 99, 235, 0.05);
+        color: #2563eb;
       }
       .menu-item.active {
-        background: #3a57e8;
+        background: #2563eb;
         color: #ffffff;
-        box-shadow: 0 10px 20px -10px rgba(58, 87, 232, 0.5);
+        box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.3);
       }
 
-      /* Animasi Dropdown Smooth Pop-up */
       @keyframes dropdownShow {
         from {
           opacity: 0;
-          transform: translateY(-10px) scale(0.95);
+          transform: translateY(-8px);
         }
         to {
           opacity: 1;
-          transform: translateY(0) scale(1);
+          transform: translateY(0);
         }
       }
 
       .dropdown-animate {
         display: block !important;
-        animation: dropdownShow 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55)
-          forwards;
+        animation: dropdownShow 0.2s ease-out forwards;
       }
 
-      /* Hover effect untuk menu dropdown */
       .dropdown-item {
         transition: all 0.2s ease;
       }
       .dropdown-item:hover i {
-        transform: translateX(3px);
+        transform: translateX(2px);
         transition: all 0.2s ease;
       }
 
-      /* Glassmorphism Header */
+      /* Transparansi Atas yang Bersih */
       .glass-header {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(30, 58, 138, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
       }
 
-      /* Modern Toast Animation */
       @keyframes toastIn {
         from {
-          transform: translateX(100%) scale(0.9);
+          transform: translateY(20px);
           opacity: 0;
         }
         to {
-          transform: translateX(0) scale(1);
+          transform: translateY(0);
           opacity: 1;
         }
       }
       .animate-toast {
-        animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       }
     </style>
     {% block extra_css %}{% endblock %}
   </head>
   <body class="bg-gray-50">
     {% if not no_sidebar %}
-    <div class="header-shape fixed">
-      <svg
-        class="absolute bottom-0 left-0 w-full h-auto"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(255,255,255,0.08)"
-          fill-opacity="1"
-          d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,213.3C960,224,1056,192,1152,165.3C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-        ></path>
-      </svg>
-    </div>
+    <div class="header-shape fixed"></div>
 
     <aside
       id="sidebar"
-      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-100 shadow-sm overflow-y-auto"
+      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-200/80 shadow-sm overflow-y-auto"
     >
-      <div class="p-8 flex flex-col h-full">
-        <div class="flex items-center justify-between mb-10 px-2">
+      <div class="p-6 flex flex-col h-full">
+        <div class="flex items-center justify-between mb-8 px-2">
           <div class="flex items-center space-x-3">
-            <span class="text-3xl font-logo-gebuk tracking-tight text-blue-600">
+            <span class="text-2xl font-logo-gebuk tracking-tight text-blue-600">
               E-Tashih
             </span>
           </div>
@@ -211,64 +160,57 @@
           </button>
         </div>
 
-        <nav class="flex-1 space-y-2">
-          <p
-            class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4 px-4"
-          >
+        <nav class="flex-1 space-y-1.5">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">
             Menu Utama
           </p>
           <a
             href="/dashboard"
-            class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+            class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
           >
-            <i class="fas fa-home text-lg"></i>
+            <i class="fas fa-home text-base w-5"></i>
             <span>Dashboard</span>
           </a>
 
-          <p
-            class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] pt-6 mb-4 px-4"
-          >
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider pt-5 mb-3 px-3">
             Akademik
           </p>
           <a
             href="/manajemen-kelas"
-            class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+            class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
           >
-            <i class="fas fa-user-graduate text-lg"></i>
+            <i class="fas fa-user-graduate text-base w-5"></i>
             <span>Manajemen Siswa</span>
           </a>
           <a
             href="/manajemen-kunci"
-            class="menu-item {% if '/manajemen-kunci' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+            class="menu-item {% if '/manajemen-kunci' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
           >
-            <i class="fas fa-key text-lg"></i>
+            <i class="fas fa-key text-base w-5"></i>
             <span>Kunci Jawaban</span>
           </a>
           <a
             href="/koreksi"
-            class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-4 px-5 py-4 rounded-2xl text-sm font-bold"
+            class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
           >
-            <i class="fas fa-camera-retro text-lg"></i>
+            <i class="fas fa-camera-retro text-base w-5"></i>
             <span>Koreksi LJK</span>
           </a>
         </nav>
 
-        <div class="pt-6 border-t border-gray-50 mt-6">
-          <div
-            class="flex items-center space-x-4 bg-gray-50 p-4 rounded-2xl border border-gray-100"
-          >
-            <div
-              class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-gray-100"
-            >
-              <i class="fas fa-user-check text-xs"></i>
-            </div>
+        <div class="pt-4 border-t border-gray-100 mt-4">
+          <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-200/60">
+            <img
+              src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}"
+              alt="Avatar"
+              class="w-9 h-9 rounded-full bg-blue-50 border border-gray-200 object-cover flex-shrink-0"
+            />
             <div class="overflow-hidden">
-              <p class="text-xs font-black text-gray-800 truncate">
+              <p class="text-[11px] font-bold text-gray-800 truncate leading-none">
                 Admin Madrasah
               </p>
-              <p class="text-[10px] text-gray-400 font-bold uppercase truncate">
-                {{ user.full_name if user.full_name else user.username if user
-                else 'Administrator' }}
+              <p class="text-[10px] text-gray-400 font-semibold truncate mt-1">
+                {{ user.full_name if user.full_name else user.username if user else 'Administrator' }}
               </p>
             </div>
           </div>
@@ -283,89 +225,71 @@
     >
       {% if not no_sidebar %}
       <header class="glass-header sticky top-0 z-40 border-b border-white/10">
-        <div class="flex items-center justify-between px-8 py-5">
-          <div class="flex items-center space-x-6">
+        <div class="flex items-center justify-between px-8 py-4">
+          <div class="flex items-center space-x-4">
             <button
               onclick="toggleSidebar()"
-              class="w-10 h-10 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-50 hover:scale-105 active:scale-95 transition-all"
+              class="w-9 h-9 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-200 hover:scale-105 active:scale-95 transition-all"
             >
-              <i class="fas fa-bars-staggered"></i>
+              <i class="fas fa-bars-staggered text-sm"></i>
             </button>
-            <nav
-              class="lg:flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-white/70"
-            >
+            <nav class="lg:flex items-center space-x-2 text-[10px] font-bold uppercase tracking-wider text-white/70">
               <span>
-                {% if '/manajemen-kelas' in request.path or '/koreksi' in
-                request.path %} Akademik {% else %} Utama {% endif %}
+                {% if '/manajemen-kelas' in request.path or '/koreksi' in request.path %} Akademik {% else %} Utama {% endif %}
               </span>
               <i class="fas fa-chevron-right text-[8px] opacity-50"></i>
               <span class="text-white">
-                {% block page_title %} {% if '/dashboard' in request.path %}
-                Dashboard {% elif '/manajemen-kelas' in request.path %}
-                Manajemen Siswa {% elif '/koreksi' in request.path %} Koreksi
-                LJK {% elif '/profile' in request.path %} Profil Akun {% else %}
-                Overview {% endif %} {% endblock %}
+                {% block page_title %}
+                  {% if '/dashboard' in request.path %} Dashboard 
+                  {% elif '/manajemen-kelas' in request.path %} Manajemen Siswa 
+                  {% elif '/koreksi' in request.path %} Koreksi LJK 
+                  {% elif '/profile' in request.path %} Profil Akun 
+                  {% else %} Overview {% endif %}
+                {% endblock %}
               </span>
             </nav>
           </div>
 
           <div class="relative group">
-            <button
-              onclick="toggleDropdown(event)"
+            <button onclick="toggleDropdown(event)"
               id="profileButton"
-              class="flex items-center space-x-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-all border border-white/30 text-white backdrop-blur-md active:scale-95"
-            >
+              class="flex items-center space-x-2 p-1 bg-white/10 hover:bg-white/20 rounded-full transition-all border border-white/20 text-white backdrop-blur-md active:scale-95 group">
               <img
-                src="https://ui-avatars.com/api/?name=Admin&background=fff&color=3a57e8"
-                class="w-8 h-8 rounded-full shadow-sm"
+                src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}"
+                class="w-7 h-7 rounded-full bg-white object-cover"
+                alt="Profile"
               />
-              <i
-                class="fas fa-chevron-down text-[10px] pr-2 opacity-70 transition-transform duration-300"
-                id="dropdownIcon"
-              ></i>
+              <i class="fas fa-chevron-down text-[9px] pr-2 opacity-70 transition-transform duration-200" id="dropdownIcon"></i>
             </button>
 
             <div
               id="dropdown"
-              class="hidden absolute right-0 mt-4 w-64 bg-white rounded-[2rem] shadow-[0px_20px_50px_rgba(0,0,0,0.15)] border border-gray-50 z-50 overflow-hidden py-3"
+              class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/80 z-50 overflow-hidden py-1.5"
             >
-              <div class="px-6 py-4 border-b border-gray-50 mb-2">
-                <p
-                  class="text-[10px] font-black text-gray-300 uppercase tracking-widest"
-                >
-                  Akun Saya
-                </p>
-                <p class="text-sm font-bold text-gray-800 mt-1">
-                  {{ user.full_name if user.full_name else user.username if user
-                  else 'Administrator' }}
+              <div class="px-4 py-2.5 border-b border-gray-100 mb-1">
+                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Akun Login</p>
+                <p class="text-xs font-bold text-gray-700 mt-0.5 truncate">
+                  {{ user.full_name if user.full_name else user.username if user else 'Administrator' }}
                 </p>
               </div>
-              <div class="space-y-1 px-2">
+              <div class="px-1">
                 <a
                   href="/profile"
-                  class="dropdown-item flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                  class="dropdown-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                 >
-                  <div class="flex items-center space-x-3">
-                    <div
-                      class="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500"
-                    >
-                      <i class="fas fa-circle-user"></i>
-                    </div>
+                  <div class="flex items-center space-x-2.5">
+                    <i class="fas fa-circle-user text-gray-400 text-sm w-4"></i>
                     <span>Profil Akun</span>
                   </div>
-                  <i class="fas fa-chevron-right text-[10px] opacity-30"></i>
+                  <i class="fas fa-chevron-right text-[9px] opacity-30"></i>
                 </a>
               </div>
-              <div class="mt-3 px-2 pt-2 border-t border-gray-50">
+              <div class="mt-1.5 px-1 pt-1.5 border-t border-gray-100">
                 <button
                   onclick="handleLogout()"
-                  class="dropdown-item w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50"
+                  class="dropdown-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50"
                 >
-                  <div
-                    class="w-8 h-8 bg-red-50 rounded-xl flex items-center justify-center text-red-500"
-                  >
-                    <i class="fas fa-power-off"></i>
-                  </div>
+                  <i class="fas fa-power-off text-sm w-4"></i>
                   <span>Keluar Sistem</span>
                 </button>
               </div>
@@ -377,37 +301,32 @@
 
       <main class="{{ 'p-0' if no_sidebar else 'p-8' }}">
         {% if not no_sidebar %}
-        <div class="mb-12">
-          <h1
-            class="text-3xl md:text-5xl font-jakarta font-extrabold text-white tracking-tightest leading-none"
-          >
+        <div class="mb-10">
+          <h1 class="text-2xl md:text-4xl font-jakarta font-extrabold text-white tracking-tight leading-none">
             {% block hero_title %}Dashboard Utama{% endblock %}
           </h1>
-          <p
-            class="text-blue-100/80 mt-4 font-medium text-lg leading-relaxed max-w-2xl"
-          >
-            {% block hero_subtitle %}Selamat datang di sistem manajemen
-            E-SCAN.{% endblock %}
+          <p class="text-blue-100/80 mt-3 font-medium text-sm leading-relaxed max-w-2xl">
+            {% block hero_subtitle %}Selamat datang di sistem manajemen E-SCAN.{% endblock %}
           </p>
         </div>
-        {% endif %} {% block content %}{% endblock %}
+        {% endif %} 
+        
+        {% block content %}{% endblock %}
       </main>
 
-      <footer class="p-12 text-center">
-        <p
-          class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]"
-        >
-          &copy; 2026 E-SCAN MADIN • UNIVERSITAS HARKAT NEGERI
+      <footer class="p-8 text-center">
+        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+          &copy; 2026 E-Tashih
         </p>
       </footer>
     </div>
 
     <div
       id="toast-container"
-      class="fixed bottom-8 right-8 z-[9999] space-y-3 pointer-events-none"
+      class="fixed bottom-6 right-6 z-[9999] space-y-2 pointer-events-none"
     ></div>
+
     <script>
-      // Fungsi Toggle Sidebar
       function toggleSidebar() {
         if (window.innerWidth < 768) {
           document.body.classList.toggle("sidebar-open");
@@ -415,7 +334,7 @@
           document.body.classList.toggle("sidebar-closed");
         }
       }
-      // Close dropdown logic
+
       function toggleDropdown(event) {
         event.stopPropagation();
         const dropdown = document.getElementById("dropdown");
@@ -439,7 +358,7 @@
           }
         }
       });
-      // Logout Logic
+
       async function handleLogout() {
         try {
           const response = await fetch("/auth/logout", {
@@ -456,39 +375,28 @@
       }
 
       /**
-       * MODERN TOAST SYSTEM
+       * MODERN TOAST SYSTEM (FIXED RADIUS & DESIGN SINKRON)
        */
       function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
         const toast = document.createElement("div");
 
         const styles = {
-          success: {
-            bg: "bg-green-500",
-            icon: "fa-check-circle",
-            title: "Berhasil",
-          },
-          error: {
-            bg: "bg-red-500",
-            icon: "fa-triangle-exclamation",
-            title: "Kesalahan",
-          },
-          info: {
-            bg: "bg-blue-600",
-            icon: "fa-info-circle",
-            title: "Informasi",
-          },
+          success: { bg: "bg-green-600", icon: "fa-check-circle", title: "Berhasil" },
+          error: { bg: "bg-red-600", icon: "fa-triangle-exclamation", title: "Kesalahan" },
+          info: { bg: "bg-blue-600", icon: "fa-info-circle", title: "Informasi" },
         };
         const config = styles[type] || styles.info;
 
-        toast.className = `animate-toast pointer-events-auto flex items-center p-5 rounded-[1.75rem] bg-white shadow-[0px_15px_40px_rgba(0,0,0,0.12)] border border-gray-50 min-w-[320px] max-w-[400px]`;
+        // Diubah dari rounded-[1.75rem] menjadi rounded-xl agar minimalis kotak rapi
+        toast.className = `animate-toast pointer-events-auto flex items-center p-4 rounded-xl bg-white shadow-md border border-gray-200/80 min-w-[280px] max-w-[360px]`;
         toast.innerHTML = `
-                <div class="w-11 h-11 ${config.bg} text-white rounded-2xl flex items-center justify-center shadow-lg shadow-opacity-30 mr-4 flex-shrink-0">
-                    <i class="fas ${config.icon} text-lg"></i>
+                <div class="w-8 h-8 ${config.bg} text-white rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                    <i class="fas ${config.icon} text-sm"></i>
                 </div>
                 <div class="flex-1 overflow-hidden">
-                    <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest">${config.title}</h4>
-                    <p class="text-sm font-bold text-gray-700 mt-0.5 leading-snug">${message}</p>
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${config.title}</h4>
+                    <p class="text-xs font-bold text-gray-700 mt-0.5 leading-tight">${message}</p>
                 </div>
             `;
 
@@ -496,10 +404,10 @@
 
         setTimeout(() => {
           toast.style.opacity = "0";
-          toast.style.transform = "translateY(20px)";
-          toast.style.transition = "all 0.5s ease";
-          setTimeout(() => toast.remove(), 500);
-        }, 4000);
+          toast.style.transform = "translateY(10px)";
+          toast.style.transition = "all 0.4s ease";
+          setTimeout(() => toast.remove(), 400);
+        }, 3500);
       }
     </script>
     {% block extra_js %}{% endblock %}

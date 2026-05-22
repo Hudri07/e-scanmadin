@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from datetime import datetime, timedelta
+import pytz
 
 # Import Internal
 from app.database.connection import get_db
@@ -39,6 +40,10 @@ async def dashboard(
 ):
     """Halaman Utama Dashboard"""
     
+    # Definisikan timezone WIB (Asia/Jakarta)
+    tz_jakarta = pytz.timezone('Asia/Jakarta')
+    hari_ini = datetime.now(tz_jakarta) # Jam sekarang otomatis berbasis WIB
+
     # Hitung total siswa
     total_siswa = db.query(SiswaTable).count()
 
@@ -50,24 +55,64 @@ async def dashboard(
     rata_nilai = round(float(rata_rata_nilai), 1) if rata_rata_nilai else 0
 
     # Aktivitas terbaru
-    aktivitas_terbaru = db.query(HasilUjianTable, SiswaTable)\
+    aktivitas_raw = db.query(HasilUjianTable, SiswaTable)\
         .join(SiswaTable, HasilUjianTable.nomor_peserta == SiswaTable.nomor_peserta)\
         .order_by(HasilUjianTable.id.desc())\
         .limit(5).all()
     
-    # Data untuk Grafik: Rata-rata nilai per kelas
-    grafik_data = db.query(
-        SiswaTable.kelas, 
-        func.avg(HasilUjianTable.skor).label('rata_rata')
-    ).join(HasilUjianTable, SiswaTable.nomor_peserta == HasilUjianTable.nomor_peserta)\
-    .group_by(SiswaTable.kelas).all()
+    aktivitas_terbaru = []
+    for hasil, siswa in aktivitas_raw:
+        tanggal_db = hasil.tanggal 
+        
+        if tanggal_db:
+            # Jika dari DB tipenya datetime tapi masih naive (tanpa tz), tempelkan tz Jakarta
+            if isinstance(tanggal_db, datetime):
+                if tanggal_db.tzinfo is None:
+                    # Jika di DB disimpan sebagai UTC, konversi ke Jakarta:
+                    tanggal_wib = pytz.utc.localize(tanggal_db).astimezone(tz_jakarta)
+                    # Jika di DB emang waktu lokal tapi ga ada flag-nya, gunakan localize:
+                    tanggal_wib = tz_jakarta.localize(tanggal_db)
+                else:
+                    tanggal_wib = tanggal_db.astimezone(tz_jakarta)
+                
+                tanggal_str = tanggal_wib.strftime('%d %b %H:%M')
+            else:
+                # Jika tipe data string mentah
+                tanggal_str = str(tanggal_db)[:16]
+        else:
+            tanggal_str = "Baru"
 
-    # Format untuk Chart.js (Label dan Data)
-    labels_grafik = [d[0] for d in grafik_data]
-    values_grafik = [round(float(d[1]), 1) for d in grafik_data]
+        aktivitas_terbaru.append((
+            {
+                "skor": hasil.skor,
+                "mapel": hasil.mapel,
+                "created_at": tanggal_str
+            },
+            siswa
+        ))
+    
+    # Grafik Tren Koreksi LJK 7 Hari Terakhir
+    daftar_hari = [hari_ini - timedelta(days=i) for i in range(6, -1, -1)]
+    
+    labels_grafik = []
+    values_grafik = []
+    
+    for hari in daftar_hari:
+        labels_grafik.append(hari.strftime('%d %b'))
+        
+        # Batasan jam harian timezone Jakarta
+        start_date = datetime(hari.year, hari.month, hari.day, 0, 0, 0, tzinfo=tz_jakarta)
+        end_date = datetime(hari.year, hari.month, hari.day, 23, 59, 59, tzinfo=tz_jakarta)
+        
+        jumlah_koreksi_harian = db.query(HasilUjianTable).filter(
+            HasilUjianTable.tanggal >= start_date,
+            HasilUjianTable.tanggal <= end_date
+        ).count()
+            
+        values_grafik.append(jumlah_koreksi_harian)
     
     return templates.TemplateResponse(
-        request= request,
+        request=request,
         name="dashboard.html",
         context={
             "user": current_user,
@@ -77,8 +122,8 @@ async def dashboard(
             "aktivitas": aktivitas_terbaru,
             "labels_grafik": labels_grafik,
             "values_grafik": values_grafik
-            }
-        )
+        }
+    )
 
 @router.get("/koreksi", response_class=HTMLResponse)
 async def koreksi_page(

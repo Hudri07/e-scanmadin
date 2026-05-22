@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Koreksi Ujian - E-SCAN MADIN{% endblock %}
+{% block title %}Koreksi Ujian - E-Tashih{% endblock %}
 {% block page_title %}Koreksi Lembar Jawab{% endblock %}
 {% block hero_title %}Koreksi Otomatis AI{% endblock %}
 {% block hero_subtitle %}Gunakan teknologi Gemini AI untuk koreksi Lembar Jawab Komputer secara instan dan akurat.{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Hope UI Custom Utilities */
-   .card-hope {
+    /* Hope UI Custom Utilities - Diluruskan Tanpa Efek Kembung */
+    .card-hope {
         background-color: #ffffff;
         border: 1px solid #f3f4f6;
         box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.05), 0 10px 10px -5px rgba(30, 58, 138, 0.02); 
@@ -19,42 +19,39 @@
     }
 
     .grid-cell-hope {
-        border: 1px solid #f3f4f6;
-        min-height: 60px !important;
-        border-radius: 1rem; 
-        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        min-height: 50px !important;
+        border-radius: 0.5rem; /* rounded-lg */
+        padding: 0.4rem;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         background-color: #f9fafb; 
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
 
     .grid-cell-hope input {
-        font-size: 1.25rem !important; 
+        font-size: 1.125rem !important; 
         width: 100% !important;
+        text-align: center;
     }
 
     .grid-cell-hope:focus-within {
-        border-color: #3b82f6; 
+        border-color: #2563eb; 
         background-color: #ffffff;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1);
-        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        transform: scale(1.03);
     }
 
     .step-line {
         position: absolute;
-        left: 0.5rem; 
-        top: 3rem;
+        left: 1.5rem; 
+        top: 3.5rem;
         bottom: 0;
         width: 2px;
         background-color: #f3f4f6;
-        z-index: -1;
-    }
-
-    #btnMulaiScan {
-        border-radius: 1.5rem !important;
+        z-index: 1;
     }
 
     #selectKunci {
@@ -62,49 +59,60 @@
         -webkit-appearance: none !important;
         -moz-appearance: none !important;
         
-        padding: 1.25rem 3.5rem 1.25rem 1.5rem !important; 
+        padding: 0.75rem 2.5rem 0.75rem 1rem !important; 
         line-height: 1.5 !important;
         height: auto !important;
-        min-height: 4rem !important;
+        min-height: 2.75rem !important;
         
         background-color: #f9fafb !important; 
-        border: 1px solid #f3f4f6 !important;
-        border-radius: 1.5rem !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 0.75rem !important; /* rounded-xl */
         font-weight: 700 !important;
         color: #374151 !important; 
         width: 100% !important;
         display: block !important;
         cursor: pointer !important;
         
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
         background-repeat: no-repeat !important;
-        background-position: right 1.5rem center !important;
-        background-size: 1.2rem !important;
+        background-position: right 1rem center !important;
+        background-size: 1rem !important;
         
-        transition: all 0.3s ease !important;
+        transition: all 0.2s ease !important;
     }
 
     #selectKunci:hover {
-        border-color: #3b82f6 !important;
+        border-color: #2563eb !important;
         background-color: #ffffff !important;
-        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1) !important;
     }
 
     #selectKunci:focus {
         outline: none !important;
-        border-color: #3b82f6 !important;
-        ring: 4px rgba(59, 130, 246, 0.1) !important;
+        border-color: #2563eb !important;
     }
 
-    #selectKunci option {
-        padding: 1rem !important;
-        font-weight: 600 !important;
+    .grid-table {
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important; 
+        gap: 8px !important;
+        padding: 4px !important;
+    }
+
+    [id^="det-"] input, .grid-cell-hope input {
+        aspect-ratio: 1 / 1 !important; 
+        width: 100% !important;
+        min-width: 35px !important; 
+        font-size: 1.125rem !important; 
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(12px);
         }
         to {
             opacity: 1;
@@ -112,131 +120,83 @@
         }
     }
 
-   .grid-table {
-        display: grid !important;
-        grid-template-columns: repeat(5, minmax(0, 1fr)) !important; 
-        gap: 10px !important;
-        padding: 10px !important;
-    }
-
-    [id^="det-"] input, .grid-cell-hope input {
-        aspect-ratio: 1 / 1 !important; 
-        width: 100% !important;
-        min-width: 40px !important; 
-        font-size: 1.25rem !important; 
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    @media (max-width: 640px) {
-        [id^="det-"], .grid-table {
-            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-            gap: 8px !important;
-        }
-
-        .card-hope {
-            padding: 1.5rem !important;
-        }
-        
-        #btnMulaiScan {
-            width: 100%;
-            padding: 1rem !important;
-        }
-    }
-
     @media (min-width: 768px) { 
         .grid-table { 
-            grid-template-columns: repeat(10, minmax(0, 1fr)); 
-        }
-
-        .card-hope {
-        padding: 1.5rem !important; 
-        border-radius: 2rem !important; 
-        }
-        
-        #tableKunciContainer {
-            min-height: 300px !important; 
+            grid-template-columns: repeat(10, minmax(0, 1fr)) !important; 
         }
     }
-
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 pb-20 relative">
+<div class="max-w-7xl mx-auto space-y-8 pb-20 relative">
     
-   <div class="relative mb-12">
-        <div class="step-line"></div>
-        <div class="flex items-start gap-6">
-            <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex-shrink-0 flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-200 z-10">1</div>
-            <div class="flex-1">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-jakarta font-extrabold text-gray-800">Konfigurasi Kunci Jawaban</h2>
-                    <p class="text-gray-400 font-medium text-sm">Siapkan master kunci jawaban sebagai acuan penilaian.</p>
+    <div class="relative bg-white p-6 rounded-xl border border-gray-200/60 shadow-sm">
+        <div class="flex items-start gap-4">
+            <div class="w-8 h-8 bg-blue-600 text-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm shadow-md shadow-blue-100 z-10">1</div>
+            
+            <div class="flex-1 space-y-5">
+                <div>
+                    <h2 class="text-base font-bold text-gray-800 uppercase tracking-tight">Konfigurasi Kunci Jawaban</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Siapkan master acuan penilaian lembar jawab komputer (LJK).</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 space-y-6">
-                        <div class="card-hope bg-white border-gray-200">
-                            <label class="block text-[10px] font-black uppercase mb-3 tracking-widest text-blue-600">Gunakan Database</label>
-                            <select id="selectKunci" 
-                                    class="w-full p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] font-bold text-gray-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 mb-4" 
-                                    onchange="pakaiKunciLama(this)">
-                                <option value="" class="font-sans">-- Pilih Kunci Tersimpan --</option>
-                            </select>
-
-                            <div class="relative my-6 text-center">
-                                <span class="bg-white px-4 text-[10px] font-black text-gray-300 uppercase relative z-10">Atau</span>
-                                <hr class="border-gray-100 absolute top-1/2 w-full z-0">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-4 space-y-4">
+                        <div class="border border-gray-200/70 p-4 rounded-xl space-y-3 bg-gray-50/30">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1.5">Gunakan Database</label>
+                                <select id="selectKunci" onchange="pakaiKunciLama(this)">
+                                    <option value="">-- Pilih Kunci Tersimpan --</option>
+                                </select>
                             </div>
 
-                            <button onclick="document.getElementById('fileKunci').click()" class="w-full py-8 border-2 border-dashed border-gray-200 rounded-[2rem] bg-gray-50 hover:bg-white hover:border-blue-400 transition-all flex flex-col items-center group">
+                            <div class="relative my-4 text-center">
+                                <span class="bg-white px-3 text-[9px] font-bold text-gray-400 uppercase relative z-10">Atau</span>
+                                <hr class="border-gray-200/60 absolute top-1/2 w-full z-0">
+                            </div>
+
+                            <button onclick="document.getElementById('fileKunci').click()" class="w-full py-6 border border-dashed border-gray-300 rounded-xl bg-white hover:border-blue-500 hover:bg-blue-50/20 transition-all flex flex-col items-center group">
                                 <input type="file" id="fileKunci" class="hidden" accept="image/*">
-                                <div class="w-12 h-12 bg-white text-blue-600 rounded-xl flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-cloud-upload-alt text-xl"></i>
+                                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                                    <i class="fas fa-cloud-upload-alt text-sm"></i>
                                 </div>
-                                <span class="font-bold text-xs text-gray-600 uppercase tracking-widest">Upload Foto Kunci</span>
+                                <span class="font-bold text-[10px] text-gray-500 uppercase tracking-wide">Upload Foto Kunci</span>
                             </button>
                         </div>
 
-                        <div class="card-hope bg-white border-gray-200">
-                            <div class="grid grid-cols-1 gap-5">
-                                <div>
-                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Mata Pelajaran</label>
-                                    <div class="relative">
-                                        <input type="text" id="mapel" 
-                                            class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 font-bold text-gray-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all" 
-                                            placeholder="Masukkan Mapel...">
-                                        <i class="fas fa-pen absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-300"></i>
-                                    </div>
+                        <div class="border border-gray-200/70 p-4 rounded-xl space-y-3 bg-white">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Mata Pelajaran</label>
+                                <div class="relative">
+                                    <input type="text" id="mapel" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Masukkan Mapel...">
+                                    <i class="fas fa-pen absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Kelas</label>
-                                    <div class="relative">
-                                        <input type="text" id="kelas" 
-                                            class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 font-bold text-gray-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all" 
-                                            placeholder="Masukkan Kelas...">
-                                        <i class="fas fa-graduation-cap absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-300"></i>
-                                    </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kelas</label>
+                                <div class="relative">
+                                    <input type="text" id="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Masukkan Kelas...">
+                                    <i class="fas fa-graduation-cap absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="lg:col-span-8">
-                        <div id="tableKunciContainer" class="card-hope bg-white border-gray-200 min-h-[420px] flex flex-col relative overflow-hidden">
-                            <div id="emptyState" class="m-auto text-center">
-                                <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-th-large text-2xl text-gray-200"></i>
+                        <div id="tableKunciContainer" class="border border-gray-200/70 rounded-xl min-h-[320px] flex flex-col relative overflow-hidden bg-white">
+                            <div id="emptyState" class="m-auto text-center py-10">
+                                <div class="w-12 h-12 bg-gray-50 text-gray-300 rounded-lg flex items-center justify-center mx-auto mb-2 border border-gray-100">
+                                    <i class="fas fa-th-large text-sm"></i>
                                 </div>
-                                <p class="font-bold text-gray-400 italic text-sm">Data kunci akan tampil di sini</p>
+                                <p class="font-bold text-gray-400 italic text-xs">Data matriks butir soal akan tampil di sini</p>
                             </div>
-                            <div id="gridKunci" class="grid-table hidden p-2"></div>
-                            <div id="actionKunci" class="hidden p-4 border-t border-gray-50 flex justify-end">
-                                <button onclick="simpanPerubahanKunci()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all">
-                                    <i class="fas fa-save mr-2"></i> Simpan Perubahan Kunci
+                            
+                            <div id="gridKunci" class="grid-table hidden p-4"></div>
+                            
+                            <div id="actionKunci" class="hidden p-3 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+                                <button onclick="simpanPerubahanKunci()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-blue-700 transition-all shadow-sm">
+                                    <i class="fas fa-save mr-1.5"></i> Simpan Perubahan Kunci
                                 </button>
                             </div>
                         </div>
@@ -246,45 +206,30 @@
         </div>
     </div>
 
-    <div id="loadingGemini" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-white/80 backdrop-blur-sm">
-        <div class="text-center">
-            <div class="relative w-24 h-24 mx-auto mb-6">
-                <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <i class="fas fa-robot text-3xl text-blue-600 animate-bounce"></i>
-                </div>
-            </div>
-            <h3 class="text-xl font-jakarta font-black text-gray-800 mb-2">Gemini AI Memproses...</h3>
-            <p class="text-gray-400 font-medium animate-pulse">Sedang mengekstrak kunci jawaban dari foto</p>
-        </div>
-    </div>
-
-    <div class="relative mb-12">
-        <div class="flex items-start gap-6">
-            <div id="step2Icon" class="w-12 h-12 bg-gray-100 text-gray-400 rounded-2xl flex-shrink-0 flex items-center justify-center font-bold text-xl transition-all z-10">2</div>
+    <div class="relative bg-white p-6 rounded-xl border border-gray-200/60 shadow-sm">
+        <div class="flex items-start gap-4">
+            <div id="step2Icon" class="w-8 h-8 bg-gray-100 text-gray-400 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm z-10 transition-colors">2</div>
+            
             <div class="flex-1">
-                <div id="step2Header" class="mb-6 opacity-30 transition-opacity duration-500">
-                    <h2 class="text-2xl font-jakarta font-extrabold text-gray-800">Scan Lembar Jawab Siswa</h2>
-                    <p class="text-gray-400 font-medium text-sm">Unggah banyak foto LJK sekaligus untuk koreksi massal.</p>
+                <div id="step2Header" class="mb-4 opacity-40 transition-opacity duration-300">
+                    <h2 class="text-base font-bold text-gray-800 uppercase tracking-tight">Scan Lembar Jawab Siswa</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Unggah berkas foto LJK sekaligus untuk koreksi massal.</p>
                 </div>
 
-                <section id="step2Section" class="opacity-30 pointer-events-none transition-all duration-500">
-                    <div class="card-hope bg-white border-2 border-dashed border-blue-100 p-8 text-center relative overflow-hidden group hover:border-blue-400 hover:bg-blue-50/30 transition-all">
-                        <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl"></div>
-                        
+                <section id="step2Section" class="opacity-40 pointer-events-none transition-all duration-300">
+                    <div class="border border-dashed border-gray-300 p-8 rounded-xl text-center bg-gray-50/50 relative overflow-hidden group hover:border-blue-500 hover:bg-white transition-all">
                         <input type="file" id="fileLJK" class="hidden" accept="image/*" multiple>
                         
-                        <div class="inline-flex w-16 h-16 bg-blue-600 rounded-[1.5rem] items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-xl shadow-blue-200">
-                            <i class="fas fa-cloud-upload-alt text-2xl text-white"></i>
+                        <div class="inline-flex w-12 h-12 bg-blue-600 rounded-xl items-center justify-center mb-3 text-white shadow-md shadow-blue-100 group-hover:scale-105 transition-transform">
+                            <i class="fas fa-cloud-upload-alt text-sm"></i>
                         </div>
                         
-                        <h3 class="text-xl font-jakarta font-black mb-2 text-gray-800">Mulai Koreksi Otomatis</h3>
-                        <p class="text-gray-400 mb-6 max-w-md mx-auto text-xs font-medium">Sistem akan mencocokkan LJK siswa dengan kunci yang telah dikonfigurasi di atas secara instan.</p>
+                        <h3 class="text-sm font-bold mb-1 text-gray-800 uppercase tracking-tight">Mulai Proses Koreksi Massal</h3>
+                        <p class="text-gray-400 mb-4 max-w-md mx-auto text-[11px] leading-relaxed">Sistem AI Gemini akan langsung membaca, menghitung skor, dan mencocokkan lembar jawab santri secara real-time.</p>
                         
                         <button id="btnMulaiScan" disabled onclick="document.getElementById('fileLJK').click()"
-                                class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-500/40 transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-blue-200">
-                            Pilih File & Jalankan Scan
+                                class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold uppercase text-[10px] tracking-wider hover:bg-blue-700 transition-all disabled:opacity-40 shadow-sm">
+                            Pilih File & Jalankan Koreksi
                         </button>
                     </div>
                 </section>
@@ -292,25 +237,40 @@
         </div>
     </div>
 
-    <section id="resultSection" class="mt-20 space-y-8 hidden border-t border-gray-100 pt-16">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <section id="resultSection" class="hidden border-t border-gray-200 pt-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h3 class="text-3xl font-jakarta font-black text-gray-800 italic uppercase tracking-tighter">Hasil Pemeriksaan</h3>
-                <p class="text-gray-400 text-sm font-medium">Laporan nilai siswa berhasil diekstrak oleh AI.</p>
+                <h3 class="text-lg font-black text-gray-800 uppercase tracking-tight">Hasil Pemeriksaan Berkas</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Laporan nilai siswa hasil ekstraksi kecerdasan buatan.</p>
             </div>
-            <button onclick="simpanHasilKeDatabase()" class="px-8 py-4 bg-green-500 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-green-600 shadow-lg shadow-green-100 transition-all">
-                Simpan Ke Database
+            <button onclick="simpanHasilKeDatabase()" class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-bold uppercase text-[10px] tracking-wider hover:bg-green-700 shadow-sm transition-all">
+                Simpan Hasil Ke Database
             </button>
         </div>
-        <div id="containerHasil" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+        <div id="containerHasil" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
     </section>
+</div>
+
+<div id="loadingGemini" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-xl text-center max-w-xs w-full">
+        <div class="relative w-16 h-16 mx-auto mb-4">
+            <div class="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fas fa-robot text-xl text-blue-600 animate-bounce"></i>
+            </div>
+        </div>
+        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Gemini AI Memproses</h3>
+        <p class="text-gray-400 font-medium text-[11px] mt-1 animate-pulse">Mengekstrak opsi pilihan ganda LJK...</p>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     let currentKunciId = null;
-    // FUNGSI RENDER GRID
+
+    // FUNGSI RENDER GRID KUNCI MASTER
     function renderGrid(data) {
         const gridKunci = document.getElementById('gridKunci');
         const empty = document.getElementById('emptyState');
@@ -323,9 +283,9 @@
         data.forEach((val, i) => {
             gridKunci.innerHTML += `
                 <div class="grid-cell-hope group">
-                    <span class="text-[9px] font-black text-gray-300 uppercase mb-1 group-hover:text-blue-500 transition-colors">${i+1}</span>
+                    <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-blue-600 transition-colors">${i+1}</span>
                     <input type="text" maxlength="1" value="${val}" 
-                        class="kunci-input w-full text-center font-jakarta font-black text-lg bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
+                        class="kunci-input w-full text-center font-jakarta font-black text-sm bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
                 </div>`;
         });
     }
@@ -337,17 +297,16 @@
         const step2Section = document.getElementById('step2Section');
         const btn = document.getElementById('btnMulaiScan');
 
-        // Tambahkan efek transisi warna
-        step2Icon.style.backgroundColor = "#3a57e8";
+        // Menyelaraskan efek transisi warna dengan UI minimalis baru
+        step2Icon.style.backgroundColor = "#2563eb"; // blue-600
         step2Icon.style.color = "white";
-        step2Icon.style.boxShadow = "0 10px 20px rgba(58, 87, 232, 0.3)";
+        step2Icon.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.2)";
         
         step2Header.style.opacity = "1";
         step2Section.style.opacity = "1";
         step2Section.style.pointerEvents = "auto";
         btn.disabled = false;
         
-        // Scroll dengan offset agar tidak terlalu mentok ke atas
         setTimeout(() => {
             window.scrollTo({
                 top: step2Section.offsetTop - 100,
@@ -356,10 +315,9 @@
         }, 400);
     }
 
-    // API CALLS 
+    // LOAD DATA PERTAMA KALI (DOM READY)
     window.addEventListener('DOMContentLoaded', async () => {
         try {
-            // Ambil semua list kunci untuk dropdown
             const res = await fetch('/api/list-kunci');
             const data = await res.json();
             const select = document.getElementById('selectKunci'); 
@@ -374,22 +332,17 @@
                 select.appendChild(opt);
             });
 
-            // Cek apakah halaman ini dibuka karena tombol 'Edit' dari Manajemen Kunci
+            // Cek parameter edit dari halaman Manajemen Kunci
             const urlParams = new URLSearchParams(window.location.search);
             const editKunciId = urlParams.get('edit_kunci_id');
 
             if (editKunciId) {
-                // Set nilai select option sesuai ID yang dikirim
                 select.value = editKunciId;
-                
-                // Trigger fungsi bawaan untuk memuat data ke form dan grid
                 pakaiKunciLama(select);
-                
                 if (typeof showToast === "function") {
                     showToast("Kunci jawaban otomatis dimuat!", "success");
                 }
             }
-
         } catch (e) {
             console.error("Gagal muat list master kunci:", e);
         }
@@ -403,11 +356,11 @@
         document.getElementById('mapel').value = opt.dataset.mapel;
         document.getElementById('kelas').value = opt.dataset.kelas;
         
-        // Render data array kunci ke bentuk kotak-kotak grid
         renderGrid(JSON.parse(opt.dataset.json));
         activateStep2();
     }
 
+    // UPLOAD FOTO KUNCI (PROSES GEMINI AI)
     document.getElementById('fileKunci').onchange = async function(e) {
         const file = e.target.files[0];
         if(!file) return;
@@ -423,7 +376,6 @@
             const result = await res.json();
             if(result.status === 'success') {
                 currentKunciId = result.id;
-
                 document.getElementById('mapel').value = result.mata_pelajaran || "NA";
                 document.getElementById('kelas').value = result.kelas || "NA";
                 renderGrid(result.data);
@@ -441,17 +393,15 @@
         }
     };
 
+    // UPDATE MASTER KUNCI MANUAL
     async function simpanPerubahanKunci() {
         if (!currentKunciId) {
             showToast("ID Kunci tidak ditemukan. Silakan pilih atau upload kunci dulu.", "error");
             return;
         }
 
-        // Ambil nilai terbaru dari input Mapel dan Kelas
         const mapelBaru = document.getElementById('mapel').value;
         const kelasBaru = document.getElementById('kelas').value;
-
-        // Ambil semua jawaban dari grid
         const inputs = document.querySelectorAll('.kunci-input');
         const jawabanBaru = Array.from(inputs).map(input => input.value.toUpperCase() || "-");
 
@@ -462,10 +412,7 @@
         formData.append('jawaban', JSON.stringify(jawabanBaru));
 
         try {
-            const res = await fetch('/kunci/update-kunci-manual', {
-                method: 'POST',
-                body: formData
-            });
+            const res = await fetch('/kunci/update-kunci-manual', { method: 'POST', body: formData });
             const result = await res.json();
             if (result.status === 'success') {
                 showToast("Perubahan kunci berhasil disimpan!", "success");
@@ -475,6 +422,7 @@
         }
     }
 
+    // PROSES SCAN BANYAK LJK SISWA (BULK SCAN)
     document.getElementById('fileLJK').onchange = async function(e) {
         const fileList = e.target.files;
         if (fileList.length === 0) return;
@@ -496,73 +444,101 @@
 
             if (result.status === 'success') {
                 document.getElementById('resultSection').classList.remove('hidden');
+                
+                // Render Kartu Hasil Scan ke HTML
                 containerHasil.innerHTML = result.data.map((siswa, idx) => `
-                    <div class="card-hope relative overflow-hidden group hover:border-blue-200 bg-white">
-                        ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-4 py-1 rounded-bl-xl uppercase z-20">Duplikat</div>' : ''}
+                    <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-blue-400 transition-all"
+                        data-telegram-id="${siswa.telegram_message_id || ''}">
                         
-                        <div class="flex items-center gap-5 mb-6">
-                            <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex flex-col items-center justify-center shadow-lg shadow-blue-100 shrink-0">
-                                <span class="text-[8px] font-black uppercase opacity-60">Score</span>
-                                <span class="text-2xl font-black">${siswa.skor}</span>
+                        ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase z-20">Duplikat</div>' : ''}
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex flex-col items-center justify-center shadow-md shrink-0">
+                                <span class="text-[7px] font-black uppercase opacity-60 leading-none mb-0.5">Skor</span>
+                                <span class="text-xl font-black leading-none">${siswa.skor}</span>
                             </div>
-                            <div class="flex-1 space-y-2">
-                                <div class="relative group/input">
-                                    <input type="text" value="${siswa.nama}" 
-                                        class="w-full font-jakarta font-extrabold text-lg text-gray-800 leading-none bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-gray-50 rounded-lg px-2 py-1 outline-none transition-all" 
-                                        placeholder="Nama Siswa">
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">ID:</span>
+                            <div class="flex-1 min-w-0">
+                                <input type="text" value="${siswa.nama}" 
+                                    class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
+                                    placeholder="Nama Siswa">
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID:</span>
                                     <input type="text" value="${siswa.nomor_peserta}" 
                                         data-old-id="${siswa.nomor_peserta}" 
-                                        class="font-bold text-xs text-blue-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-blue-50 rounded px-2 py-0.5 outline-none transition-all" 
+                                        class="font-bold text-xs text-blue-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-blue-50 rounded px-1.5 py-0.5 outline-none transition-all" 
                                         placeholder="No Peserta">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 mb-6">
-                            <div class="flex-1 bg-green-50/50 p-3 rounded-2xl border border-green-100 text-center">
-                                <div class="text-[9px] font-black text-green-600 uppercase">Benar</div>
-                                <div class="text-lg font-black text-green-700">${siswa.detail.benar}</div>
+                        <div class="flex gap-3 mb-4">
+                            <div class="flex-1 bg-green-50/50 p-2 rounded-lg border border-green-100 text-center">
+                                <div class="text-[9px] font-bold text-green-600 uppercase tracking-wide">Benar</div>
+                                <div class="text-base font-black text-green-700">${siswa.detail ? siswa.detail.benar : 0}</div>
                             </div>
-                            <div class="flex-1 bg-red-50/50 p-3 rounded-2xl border border-red-100 text-center">
-                                <div class="text-[9px] font-black text-red-600 uppercase">Salah</div>
-                                <div class="text-lg font-black text-red-700">${siswa.detail.salah}</div>
+                            <div class="flex-1 bg-red-50/50 p-2 rounded-lg border border-red-100 text-center">
+                                <div class="text-[9px] font-bold text-red-600 uppercase tracking-wide">Salah</div>
+                                <div class="text-base font-black text-red-700">${siswa.detail ? siswa.detail.salah : 0}</div>
                             </div>
                         </div>
 
-                        <button onclick="toggleDetail('det-${idx}')" class="w-full py-3 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                        <button onclick="toggleDetail('det-${idx}')" class="w-full py-2 bg-gray-50 border border-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                             Edit / Analisis Jawaban <i class="fas fa-edit ml-1"></i>
                         </button>
 
-                        <div id="det-${idx}" class="hidden mt-4 pt-4 border-t border-gray-50 grid grid-cols-5 sm:grid-cols-10 gap-2">
+                        <div id="det-${idx}" class="hidden mt-3 pt-3 border-t border-gray-100 grid grid-cols-5 sm:grid-cols-10 gap-1.5">
                             ${(siswa.perbandingan || []).map(it => `
                                 <div class="flex flex-col items-center">
-                                    <span class="text-[8px] font-bold text-gray-300 mb-1">${it.no}</span>
+                                    <span class="text-[8px] font-bold text-gray-300 mb-0.5">${it.no}</span>
                                     <input type="text" maxlength="1" value="${it.siswa}" 
-                                        class="w-full text-center p-1 font-black rounded-lg border-2 uppercase text-xs transition-all
-                                        ${it.status === 'correct' ? 'bg-green-50 border-green-100 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-100 text-red-700 focus:border-red-500'}">
+                                        class="w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
+                                        ${it.status === 'correct' ? 'bg-green-50 border-green-200 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-200 text-red-700 focus:border-red-500'}">
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `).join('');
+                
+                // Cek apakah ada minimal satu siswa yang is_duplicate bernilai true
+                const adaDuplikat = result.data.some(siswa => siswa.is_duplicate === true);
+                
+                if (adaDuplikat) {
+                    // Cari tahu nama-nama siswa yang duplikat buat dipajang di alert
+                    const namaDuplikat = result.data
+                        .filter(siswa => siswa.is_duplicate)
+                        .map(siswa => `• ${siswa.nama}`)
+                        .join('<br>');
+
+                    if (typeof Swal !== "function") {
+                        // Backup jika library SweetAlert belum ter-load sempurna
+                        showToast("Beberapa LJK siswa sudah pernah dikoreksi!", "warning");
+                    } else {
+                        Swal.fire({
+                            title: 'Data Duplikat Terdeteksi!',
+                            html: `Siswa berikut sudah dikoreksi sebelumnya pada mapel ini:<br><br><b class="text-red-500">${namaDuplikat}</b><br><br>Nilai lama otomatis dimuat dari database Neon.`,
+                            icon: 'warning',
+                            confirmButtonColor: '#2563eb',
+                            confirmButtonText: 'Oke'
+                        });
+                    }
+                } else {
+                    if (typeof showToast === "function") {
+                        showToast("Semua LJK berhasil diekstraksi!", "success");
+                    }
+                }
+
                 document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
             }
+        } catch (error) {
+            console.error(error);
+            if (typeof showToast === "function") showToast("Gagal memproses bulk scan", "error");
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalContent;
         }
     };
 
-    function toggleDetail(id) {
-        document.getElementById(id).classList.toggle('hidden');
-    }
-
-    /**
-    * Menghitung ulang skor satu siswa berdasarkan kunci jawaban master saat ini
-    */
+    // FUNGSI HITUNG ULANG SKOR MANDIRI PER SISWA
     function hitungUlangSiswa(idx) {
         const masterKunci = Array.from(document.querySelectorAll('#gridKunci input')).map(input => input.value.toUpperCase());
         const containerSiswa = document.getElementById(`det-${idx}`);
@@ -579,29 +555,22 @@
 
             if (jawabanSiswa === kunciBenar) {
                 benar++;
-                // Update Visual ke Hijau
-                inputSiswa.className = "w-full text-center p-1 font-black rounded-lg border-2 uppercase text-xs transition-all bg-green-50 border-green-100 text-green-700 focus:border-green-500";
+                inputSiswa.className = "w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-green-50 border-green-200 text-green-700 focus:border-green-500";
             } else {
                 salah++;
-                // Update Visual ke Merah
-                inputSiswa.className = "w-full text-center p-1 font-black rounded-lg border-2 uppercase text-xs transition-all bg-red-50 border-red-100 text-red-700 focus:border-red-500";
+                inputSiswa.className = "w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-red-50 border-red-200 text-red-700 focus:border-red-500";
             }
         });
 
-        // Hitung Skor (Skala 100)
         const totalSoal = masterKunci.length;
         const skorBaru = totalSoal > 0 ? Math.round((benar / totalSoal) * 100) : 0;
 
-        // Update Tampilan Kartu Siswa
         const card = containerSiswa.closest('.card-hope');
-        card.querySelector('.text-2xl.font-black').innerText = skorBaru;
+        card.querySelector('.text-xl.font-black').innerText = skorBaru; // ID target disesuaikan (.text-xl)
         card.querySelector('.text-green-700').innerText = benar;
         card.querySelector('.text-red-700').innerText = salah;
     }
 
-    /**
-    * Menghitung ulang SEMUA siswa jika kunci master berubah
-    */
     function hitungSemuaSiswa() {
         const semuaDetail = document.querySelectorAll('[id^="det-"]');
         semuaDetail.forEach(el => {
@@ -610,14 +579,11 @@
         });
     }
 
-    // Event Listener untuk perubahan pada KUNCI MASTER (Step 1)
+    // REAL-TIME EVENT LISTENERS
     document.getElementById('gridKunci').addEventListener('input', (e) => {
-        if (e.target.tagName === 'INPUT') {
-            hitungSemuaSiswa();
-        }
+        if (e.target.tagName === 'INPUT') hitungSemuaSiswa();
     });
 
-    // Event Listener untuk perubahan pada JAWABAN SISWA (Step 2/Hasil)
     document.getElementById('containerHasil').addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT') {
             const containerSiswa = e.target.closest('[id^="det-"]');
@@ -628,6 +594,7 @@
         }
     });
 
+    // SIMPAN DATA NILAI KE FASTAPI BACKEND
     async function simpanHasilKeDatabase() {
         const btnSimpan = document.querySelector('button[onclick="simpanHasilKeDatabase()"]');
         const semuaKartu = document.querySelectorAll('#containerHasil .card-hope');
@@ -640,13 +607,15 @@
 
         semuaKartu.forEach((card, idx) => {
             const nama = card.querySelector('input[placeholder="Nama Siswa"]').value;
-            
-            // Ambil input nomor peserta 
             const inputNomor = card.querySelector('input[placeholder="No Peserta"]');
-            const nomorPesertaBaru = inputNomor.value; // Nilai saat ini (diedit)
-            const nomorPesertaLama = inputNomor.getAttribute('data-old-id'); // Nilai asli hasil scan
             
-            const skor = parseInt(card.querySelector('.text-2xl.font-black').innerText);
+            const nomorPesertaBaru = inputNomor.value;
+            const nomorPesertaLama = inputNomor.getAttribute('data-old-id');
+            
+            // 🌟 PERBAIKAN DI SINI BOLO: Ambil langsung dari element card utamanya!
+            const telegramMessageId = card.getAttribute('data-telegram-id');
+            
+            const skor = parseInt(card.querySelector('.text-xl.font-black').innerText);
             
             const detailJawaban = [];
             const inputsDetail = document.querySelectorAll(`#det-${idx} input`);
@@ -662,6 +631,8 @@
                 nomor_peserta_lama: nomorPesertaLama, 
                 nomor_peserta_baru: nomorPesertaBaru,
                 skor: skor,
+                // Konversi ke Integer secara aman sebelum dikirim ke FastAPI Pydantic
+                telegram_message_id: (telegramMessageId && telegramMessageId !== "") ? parseInt(telegramMessageId) : null,
                 jawaban_detail: detailJawaban
             });
         });
@@ -679,8 +650,7 @@
 
             const res = await response.json();
             if (response.ok) {
-                showToast("Data berhasil diperbarui", "success");
-                // Segarkan halaman agar atribut data-old-id sinkron dengan DB yang baru
+                showToast("Data berhasil diperbarui ke database!", "success");
                 window.location.reload(); 
             } else {
                 alert("Error: " + (res.detail || "Gagal menyimpan"));
@@ -693,11 +663,13 @@
         }
     }
 
+    // FUNGSI SINGLE TOGGLE DETAIL + SCROLL HALUS
     function toggleDetail(id) {
         const el = document.getElementById(id);
+        if (!el) return;
+        
         el.classList.toggle('hidden');
         
-        // Jika dibuka (tidak hidden), scroll halus ke elemen tersebut
         if (!el.classList.contains('hidden')) {
             setTimeout(() => {
                 el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

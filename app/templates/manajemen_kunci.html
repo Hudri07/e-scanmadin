@@ -1,150 +1,148 @@
 {% extends "base.html" %}
 
-{% block title %}Manajemen Kunci - E-SCAN MADIN{% endblock %}
+{% block title %}Manajemen Kunci - E-Tashih{% endblock %}
 {% block page_title %}Master Data Kunci{% endblock %}
 {% block hero_title %}Manajemen Master Kunci{% endblock %}
 {% block hero_subtitle %}Kelola, edit, dan hapus data kunci jawaban yang telah tersimpan di database.{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Konsistensi dengan Hope UI */
-    .card-hope {
-        background-color: #ffffff;
-        border: 1px solid #f3f4f6;
-        box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.05), 0 10px 10px -5px rgba(30, 58, 138, 0.02); 
-        border-radius: 2.5rem; 
-        padding: 2rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
+    /* Penyelarasan Standar Tabel Profesional */
     .table-hope thead th {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 800;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.65rem;
-        color: #9ca3af;
-        padding: 1.5rem 1rem;
-        border-bottom: 2px solid #f9fafb;
+        letter-spacing: 0.05em;
+        font-size: 11px;
+        color: #6b7280; /* Gray 500 */
+        padding: 1rem 1.5rem;
     }
 
     .table-hope tbody td {
-        padding: 1.25rem 1rem;
+        padding: 0.875rem 1.5rem;
         vertical-align: middle;
     }
 
-    .btn-action {
-        width: 35px;
-        height: 35px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.75rem;
-        transition: all 0.2s;
-    }
-
     .badge-kelas {
-        background-color: #eff6ff;
-        color: #3b82f6;
-        padding: 0.25rem 0.75rem;
-        border-radius: 0.5rem;
-        font-weight: 800;
-        font-size: 0.7rem;
-    }
-
-    /* Animasi Hover Baris */
-    .row-hover:hover {
-        background-color: #fcfdfe;
+        background-color: #f0f6ff;
+        color: #2563eb;
+        border: 1px solid #dbeafe;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.375rem;
+        font-weight: 700;
+        font-size: 10px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 pb-20 relative">
+<div class="max-w-7xl mx-auto space-y-6">
     
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <div>
-            <h3 class="text-3xl font-jakarta font-black text-gray-800 italic uppercase tracking-tighter">Daftar Kunci Jawaban</h3>
-            <p class="text-gray-400 text-sm font-medium">Total master data yang tersimpan di sistem.</p>
+    <div class="bg-white p-4 px-6 rounded-xl border border-gray-200/60 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-2 text-gray-500 text-center sm:text-left">
+            <i class="fas fa-info-circle text-xs text-blue-500 flex-shrink-0"></i>
+            <p class="text-xs font-semibold text-gray-500">Menampilkan seluruh master data kunci lembar jawab komputer yang aktif di sistem.</p>
         </div>
-        <a href="/koreksi" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all flex items-center gap-3 w-fit">
-            <i class="fas fa-plus"></i> Scan Kunci Baru
+        
+        <a href="/koreksi" class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
+            <i class="fas fa-camera text-xs"></i>
+            <span>Scan Kunci Baru</span>
         </a>
     </div>
 
-    <div class="card-hope bg-white border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full table-hope">
-                <thead>
-                    <tr>
-                        <th class="text-left">Mata Pelajaran</th>
-                        <th class="text-left">Kelas</th>
-                        <th class="text-center">Jumlah Soal</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBodyKunci">
-                    <tr>
-                        <td colspan="4" class="text-center py-20">
-                            <i class="fas fa-circle-notch fa-spin text-3xl text-blue-100 mb-4"></i>
-                            <p class="text-gray-400 font-bold italic text-sm">Memuat data dari database...</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+        
+        <div id="loadingState" class="py-20 text-center">
+            <i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-3"></i>
+            <p class="text-gray-400 font-bold text-xs italic">Menghubungkan ke database server...</p>
+        </div>
+
+        <div id="emptyState" class="hidden py-20 text-center animate-in fade-in duration-200">
+            <div class="w-14 h-14 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-database text-lg"></i>
+            </div>
+            <h4 class="text-gray-800 font-bold text-base">Belum Ada Kunci Jawaban</h4>
+            <p class="text-gray-400 text-xs mt-1 max-w-xs mx-auto leading-relaxed">Silakan lakukan pemindaian master kunci baru terlebih dahulu melalui menu scanner.</p>
+        </div>
+
+        <div id="kunciContainer" class="hidden animate-in fade-in duration-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse table-hope">
+                    <thead class="bg-gray-50/80 border-b border-gray-200">
+                        <tr>
+                            <th class="w-5/12">Mata Pelajaran</th>
+                            <th class="w-3/12">Target Tingkatan</th>
+                            <th class="w-2/12 text-center">Total Soal</th>
+                            <th class="w-2/12 text-center">Opsi Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyKunci" class="divide-y divide-gray-100">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
 
-    <div id="emptyState" class="hidden py-20 text-center">
-        <div class="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-database text-3xl text-gray-200"></i>
+<div id="deleteModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm text-center border border-gray-200">
+        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation-triangle"></i>
         </div>
-        <h4 class="text-xl font-jakarta font-black text-gray-800">Belum Ada Kunci</h4>
-        <p class="text-gray-400 font-medium mb-8">Silakan lakukan scan kunci jawaban di halaman koreksi.</p>
+        <h3 class="text-base font-bold text-gray-800 mb-1">Hapus Master Kunci</h3>
+        <p id="deleteMessage" class="text-xs text-gray-400 mb-5 leading-relaxed"></p>
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-lg font-bold text-xs uppercase hover:bg-gray-200 transition-all">Batal</button>
+            <button onclick="confirmDelete()" class="flex-1 bg-red-600 text-white py-2.5 rounded-lg font-bold text-xs uppercase hover:bg-red-700 transition-all">Ya, Hapus</button>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Fungsi untuk memuat semua kunci dari API
+    let targetDeleteId = null;
+
+    // Fungsi fetch data dari API
     async function loadMasterKunci() {
-        const tbody = document.getElementById('tableBodyKunci');
+        const loading = document.getElementById('loadingState');
         const emptyState = document.getElementById('emptyState');
+        const container = document.getElementById('kunciContainer');
+        const tbody = document.getElementById('tableBodyKunci');
 
         try {
             const res = await fetch('/api/list-kunci');
             const data = await res.json();
+            
+            loading.classList.add('hidden');
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '';
-                tbody.closest('.card-hope').classList.add('hidden');
+                container.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             tbody.innerHTML = "";
             data.forEach(k => {
-                // Menghitung jumlah soal dari array kunci
                 const jumlahSoal = k.kunci ? k.kunci.length : 0;
 
                 tbody.innerHTML += `
-                    <tr class="row-hover border-b border-gray-50 transition-colors">
-                        <td class="font-jakarta font-extrabold text-gray-700 text-lg">
+                    <tr class="hover:bg-gray-50/60 transition-colors">
+                        <td class="font-bold text-gray-800 text-sm tracking-tight">
                             ${k.mapel}
                         </td>
                         <td>
                             <span class="badge-kelas uppercase">Kelas ${k.kelas}</span>
                         </td>
-                        <td class="text-center font-bold text-gray-400">
-                            ${jumlahSoal} Butir
+                        <td class="text-center font-semibold text-gray-500 text-xs">
+                            ${jumlahSoal} Butir Soal
                         </td>
                         <td class="text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="/koreksi?edit_kunci_id=${k.id}" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" title="Gunakan / Edit Kunci">
+                            <div class="flex justify-center items-center gap-2">
+                                <a href="/koreksi?edit_kunci_id=${k.id}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all border border-blue-100" title="Gunakan / Edit Kunci">
                                     <i class="fas fa-edit text-xs"></i>
                                 </a>
-                                <button onclick="hapusKunci(${k.id}, '${k.mapel}')" class="btn-action bg-red-50 text-red-500 hover:bg-red-600 hover:text-white" title="Hapus">
+                                <button onclick="bukaModalHapus(${k.id}, '${k.mapel}')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-red-600 hover:text-white transition-all border border-gray-200" title="Hapus Kunci">
                                     <i class="fas fa-trash text-xs"></i>
                                 </button>
                             </div>
@@ -153,35 +151,54 @@
                 `;
             });
 
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+
         } catch (error) {
             console.error("Gagal memuat data:", error);
-            showToast("Gagal mengambil data dari server", "error");
+            loading.classList.add('hidden');
+            showToast("Gagal mengambil data kunci dari server", "error");
         }
     }
 
-    async function hapusKunci(id, name) {
-        if (!confirm(`Apakah Anda yakin ingin menghapus kunci "${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
-            return;
-        }
+    // Fungsi Kontrol Modal Konfirmasi Hapus
+    function bukaModalHapus(id, namaMapel) {
+        targetDeleteId = id;
+        document.getElementById('deleteMessage').innerText = `Apakah Anda yakin ingin menghapus kunci pelajaran "${namaMapel}"? Data pemeriksaan LJK yang terikat mungkin akan terpengaruh.`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        targetDeleteId = null;
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    async function confirmDelete() {
+        if (!targetDeleteId) return;
 
         try {
-            const res = await fetch(`/kunci/hapus/${id}`, {
+            const res = await fetch(`/kunci/hapus/${targetDeleteId}`, {
                 method: 'DELETE'
             });
             const result = await res.json();
 
+            closeDeleteModal();
+
             if (res.ok) {
                 showToast("Kunci jawaban berhasil dihapus", "success");
+                document.getElementById('kunciContainer').classList.add('hidden');
+                document.getElementById('loadingState').classList.remove('hidden');
                 loadMasterKunci();
-        } else {
-            showToast(result.detail || "Gagal menghapus data", "error");
+            } else {
+                showToast(result.detail || "Gagal menghapus data", "error");
+            }
+        } catch (error) {
+            closeDeleteModal();
+            showToast("Terjadi kesalahan koneksi jaringan", "error");
         }
-    } catch (error) {
-        showToast("Terjadi kesalahan koneksi", "error");
     }
-}
 
-    // Jalankan saat halaman dimuat
+    // Jalankan otomatis saat DOM siap
     window.addEventListener('DOMContentLoaded', loadMasterKunci);
 </script>
 {% endblock %}

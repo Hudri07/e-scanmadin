@@ -5,7 +5,9 @@ import shutil
 import json
 import uuid
 import time
+import pytz
 
+from datetime import datetime
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
@@ -151,7 +153,7 @@ async def scan_bulk(
 
         try:
             # Berikan sedikit jeda agar proses file sistem stabil
-            time.sleep(0.2)
+            time.sleep(0.1)
 
             # Jalankan OMR
             hasil_omr = scan_jawaban(file_path)
@@ -174,11 +176,20 @@ async def scan_bulk(
             ).first()
 
             if exists:
+                # Walaupun duplikat, kita tetap hitung skor dari hasil OMR saat ini 
+                if jawaban_siswa:
+                    skor_omr, benar, salah, perbandingan = hitung_skor(jawaban_siswa, kunci_jawaban)
+                else:
+                    benar, salah, perbandingan = 0, 0, []
+
                 hasil_bulk.append({
                     "nama": nama_siswa,
                     "nomor_peserta": nomor_peserta,
-                    "is_duplicate": True,
-                    "skor": exists.skor,
+                    "is_duplicate": True, 
+                    "skor": exists.skor, 
+                    "detail": {"benar": benar, "salah": salah},
+                    "perbandingan": perbandingan,
+                    "telegram_message_id": exists.telegram_message_id,
                     "message": "Siswa ini sudah dikoreksi sebelumnya."
                 })
                 continue
@@ -231,12 +242,20 @@ async def scan_bulk(
 @router.post("/simpan-hasil")
 async def simpan_hasil_manual(payload: PayloadSimpanHasil, db: Session = Depends(get_db)):
     try:
+        # Siapkan Waktu WIB Jakarta
+        tz_jakarta = pytz.timezone('Asia/Jakarta')
+        waktu_sekarang_wib = datetime.now(tz_jakarta)
+
         # Ambil info kelas dari Kunci Jawaban berdasarkan Mapel
         kunci_info = db.query(models.KunciJawabanTable).filter_by(mapel=payload.mapel).first()
         kelas_asli = kunci_info.kelas if kunci_info else "Tidak Diketahui"
         
+        # List sementara untuk menampung data telegram yang perlu di-update setelah DB sukses
+        telegram_updates = []
+
+        # ITERASI UTAMA: FOKUS SIMPAN KE DATABASE DULU (ANTI MACET)
         for s in payload.siswa:
-            # 1. Logic Pencarian/Pendaftaran Siswa
+            # Cari atau daftarkan siswa baru
             siswa = db.query(models.SiswaTable).filter_by(nomor_peserta=s.nomor_peserta_baru).first()
             if not siswa:
                 siswa = models.SiswaTable(
@@ -247,7 +266,20 @@ async def simpan_hasil_manual(payload: PayloadSimpanHasil, db: Session = Depends
                 db.add(siswa)
                 db.flush()
 
-            # 2. Update atau Insert Nilai
+            # Pastikan konversi ID Telegram aman
+            tele_id = None
+            if s.telegram_message_id is not None:
+                try:
+                    # Amankan konversi ke integer murni
+                    nama_id_str = str(s.telegram_message_id).strip()
+                    if nama_id_str.replace('.', '', 1).isdigit() or nama_id_str.isdigit():
+                        val_int = int(float(nama_id_str))
+                        if val_int > 0:
+                            tele_id = val_int
+                except ValueError:
+                    tele_id = None
+
+            # Cari data nilai yang sudah ada
             hasil = db.query(models.HasilUjianTable).filter(
                 and_(
                     models.HasilUjianTable.nomor_peserta == s.nomor_peserta_baru,
@@ -257,27 +289,53 @@ async def simpan_hasil_manual(payload: PayloadSimpanHasil, db: Session = Depends
 
             if hasil:
                 hasil.skor = s.skor
-                hasil.telegram_message_id = s.telegram_message_id
+                hasil.tanggal = waktu_sekarang_wib 
+                if tele_id:
+                    hasil.telegram_message_id = tele_id
             else:
                 hasil = models.HasilUjianTable(
                     nomor_peserta=s.nomor_peserta_baru,
                     mapel=payload.mapel,
-                    skor=s.skor
+                    skor=s.skor,
+                    tanggal=waktu_sekarang_wib,
+                    telegram_message_id=tele_id
                 )
                 db.add(hasil)
             
-            # KIRIM KE TELEGRAM 
-            caption_final = (
-                f" **HASIL UJIAN TERVERIFIKASI**\n\n"
-                f" Nama: {s.nama}\n"
-                f" Nomor Peserta: {s.nomor_peserta_baru}\n"
-                f" Mata Pelajaran: {payload.mapel}\n"
-                f" **Skor Akhir: {s.skor}**"
-            )
-            await edit_telegram_caption(s.telegram_message_id, caption_final)
-        
+            # Jika ada ID Telegram valid, masukkan ke antrean update nanti
+            if tele_id:
+                telegram_updates.append({
+                    "tele_id": tele_id,
+                    "nama": s.nama,
+                    "nomor": s.nomor_peserta_baru,
+                    "skor": s.skor
+                })
+
+        # COMMIT KE DATABASE TERLEBIH DAHULU!
         db.commit()
-        return {"status": "success", "message": "Data berhasil diperbarui dan dikirim ke Telegram"}
+        print("✅ DATA BERHASIL DI-COMMIT KE DATABASE NEON!")
+
+        # PROSES UPDATE TELEGRAM DI AKHIR (JIKA ADA EROR TIDAK AKAN MERUSAK DB)
+        for t in telegram_updates:
+            caption_final = (
+                f" **HASIL UJIAN TERVERIFIKASI** \n\n"
+                f" Nama: {t['nama']}\n"
+                f" Nomor Peserta: {t['nomor']}\n"
+                f" Mata Pelajaran: {payload.mapel}\n"
+                f" **Skor Akhir: {t['skor']}**"
+            )
+            try:
+                # Panggil update caption Telegram
+                await edit_telegram_caption(t["tele_id"], caption_final)
+                print(f"🔹 Telegram Caption Berhasil Diupdate untuk ID: {t['tele_id']}")
+            except Exception as tele_err:
+                # Log eror telegram, tapi abaikan agar response backend ke frontend tetap jalan lancar!
+                print(f"Gagal update caption Telegram ID {t['tele_id']} tapi DB aman: {tele_err}")
+
+        # Kembalikan response sukses ke JavaScript frontend
+        return {"status": "success", "message": "Data berhasil disimpan ke database!"}
+        
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"DATABASE ROLLBACK AKIBAT EROR UTAMA: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Gagal menyimpan data: {str(e)}")

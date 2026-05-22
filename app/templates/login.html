@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% set no_sidebar = True %}
-{% block title %}Login - E-SCAN MADIN{% endblock %}
+{% block title %}Login - E-Tashih{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Hope UI Theme Colors & Smoothness */
     body {
-        background-color: #f8f9fa;
+        background-color: #f4f6f9;
         font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow-x: hidden;
     }
 
     @font-face {
         font-family: 'Gebuk';
-        src: url('/static/fonts/gebuk.regular.ttf') format('truetype'); /* Pastikan path benar */
+        src: url('/static/fonts/gebuk.regular.ttf') format('truetype');
         font-weight: normal;
         font-style: normal;
     }
@@ -27,87 +27,70 @@
         align-items: center;
         justify-content: center;
         padding: 24px;
-        background-image: radial-gradient(#d1d5db 0.5px, transparent 0.5px);
-        background-size: 24px 24px; /* Dot pattern subtle background */
+        background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px);
+        background-size: 32px 32px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .login-card {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 2rem;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 3rem 2.5rem;
+        border-radius: 2.5rem;
+        box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.08), 0 10px 20px -10px rgba(0, 0, 0, 0.04);
         width: 100%;
-        max-width: 450px;
-        border: 1px solid rgba(229, 231, 235, 0.5);
-    }
-
-    .logo-box {
-        margin-bottom: 2rem;
-        text-align: center;
+        max-width: 440px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .logo-box h1 {
-        line-height: 1;
-        padding-bottom: 5px;
-    }
-
-    .login-card h2 {
-        color: #1f2937;
-        font-weight: 800;
-        font-size: 1.5rem;
-        letter-spacing: -0.025em;
-    }
-
-    .login-card p {
-        color: #6b7280;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-
-    .input-wrapper {
-        margin-bottom: 1.25rem;
-    }
-
-    .input-label {
-        display: block;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #9ca3af;
-        margin-bottom: 0.5rem;
-        padding-left: 0.25rem;
+        color: #3b82f6; 
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.02em;
     }
 
     .hope-input {
         width: 100%;
-        padding: 0.875rem 1.25rem;
-        background-color: #f3f4f6;
-        border: 2px solid transparent;
-        border-radius: 1rem;
+        padding: 0.95rem 1.25rem;
+        background-color: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1.25rem;
         font-weight: 600;
-        color: #374151;
-        transition: all 0.3s ease;
+        color: #1e293b;
+        transition: all 0.25s ease;
         outline: none;
     }
 
     .hope-input:focus {
         background-color: white;
         border-color: #3b82f6;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
     }
 
-    /* Password Toggle Inside Input */
     .password-group {
         position: relative;
     }
 
     .password-toggle {
         position: absolute;
-        right: 1rem;
+        right: 1.25rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #9ca3af;
+        color: #94a3b8;
         cursor: pointer;
         transition: color 0.2s;
         border: none;
@@ -120,23 +103,22 @@
 
     .btn-login {
         width: 100%;
-        padding: 1rem;
-        background-color: #3b82f6;
+        padding: 1.1rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
         border: none;
-        border-radius: 1rem;
+        border-radius: 1.25rem;
         font-weight: 700;
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
-        margin-top: 1rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 12px 20px -8px rgba(59, 130, 246, 0.5);
+        margin-top: 1.5rem;
     }
 
     .btn-login:hover {
-        background-color: #2563eb;
         transform: translateY(-2px);
         box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
     }
@@ -147,40 +129,77 @@
 
     #error-msg {
         display: none;
-        background-color: #fff1f2;
-        border: 1px solid #fda4af;
-        color: #e11d48;
-        padding: 0.75rem 1rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 0.85rem 1rem;
+        border-radius: 1.25rem;
+        font-size: 0.85rem;
         font-weight: 700;
         margin-bottom: 1.5rem;
         text-align: center;
+        animation: fadeInUp 0.3s ease;
+    }
+
+    /* 🌟 FULL SCREEN OVERLAY LOADING TENGAH LAYAR */
+    #global-loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(244, 246, 249, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .spinner-modern {
+        width: 56px;
+        height: 56px;
+        border: 5px solid #e2e8f0;
+        border-bottom-color: #3b82f6;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 0.8s linear infinite;
+    }
+
+    @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<div id="global-loader">
+    <div class="spinner-modern"></div>
+</div>
+
 <div class="login-container">
     <div class="login-card">
-        <div class="logo-box">
-            <h1 class="font-logo-gebuk text-5xl text-blue-600 mb-2 drop-shadow-sm">E-Tashih</h1>
-            <h2>Selamat Datang!</h2>
-            <p>Sistem Verifikasi & Koreksi LJK Digital</p>
+        <div class="logo-box text-center mb-8">
+            <h1 class="font-logo-gebuk text-6xl mb-2 drop-shadow-sm font-normal">E-Tashih</h1>
+            <h2 class="text-gray-800 font-extrabold text-xl tracking-tight">Selamat Datang Kembali!</h2>
+            <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mt-1">Sistem Koreksi LJK Digital Madin</p>
         </div>
 
         <div id="error-msg">
-            <i class="fas fa-exclamation-circle mr-2"></i> Username/Password salah!
+            <i class="fas fa-exclamation-triangle mr-1.5"></i> Username atau password salah, bolo!
         </div>
 
-        <form id="loginForm">
-            <div class="input-wrapper">
-                <label class="input-label">Username</label>
+        <form id="loginForm" autocomplete="off">
+            <div class="mb-4">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 pl-1">Username</label>
                 <input type="text" name="username" id="username" class="hope-input" placeholder="Masukkan username" required>
             </div>
 
-            <div class="input-wrapper">
-                <label class="input-label">Password</label>
+            <div class="mb-2">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 pl-1">Password</label>
                 <div class="password-group">
                     <input type="password" name="password" id="password" class="hope-input" placeholder="••••••••" required>
                     <button type="button" onclick="togglePassword()" class="password-toggle">
@@ -190,12 +209,12 @@
             </div>
 
             <button type="submit" class="btn-login">
-                Masuk Sekarang <i class="fas fa-arrow-right ml-2"></i>
+                Masuk Sekarang</i>
             </button>
         </form>
 
-        <div class="mt-8 text-center">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div class="mt-10 text-center">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Madrasah Diniyah Digital &copy; 2026
             </p>
         </div>
@@ -220,16 +239,14 @@
 
     const loginForm = document.getElementById('loginForm');
     const errorMsg = document.getElementById('error-msg');
+    const globalLoader = document.getElementById('global-loader');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.style.display = 'none';
 
-        // Efek loading pada tombol
-        const btn = e.target.querySelector('button');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+        // 🌟 TAMPILKAN LOADING DI TENGAH LAYAR
+        globalLoader.style.display = 'flex';
 
         const formData = new FormData();
         formData.append('username', document.getElementById('username').value);
@@ -244,15 +261,15 @@
             if (response.ok) {
                 window.location.href = '/dashboard';
             } else {
+                // SEMBUNYIKAN LOADING JIKA GAGAL
+                globalLoader.style.display = 'none';
                 errorMsg.style.display = 'block';
                 document.getElementById('password').value = '';
-                btn.disabled = false;
-                btn.innerHTML = originalText;
             }
         } catch (err) {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            alert("Gagal menghubungi server.");
+            // SEMBUNYIKAN LOADING JIKA SERVER ERROR
+            globalLoader.style.display = 'none';
+            alert("Gagal menghubungi server FastAPI.");
         }
     });
 </script>

@@ -1,120 +1,136 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - E-SCAN MADIN{% endblock %}
+{% block title %}Dashboard - E-Tashih{% endblock %}
 
 {% block hero_title %}Dashboard Overview{% endblock %}
 {% block hero_subtitle %}Pantau statistik sistem dan hasil aktivitas koreksi terbaru di sini.{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
-    <div class="bg-white p-7 rounded-[2rem] shadow-sm border border-gray-50 flex items-center space-x-5 hover:shadow-md transition-shadow">
-        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-            <i class="fas fa-user-graduate"></i>
-        </div>
-        <div>
-            <p class="text-sm font-semibold text-gray-400 mb-1">Total Siswa</p>
-            <h3 class="text-3xl font-extrabold text-gray-800">{{ total_siswa if total_siswa else '0' }}</h3>
-        </div>
-    </div>
+<div class="max-w-7xl mx-auto space-y-6">
 
-    <div class="bg-white p-7 rounded-[2rem] shadow-sm border border-gray-50 flex items-center space-x-5 hover:shadow-md transition-shadow">
-        <div class="w-16 h-16 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-            <i class="fas fa-file-invoice"></i>
-        </div>
-        <div>
-            <p class="text-sm font-semibold text-gray-400 mb-1">Ujian Diproses</p>
-            <h3 class="text-3xl font-extrabold text-gray-800">{{ ujian_aktif if ujian_aktif else '0' }}</h3>
-        </div>
-    </div>
-
-    <div class="bg-white p-7 rounded-[2rem] shadow-sm border border-gray-50 flex items-center space-x-5 hover:shadow-md transition-shadow">
-        <div class="w-16 h-16 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-            <i class="fas fa-chart-line"></i>
-        </div>
-        <div>
-            <p class="text-sm font-semibold text-gray-400 mb-1">Rata-rata Nilai</p>
-            <h3 class="text-3xl font-extrabold text-gray-800">{{ rata_nilai if rata_nilai else '0.0' }}</h3>
-        </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-2 space-y-8">
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 p-8">
-            <div class="flex items-center justify-between mb-8 border-b border-gray-50 pb-6">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800">Aktivitas Terbaru</h3>
-                    <p class="text-xs text-gray-400">Daftar koreksi ujian santri masuk</p>
-                </div>
-                <a href="/manajemen-kelas" class="text-xs font-bold text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full transition">
-                    LIHAT SEMUA <i class="fas fa-arrow-right ml-1"></i>
-                </a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl border border-blue-100/50 flex-shrink-0">
+                <i class="fas fa-user-graduate text-sm"></i>
             </div>
-            
-            <div class="space-y-6">
-                {% if aktivitas %}
-                    {% for hasil, siswa in aktivitas %}
-                    <div class="flex items-center space-x-5 p-4 rounded-3xl hover:bg-gray-50/80 transition-colors group">
-                        <div class="w-14 h-14 bg-gray-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-sm transition-all">
-                            {{ hasil.skor }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-gray-800 truncate">{{ siswa.nama }}</p>
-                            <p class="text-[11px] text-gray-400 font-medium">
-                                <span class="text-blue-500">{{ hasil.mapel }}</span> • Kelas {{ siswa.kelas }}
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-gray-300 uppercase">{{ hasil.created_at.strftime('%d %b %H:%M') if hasil.created_at else 'Baru' }}</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center py-16">
-                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-inbox text-2xl text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-400 text-sm font-medium italic">Belum ada aktivitas koreksi.</p>
-                    </div>
-                {% endif %}
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total Siswa</p>
+                <h3 class="text-xl font-extrabold text-gray-800 mt-0.5">{{ total_siswa if total_siswa else '0' }}</h3>
             </div>
         </div>
 
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 p-8">
-            <h3 class="text-xl font-bold text-gray-800 mb-8 px-2">Statistik Nilai Per Kelas</h3>
-            <div class="h-72">
-                <canvas id="nilaiChart"></canvas>
+        <div class="bg-white p-5 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl border border-green-100/50 flex-shrink-0">
+                <i class="fas fa-file-invoice text-sm"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Ujian Diproses</p>
+                <h3 class="text-xl font-extrabold text-gray-800 mt-0.5">{{ ujian_aktif if ujian_aktif else '0' }}</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-4">
+            <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl border border-orange-100/50 flex-shrink-0">
+                <i class="fas fa-chart-line text-sm"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Rata-rata Nilai</p>
+                <h3 class="text-xl font-extrabold text-gray-800 mt-0.5">{{ rata_nilai if rata_nilai else '0.0' }}</h3>
             </div>
         </div>
     </div>
 
-    <div class="space-y-8">
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 p-8">
-            <h3 class="text-lg font-bold text-gray-800 mb-6 px-2">Aksi Cepat</h3>
-            <div class="space-y-4">
-                <a href="/koreksi" class="flex items-center justify-between w-full bg-blue-600 hover:bg-blue-700 text-white p-5 rounded-[1.5rem] font-bold text-sm transition shadow-lg shadow-blue-100">
-                    <span>Mulai Koreksi</span>
-                    <i class="fas fa-camera-retro"></i>
-                </a>
-                <a href="/manajemen-kelas" class="flex items-center justify-between w-full bg-white text-gray-700 border border-gray-100 p-5 rounded-[1.5rem] font-bold text-sm hover:bg-gray-50 transition shadow-sm">
-                    <span>Data Siswa</span>
-                    <i class="fas fa-users-viewfinder"></i>
-                </a>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <div class="bg-gradient-to-br from-blue-700 to-blue-500 text-white rounded-[2.5rem] p-8 shadow-lg shadow-blue-100 relative overflow-hidden group">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full group-hover:scale-110 transition-transform"></div>
-            
-            <div class="relative z-10">
-                <p class="text-[10px] font-bold uppercase opacity-80 tracking-widest mb-3">Saran Sistem</p>
-                <p class="font-medium text-sm leading-relaxed">"Pastikan hasil scan LJK dalam posisi lurus untuk memudahkan AI Gemini dalam mendeteksi tulisan tangan."</p>
-                <div class="mt-6 flex items-center space-x-2 text-[10px] font-bold text-blue-100">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>TIPS OPTIMASI</span>
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-xl border border-gray-200/60 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-5 border-b border-gray-50 pb-4">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Aktivitas Koreksi Terbaru</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Daftar lembar hasil ujian santri yang baru selesai dipindai.</p>
+                    </div>
+                    <a href="/manajemen-kelas" class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg transition hover:bg-blue-600 hover:text-white uppercase tracking-wider">
+                        Lihat Semua <i class="fas fa-arrow-right ml-1 text-[8px]"></i>
+                    </a>
+                </div>
+                
+                <div class="divide-y divide-gray-100">
+                    {% if aktivitas %}
+                        {% for hasil, siswa in aktivitas %}
+                        <div class="flex items-center space-x-4 py-3 first:pt-0 last:pb-0 group">
+                            <div class="w-10 h-10 bg-gray-50 text-blue-600 border border-gray-200 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm transition-all flex-shrink-0">
+                                {{ hasil.skor }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-gray-800 truncate">{{ siswa.nama }}</p>
+                                <p class="text-[10px] text-gray-400 font-medium mt-0.5">
+                                    <span class="text-blue-600 font-semibold">{{ hasil.mapel }}</span> &bull; Kelas {{ siswa.kelas }}
+                                </p>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <span class="text-[9px] font-bold text-gray-400 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded uppercase tracking-wide">
+                                    {% if hasil.created_at is string %}
+                                        {{ hasil.created_at[:16] }}
+                                    {% elif hasil.created_at %}
+                                        {{ hasil.created_at.strftime('%d %b %H:%M') }}
+                                    {% else %}
+                                        Kemarin
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-12">
+                            <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center mx-auto mb-3 border border-gray-100">
+                                <i class="fas fa-inbox text-sm"></i>
+                            </div>
+                            <p class="text-gray-400 text-xs font-bold italic">Belum ada aktivitas koreksi yang tercatat.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-gray-200/60 shadow-sm p-6">
+                <div class="mb-4">
+                    <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Tren Produktivitas Koreksi</h3>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Volume lembar jawaban komputer (LJK) yang sukses diproses 7 hari terakhir.</p>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="trenKoreksiChart"></canvas>
                 </div>
             </div>
         </div>
+
+        <div class="space-y-6">
+            <div class="bg-white rounded-xl border border-gray-200/60 shadow-sm p-6">
+                <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">Aksi Akses Cepat</h3>
+                <div class="space-y-2.5">
+                    <a href="/koreksi" class="flex items-center justify-between w-full bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-sm">
+                        <span>Mulai Koreksi LJK</span>
+                        <i class="fas fa-camera-retro text-sm"></i>
+                    </a>
+                    <a href="/manajemen-kelas" class="flex items-center justify-between w-full bg-gray-50 text-gray-700 border border-gray-200/80 p-3.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-gray-100 transition">
+                        <span>Data Master Siswa</span>
+                        <i class="fas fa-users text-sm text-gray-400"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-xl p-6 shadow-sm relative overflow-hidden group">
+                <div class="relative z-10">
+                    <p class="text-[9px] font-bold uppercase opacity-75 tracking-widest mb-2.5">Saran Optimalisasi Sistem</p>
+                    <p class="font-medium text-xs leading-relaxed opacity-90">
+                        "Pastikan posisi kamera saat memindai lembar LJK sejajar tegak lurus."
+                    </p>
+                    <div class="mt-5 flex items-center space-x-2 text-[9px] font-bold text-blue-200 uppercase tracking-wider">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Tips Scanner LJK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
@@ -122,24 +138,31 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('nilaiChart').getContext('2d');
+    const ctx = document.getElementById('trenKoreksiChart').getContext('2d');
     
-    // Gradient Background untuk Chart
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(58, 87, 232, 1)');
-    gradient.addColorStop(1, 'rgba(58, 87, 232, 0.3)');
+    // Setup Efek Gradient Area Di Bawah Garis Tren
+    const gradientArea = ctx.createLinearGradient(0, 0, 0, 300);
+    gradientArea.addColorStop(0, 'rgba(37, 99, 235, 0.23)');
+    gradientArea.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
+
+    // Data Fallback Dinamis (Jika data grafik per hari belum terlempar dari backend)
+    const labelsTren = JSON.parse('{{ labels_grafik | tojson | safe }}') || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Aha'];
+    const dataTren = JSON.parse('{{ values_grafik | tojson | safe }}') || [12, 19, 8, 15, 24, 30, 5];
 
     new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: JSON.parse('{{ labels_grafik | tojson | safe }}'),
+            labels: labelsTren,
             datasets: [{
-                label: 'Rata-rata Nilai',
-                data: JSON.parse('{{ values_grafik | tojson | safe }}'),
-                backgroundColor: gradient,
-                borderRadius: 15, // Bar lebih tumpul
-                borderSkipped: false,
-                barThickness: 30,
+                label: 'LJK Sukses',
+                data: dataTren,
+                borderColor: '#2563eb', // Blue 600
+                borderWidth: 2.5,
+                backgroundColor: gradientArea,
+                fill: true,
+                tension: 0.35, // Membuat lekukan garis smooth elegan
+                pointBackgroundColor: '#2563eb',
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -148,13 +171,12 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100,
-                    grid: { color: '#f1f1f1', drawBorder: false },
-                    ticks: { color: '#8a92a6', font: { size: 11, weight: '500' } }
+                    grid: { color: '#f3f4f6', drawBorder: false },
+                    ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#8a92a6', font: { size: 11, weight: '500' } }
+                    ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
                 }
             },
             plugins: {
