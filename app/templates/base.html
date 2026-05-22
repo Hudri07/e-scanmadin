@@ -331,7 +331,14 @@
     <script>
       function toggleSidebar() {
         if (window.innerWidth < 768) {
-          document.body.classList.toggle("sidebar-open");
+          const isOpen = document.body.classList.toggle("sidebar-open");
+          if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.height = '100vh';
+          } else {
+            document.body.style.overflow = '';
+            document.body.style.height = '';
+          }
         } else {
           document.body.classList.toggle("sidebar-closed");
         }
