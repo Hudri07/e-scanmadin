@@ -57,12 +57,17 @@
 
         <div id="siswaContainer" class="hidden animate-in fade-in duration-200">
             
-            <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50">
-                <div class="flex items-center space-x-3">
-                    <h2 id="selectedClassName" class="text-lg font-bold text-gray-800 tracking-tight">Nama Kelas</h2>
-                    <span id="studentCount" class="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">0 Siswa</span>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 md:p-6 gap-4 border-b border-gray-100 bg-gray-50/50">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <h2 id="selectedClassName" class="text-sm md:text-lg font-black text-gray-800 tracking-tight uppercase">
+                        Nama Kelas
+                    </h2>
+                    <span id="studentCount" class="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider whitespace-nowrap">
+                        0 Siswa
+                    </span>
                 </div>
-                <button onclick="eksporSemua()" class="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
+                
+                <button onclick="eksporSemua()" class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-lg transition-all font-bold text-xs uppercase tracking-wider shadow-sm active:scale-95">
                     <i class="fas fa-file-excel"></i>
                     <span>Ekspor Excel</span>
                 </button>
@@ -73,8 +78,8 @@
                     <thead class="bg-gray-50/80 border-b border-gray-200 text-[11px] uppercase tracking-wider text-gray-500 font-bold">
                         <tr>
                             <th class="px-6 py-3.5 w-5/12">Identitas Siswa</th>
-                            <th class="px-6 py-3.5 w-4/12">Lembar Hasil Ujian</th>
-                            <th class="px-6 py-3.5 w-3/12 text-center">Opsi Tindakan</th>
+                            <th class="px-6 py-3.5 w-4/12">Hasil Ujian</th>
+                            <th class="px-6 py-3.5 w-3/12 text-center">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody" class="divide-y divide-gray-100">
