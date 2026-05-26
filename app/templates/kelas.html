@@ -85,6 +85,8 @@
                     <tbody id="studentTableBody" class="divide-y divide-gray-100">
                         </tbody>
                 </table>
+
+                <div id="paginationNav"></div>
             </div>
         </div>
     </div>
@@ -155,8 +157,11 @@
 {% block extra_js %}
 <script>
     let allStudents = JSON.parse('{{ (siswa | default([])) | tojson | safe }}');
+    let dataTerfilter = [];
     let currentFilteredClass = "";
     let targetDeleteNo = null;
+    let halamanSekarang = 1;
+    const barisPerHalaman = 10;
 
     function handleKelasSelectChange(selectObj) {
         if(selectObj.value !== "") {
@@ -175,25 +180,45 @@
 
         const container = document.getElementById('siswaContainer');
         const welcome = document.getElementById('welcomeMessage');
-        const tableBody = document.getElementById('studentTableBody');
         
-        const filtered = allStudents.filter(s => s.kelas === namaKelas);
+        // Ambil data dasar sesuai kelas terpilih
+        const baseFiltered = allStudents.filter(s => s.kelas === namaKelas);
         document.getElementById('selectedClassName').innerText = "Rombongan Belajar: " + namaKelas;
-        document.getElementById('studentCount').innerText = filtered.length + " Siswa";
+        document.getElementById('studentCount').innerText = baseFiltered.length + " Siswa";
         
+        // Simpan ke state terfilter global untuk pagination
+        dataTerfilter = [...baseFiltered];
+        halamanSekarang = 1;
+
+        // Render tabel data halaman pertama
+        renderTabelSiswa();
+
+        welcome.classList.add('hidden');
+        container.classList.remove('hidden');
+    }
+
+    function renderTabelSiswa() {
+        const tableBody = document.getElementById('studentTableBody');
         tableBody.innerHTML = "";
 
-        if(filtered.length === 0) {
+        // Hitung indeks potong array untuk halaman aktif
+        const indeksMulai = (halamanSekarang - 1) * barisPerHalaman;
+        const indeksSelesai = indeksMulai + barisPerHalaman;
+        const dataHalamanIni = dataTerfilter.slice(indeksMulai, indeksSelesai);
+
+        if(dataHalamanIni.length === 0) {
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="3" class="px-6 py-10 text-center text-xs text-gray-400 italic font-medium">
-                        Belum ada data siswa di kelas ini.
+                        Belum ada data siswa di kelas ini atau data tidak ditemukan.
                     </td>
                 </tr>
             `;
+            renderPaginationControls(0);
+            return;
         }
 
-        filtered.forEach((s) => {
+        dataHalamanIni.forEach((s) => {
             let nilaiHtml = "";
             let aksiPDF = "";
 
@@ -242,24 +267,80 @@
             tableBody.innerHTML += row;
         });
 
-        welcome.classList.add('hidden');
-        container.classList.remove('hidden');
+        // Update tampilan navigasi halaman tombol angka di bawah tabel
+        renderPaginationControls(dataTerfilter.length);
     }
 
-    // PENCARIAN CEPAT KEY-UP
-    document.getElementById('fastSearch').addEventListener('keyup', function() {
-        const filter = this.value.toLowerCase();
-        const rows = document.querySelectorAll('.student-row');
-        rows.forEach(row => {
-            const nameEl = row.querySelector('.student-name');
-            if(nameEl) {
-                const name = nameEl.textContent.toLowerCase();
-                row.style.display = name.includes(filter) ? "" : "none";
+    function renderPaginationControls(totalData) {
+        const penampungNavigasi = document.getElementById('paginationNav');
+        if (!penampungNavigasi) return;
+
+        const totalHalaman = Math.ceil(totalData / barisPerHalaman) || 1;
+        
+        let htmlNav = `
+            <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100 text-xs font-semibold text-gray-500">
+                <div>
+                    Menampilkan <span class="text-gray-800 font-bold">${totalData > 0 ? (halamanSekarang - 1) * barisPerHalaman + 1 : 0}</span> 
+                    sampai <span class="text-gray-800 font-bold">${Math.min(halamanSekarang * barisPerHalaman, totalData)}</span> 
+                    dari <span class="text-gray-800 font-bold">${totalData}</span> siswa
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="pindahHalaman(${halamanSekarang - 1})" ${halamanSekarang === 1 ? 'disabled' : ''} 
+                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent transition-all">
+                        <i class="fas fa-chevron-left text-[10px]"></i>
+                    </button>
+        `;
+
+        for (let i = 1; i <= totalHalaman; i++) {
+            if (i === 1 || i === totalHalaman || (i >= halamanSekarang - 1 && i <= halamanSekarang + 1)) {
+                htmlNav += `
+                    <button onclick="pindahHalaman(${i})" 
+                        class="px-3 py-1.5 rounded-lg border transition-all ${halamanSekarang === i ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-sm' : 'border-gray-200 hover:bg-gray-50'}">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === halamanSekarang - 2 || i === halamanSekarang + 2) {
+                htmlNav += `<span class="px-1 text-gray-300">...</span>`;
             }
+        }
+
+        htmlNav += `
+                    <button onclick="pindahHalaman(${halamanSekarang + 1})" ${halamanSekarang === totalHalaman ? 'disabled' : ''} 
+                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent transition-all">
+                        <i class="fas fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        penampungNavigasi.innerHTML = htmlNav;
+    }
+
+    function pindahHalaman(tujuanHalaman) {
+        const totalHalaman = Math.ceil(dataTerfilter.length / barisPerHalaman) || 1;
+        if (tujuanHalaman < 1 || tujuanHalaman > totalHalaman) return;
+        
+        halamanSekarang = tujuanHalaman;
+        renderTabelSiswa();
+        
+        document.getElementById('siswaContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Pencarian realtime dikombinasikan dengan pagination
+    document.getElementById('fastSearch').addEventListener('input', function() {
+        const keyword = this.value.toLowerCase().trim();
+        const baseFiltered = allStudents.filter(s => s.kelas === currentFilteredClass);
+
+        dataTerfilter = baseFiltered.filter(siswa => {
+            const nama = (siswa.nama || '').toLowerCase();
+            const nomor = (siswa.nomor_peserta || '').toLowerCase();
+            return nama.includes(keyword) || nomor.includes(keyword);
         });
+
+        halamanSekarang = 1;
+        renderTabelSiswa();
     });
 
-    // EKSPOR EXCEL
     async function eksporSemua() {
         const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
         if (filtered.length === 0) return showToast("Tidak ada data untuk diekspor", "info");
@@ -282,7 +363,6 @@
         } catch(e) { showToast("Gagal ekspor data", "error"); }
     }
 
-    // DOWNLOAD PDF INDIVIDUAL
     async function unduhPDF(s) {
         const dataKirim = {
             nama: s.nama,
@@ -313,7 +393,6 @@
         a.click();
     }
 
-    // MODAL HANDLERS
     const modal = document.getElementById('siswaModal');
     const form = document.getElementById('siswaForm');
 
@@ -342,15 +421,13 @@
         e.preventDefault();
         const oldNo = document.getElementById('old_nomor_peserta').value;
         
-        // 🌟 OTOMATIS CONVERT NAMA KE UPPERCASE SEBELUM DIKIRIM KE BACKEND
         const namaInput = document.getElementById('nama');
         namaInput.value = namaInput.value.toUpperCase();
 
         const formData = new FormData(form);
         const url = oldNo ? `/siswa/update/${oldNo}` : '/siswa/add';
         
-        // Ambil nilai dari input form untuk cadangan update memori lokal secara realtime
-        const inputNoPeserta = document.getElementById('nomor_peserta').value.strip ? document.getElementById('nomor_peserta').value.trim() : document.getElementById('nomor_peserta').value;
+        const inputNoPeserta = document.getElementById('nomor_peserta').value.trim();
         const inputNama = namaInput.value.trim();
         const inputKelas = document.getElementById('kelas').value;
 
@@ -362,7 +439,6 @@
                     const index = allStudents.findIndex(s => s.nomor_peserta === oldNo);
                     if (index !== -1) {
                         const nilaiLama = allStudents[index].nilai_lengkap || [];
-
                         allStudents[index] = {
                             nomor_peserta: inputNoPeserta,
                             nama: inputNama,
@@ -376,14 +452,13 @@
                         nomor_peserta: inputNoPeserta,
                         nama: inputNama,
                         kelas: inputKelas,
-                        nilai_lengkap: [] // Siswa baru belum punya riwayat ujian
+                        nilai_lengkap: []
                     });
                     showToast("Data siswa berhasil ditambahkan", "success");
                 }
                 closeModal();
                 
                 document.getElementById('kelasFilterSelect').value = inputKelas;
-    
                 filterSiswa(inputKelas);
 
             } else { 
