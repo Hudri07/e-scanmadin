@@ -5,14 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}E-Tashih{% endblock %}</title>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -38,14 +32,13 @@
         font-family: "Plus Jakarta Sans", sans-serif;
       }
 
-      /* KOREKSI TOTAL: Buang gradasi lengkung norak, ganti flat top banner profesional */
       .header-shape {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 280px;
-        background: #1e3a8a; /* Solid Navy Premium */
+        background: #1e3a8a;
         z-index: -10;
         overflow: hidden;
       }
@@ -53,6 +46,7 @@
       #sidebar {
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateX(0);
+        overscroll-behavior: contain;
       }
 
       #mainContent {
@@ -66,7 +60,6 @@
         #mainContent {
           margin-left: 0 !important;
         }
-
         .sidebar-open #sidebar {
           transform: translateX(0);
         }
@@ -117,7 +110,6 @@
         transition: all 0.2s ease;
       }
 
-      /* Transparansi Atas yang Bersih */
       .glass-header {
         background: rgba(30, 58, 138, 0.2);
         backdrop-filter: blur(8px);
@@ -144,17 +136,12 @@
     {% if not no_sidebar %}
     <div class="header-shape fixed"></div>
 
-    <aside
-      id="sidebar"
-      class="fixed top-0 left-0 h-screen w-72 z-50 bg-white border-r border-gray-200/80 shadow-sm transition-all duration-400"
-    >
+    <aside id="sidebar" class="fixed top-0 left-0 h-[100dvh] w-72 z-50 bg-white border-r border-gray-200/80 shadow-sm transition-all duration-400">
       <div class="flex flex-col h-full">
         
-        <div class="p-6 pb-2 flex items-center justify-between px-6">
+        <div class="p-6 pb-2 flex items-center justify-between px-6 flex-shrink-0">
           <div class="flex items-center space-x-3">
-            <span class="text-2xl font-logo-gebuk tracking-tight text-blue-600">
-              E-Tashih
-            </span>
+            <span class="text-2xl font-logo-gebuk tracking-tight text-blue-600">E-Tashih</span>
           </div>
           <button onclick="toggleSidebar()" class="md:hidden text-gray-400 p-2 hover:bg-gray-50 rounded-lg">
             <i class="fas fa-times"></i>
@@ -162,38 +149,22 @@
         </div>
 
         <nav class="flex-1 p-6 pt-2 space-y-1.5 overflow-y-auto">
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">
-            Menu Utama
-          </p>
-          <a
-            href="/dashboard"
-            class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
-          >
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">Menu Utama</p>
+          <a href="/dashboard" class="menu-item {% if request.path == '/dashboard' %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold">
             <i class="fas fa-home text-base w-5"></i>
             <span>Dashboard</span>
           </a>
 
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider pt-5 mb-3 px-3">
-            Akademik
-          </p>
-          <a
-            href="/manajemen-kelas"
-            class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
-          >
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider pt-5 mb-3 px-3">Akademik</p>
+          <a href="/manajemen-kelas" class="menu-item {% if '/manajemen-kelas' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold">
             <i class="fas fa-user-graduate text-base w-5"></i>
             <span>Manajemen Siswa</span>
           </a>
-          <a
-            href="/manajemen-kunci"
-            class="menu-item {% if '/manajemen-kunci' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
-          >
+          <a href="/manajemen-kunci" class="menu-item {% if '/manajemen-kunci' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold">
             <i class="fas fa-key text-base w-5"></i>
             <span>Kunci Jawaban</span>
           </a>
-          <a
-            href="/koreksi"
-            class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold"
-          >
+          <a href="/koreksi" class="menu-item {% if '/koreksi' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold">
             <i class="fas fa-camera-retro text-base w-5"></i>
             <span>Koreksi LJK</span>
           </a>
@@ -201,15 +172,9 @@
 
         <div class="p-4 border-t border-gray-100 mt-auto bg-white flex-shrink-0">
           <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-200/60">
-            <img
-              src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}"
-              alt="Avatar"
-              class="w-9 h-9 rounded-full bg-blue-50 border border-gray-200 object-cover flex-shrink-0"
-            />
+            <img src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}" alt="Avatar" class="w-9 h-9 rounded-full bg-blue-50 border border-gray-200 object-cover flex-shrink-0" />
             <div class="flex-1 min-w-0">
-              <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5">
-                Admin Madrasah
-              </p>
+              <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5 leading-none">Admin Madrasah</p>
               <p class="text-xs font-black text-gray-800 break-words leading-tight">
                 {{ user.full_name if user.full_name else user.username if user else 'Administrator' }}
               </p>
@@ -221,24 +186,16 @@
     </aside>
     {% endif %}
 
-    <div
-      id="mainContent"
-      class="{{ 'ml-0' if no_sidebar else 'ml-0 md:ml-72' }} min-h-screen transition-all duration-300"
-    >
+    <div id="mainContent" class="{{ 'ml-0' if no_sidebar else 'ml-0 md:ml-72' }} min-h-screen transition-all duration-300">
       {% if not no_sidebar %}
       <header class="glass-header sticky top-0 z-40 border-b border-white/10">
         <div class="flex items-center justify-between px-8 py-4">
           <div class="flex items-center space-x-4">
-            <button
-              onclick="toggleSidebar()"
-              class="w-9 h-9 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-200 hover:scale-105 active:scale-95 transition-all"
-            >
+            <button onclick="toggleSidebar()" class="w-9 h-9 flex items-center justify-center bg-white rounded-xl text-blue-600 shadow-sm border border-gray-200 hover:scale-105 active:scale-95 transition-all">
               <i class="fas fa-bars-staggered text-sm"></i>
             </button>
             <nav class="lg:flex items-center space-x-2 text-[10px] font-bold uppercase tracking-wider text-white/70">
-              <span>
-                {% if '/manajemen-kelas' in request.path or '/koreksi' in request.path %} Akademik {% else %} Utama {% endif %}
-              </span>
+              <span>{% if '/manajemen-kelas' in request.path or '/koreksi' in request.path %} Akademik {% else %} Utama {% endif %}</span>
               <i class="fas fa-chevron-right text-[8px] opacity-50"></i>
               <span class="text-white">
                 {% block page_title %}
@@ -253,21 +210,12 @@
           </div>
 
           <div class="relative group">
-            <button onclick="toggleDropdown(event)"
-              id="profileButton"
-              class="flex items-center space-x-2 p-1 bg-white/10 hover:bg-white/20 rounded-full transition-all border border-white/20 text-white backdrop-blur-md active:scale-95 group">
-              <img
-                src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}"
-                class="w-7 h-7 rounded-full bg-white object-cover"
-                alt="Profile"
-              />
+            <button onclick="toggleDropdown(event)" id="profileButton" class="flex items-center space-x-2 p-1 bg-white/10 hover:bg-white/20 rounded-full transition-all border border-white/20 text-white backdrop-blur-md active:scale-95 group">
+              <img src="https://api.dicebear.com/7.x/notionists/svg?seed={{ user.username if user else 'admin' }}" class="w-7 h-7 rounded-full bg-white object-cover" alt="Profile" />
               <i class="fas fa-chevron-down text-[9px] pr-2 opacity-70 transition-transform duration-200" id="dropdownIcon"></i>
             </button>
 
-            <div
-              id="dropdown"
-              class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/80 z-50 overflow-hidden py-1.5"
-            >
+            <div id="dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/80 z-50 overflow-hidden py-1.5">
               <div class="px-4 py-2.5 border-b border-gray-100 mb-1">
                 <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Akun Login</p>
                 <p class="text-xs font-bold text-gray-700 mt-0.5 truncate">
@@ -275,10 +223,7 @@
                 </p>
               </div>
               <div class="px-1">
-                <a
-                  href="/profile"
-                  class="dropdown-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                >
+                <a href="/profile" class="dropdown-item flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600">
                   <div class="flex items-center space-x-2.5">
                     <i class="fas fa-circle-user text-gray-400 text-sm w-4"></i>
                     <span>Profil Akun</span>
@@ -287,10 +232,7 @@
                 </a>
               </div>
               <div class="mt-1.5 px-1 pt-1.5 border-t border-gray-100">
-                <button
-                  onclick="handleLogout()"
-                  class="dropdown-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50"
-                >
+                <button onclick="handleLogout()" class="dropdown-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50">
                   <i class="fas fa-power-off text-sm w-4"></i>
                   <span>Keluar Sistem</span>
                 </button>
@@ -317,16 +259,11 @@
       </main>
 
       <footer class="p-8 text-center">
-        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-          &copy; 2026 E-Tashih
-        </p>
+        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">&copy; 2026 E-Tashih</p>
       </footer>
     </div>
 
-    <div
-      id="toast-container"
-      class="fixed bottom-6 right-6 z-[9999] space-y-2 pointer-events-none"
-    ></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] space-y-2 pointer-events-none"></div>
 
     <script>
       function toggleSidebar() {
@@ -384,27 +321,39 @@
       }
 
       /**
-       * MODERN TOAST SYSTEM
+       * TOAST SYSTEM
        */
       function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
         const toast = document.createElement("div");
 
         const styles = {
-          success: { bg: "bg-green-600", icon: "fa-check-circle", title: "Berhasil" },
-          error: { bg: "bg-red-600", icon: "fa-triangle-exclamation", title: "Kesalahan" },
-          info: { bg: "bg-blue-600", icon: "fa-info-circle", title: "Informasi" },
+          success: {
+            bg: "bg-green-500",
+            icon: "fa-check-circle",
+            title: "Berhasil",
+          },
+          error: {
+            bg: "bg-red-500",
+            icon: "fa-triangle-exclamation",
+            title: "Kesalahan",
+          },
+          info: {
+            bg: "bg-blue-600",
+            icon: "fa-info-circle",
+            title: "Informasi",
+          },
         };
         const config = styles[type] || styles.info;
 
-        toast.className = `animate-toast pointer-events-auto flex items-center p-4 rounded-xl bg-white shadow-md border border-gray-200/80 min-w-[280px] max-w-[360px]`;
+        toast.className = `animate-toast pointer-events-auto flex items-center p-5 rounded-[1.75rem] bg-white shadow-[0px_15px_40px_rgba(0,0,0,0.12)] border border-gray-50 min-w-[320px] max-w-[400px]`;
         toast.innerHTML = `
-                <div class="w-8 h-8 ${config.bg} text-white rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                    <i class="fas ${config.icon} text-sm"></i>
+                <div class="w-11 h-11 ${config.bg} text-white rounded-2xl flex items-center justify-center shadow-lg shadow-opacity-30 mr-4 flex-shrink-0">
+                    <i class="fas ${config.icon} text-lg"></i>
                 </div>
                 <div class="flex-1 overflow-hidden">
-                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${config.title}</h4>
-                    <p class="text-xs font-bold text-gray-700 mt-0.5 leading-tight">${message}</p>
+                    <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest">${config.title}</h4>
+                    <p class="text-sm font-bold text-gray-700 mt-0.5 leading-snug">${message}</p>
                 </div>
             `;
 
@@ -412,10 +361,10 @@
 
         setTimeout(() => {
           toast.style.opacity = "0";
-          toast.style.transform = "translateY(10px)";
-          toast.style.transition = "all 0.4s ease";
-          setTimeout(() => toast.remove(), 400);
-        }, 3500);
+          toast.style.transform = "translateY(20px)";
+          toast.style.transition = "all 0.5s ease";
+          setTimeout(() => toast.remove(), 500);
+        }, 4000);
       }
     </script>
     {% block extra_js %}{% endblock %}

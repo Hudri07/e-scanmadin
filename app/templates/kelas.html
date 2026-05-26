@@ -79,7 +79,7 @@
                         <tr>
                             <th class="px-6 py-3.5 w-5/12">Identitas Siswa</th>
                             <th class="px-6 py-3.5 w-4/12">Hasil Ujian</th>
-                            <th class="px-6 py-3.5 w-3/12 text-center">Tindakan</th>
+                            <th class="px-6 py-3.5 w-3/12 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody" class="divide-y divide-gray-100">
@@ -112,7 +112,7 @@
             
             <div class="space-y-1">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">Nama Lengkap Siswa</label>
-                <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap..." class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700" required>
+                <input type="text" id="nama" name="nama" oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama lengkap..." class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700" required>
             </div>
             
             <div class="space-y-1">
@@ -341,15 +341,58 @@
     form.onsubmit = async (e) => {
         e.preventDefault();
         const oldNo = document.getElementById('old_nomor_peserta').value;
+        
+        // 🌟 OTOMATIS CONVERT NAMA KE UPPERCASE SEBELUM DIKIRIM KE BACKEND
+        const namaInput = document.getElementById('nama');
+        namaInput.value = namaInput.value.toUpperCase();
+
         const formData = new FormData(form);
         const url = oldNo ? `/siswa/update/${oldNo}` : '/siswa/add';
         
+        // Ambil nilai dari input form untuk cadangan update memori lokal secara realtime
+        const inputNoPeserta = document.getElementById('nomor_peserta').value.strip ? document.getElementById('nomor_peserta').value.trim() : document.getElementById('nomor_peserta').value;
+        const inputNama = namaInput.value.trim();
+        const inputKelas = document.getElementById('kelas').value;
+
         try {
             const res = await fetch(url, { method: 'POST', body: formData });
+            
             if (res.ok) {
-                location.reload(); 
-            } else { showToast("Gagal memperbarui data siswa", "error"); }
-        } catch (err) { showToast("Kesalahan jaringan server", "error"); }
+                if (oldNo) {
+                    const index = allStudents.findIndex(s => s.nomor_peserta === oldNo);
+                    if (index !== -1) {
+                        const nilaiLama = allStudents[index].nilai_lengkap || [];
+
+                        allStudents[index] = {
+                            nomor_peserta: inputNoPeserta,
+                            nama: inputNama,
+                            kelas: inputKelas,
+                            nilai_lengkap: nilaiLama
+                        };
+                    }
+                    showToast("Data siswa berhasil diperbarui", "success");
+                } else {
+                    allStudents.push({
+                        nomor_peserta: inputNoPeserta,
+                        nama: inputNama,
+                        kelas: inputKelas,
+                        nilai_lengkap: [] // Siswa baru belum punya riwayat ujian
+                    });
+                    showToast("Data siswa berhasil ditambahkan", "success");
+                }
+                closeModal();
+                
+                document.getElementById('kelasFilterSelect').value = inputKelas;
+    
+                filterSiswa(inputKelas);
+
+            } else { 
+                const errorData = await res.json();
+                showToast(errorData.detail || "Gagal memproses data siswa", "error"); 
+            }
+        } catch (err) { 
+            showToast("Kesalahan jaringan atau server down", "error"); 
+        }
     };
 
     function deleteSiswa(no) {

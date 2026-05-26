@@ -275,19 +275,19 @@
         const gridKunci = document.getElementById('gridKunci');
         const empty = document.getElementById('emptyState');
         const actionKunci = document.getElementById('actionKunci');
-        gridKunci.innerHTML = "";
+        
         empty.classList.add('hidden');
         gridKunci.classList.remove('hidden');
         actionKunci.classList.remove('hidden');
 
-        data.forEach((val, i) => {
-            gridKunci.innerHTML += `
-                <div class="grid-cell-hope group">
-                    <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-blue-600 transition-colors">${i+1}</span>
-                    <input type="text" maxlength="1" value="${val}" 
-                        class="kunci-input w-full text-center font-jakarta font-black text-sm bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
-                </div>`;
-        });
+        // Gunakan Array map & join untuk menghindari overload parse DOM innerHTML +=
+        gridKunci.innerHTML = data.map((val, i) => `
+            <div class="grid-cell-hope group">
+                <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-blue-600 transition-colors">${i+1}</span>
+                <input type="text" maxlength="1" value="${val}" 
+                    class="kunci-input w-full text-center font-jakarta font-black text-sm bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
+            </div>
+        `).join('');
     }
 
     // FUNGSI AKTIVASI STEP 2
@@ -297,7 +297,6 @@
         const step2Section = document.getElementById('step2Section');
         const btn = document.getElementById('btnMulaiScan');
 
-        // Menyelaraskan efek transisi warna dengan UI minimalis baru
         step2Icon.style.backgroundColor = "#2563eb"; // blue-600
         step2Icon.style.color = "white";
         step2Icon.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.2)";
@@ -325,14 +324,13 @@
             data.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k.id;
-                opt.text = `${k.mapel} - Kelas ${k.kelas}`;
+                opt.text = `${k.mapel ? k.mapel.toUpperCase() : ''} - Kelas ${k.kelas || ''}`;
                 opt.dataset.json = JSON.stringify(k.kunci);
                 opt.dataset.mapel = k.mapel;
                 opt.dataset.kelas = k.kelas;
                 select.appendChild(opt);
             });
 
-            // Cek parameter edit dari halaman Manajemen Kunci
             const urlParams = new URLSearchParams(window.location.search);
             const editKunciId = urlParams.get('edit_kunci_id');
 
@@ -380,13 +378,13 @@
                 document.getElementById('kelas').value = result.kelas || "NA";
                 renderGrid(result.data);
                 activateStep2();
-                showToast("Kunci Berhasil Diekstrak AI", "success");
+                if (typeof showToast === "function") showToast("Kunci Berhasil Diekstrak AI", "success");
             } else {
-                showToast("Gagal memproses kunci", "error");
+                if (typeof showToast === "function") showToast("Gagal memproses kunci", "error");
             }
         } catch (error) {
             console.error(error);
-            showToast("Koneksi bermasalah", "error");
+            if (typeof showToast === "function") showToast("Koneksi bermasalah", "error");
         } finally {
             loading.classList.add('hidden');
             e.target.value = '';
@@ -396,7 +394,7 @@
     // UPDATE MASTER KUNCI MANUAL
     async function simpanPerubahanKunci() {
         if (!currentKunciId) {
-            showToast("ID Kunci tidak ditemukan. Silakan pilih atau upload kunci dulu.", "error");
+            if (typeof showToast === "function") showToast("ID Kunci tidak ditemukan. Silakan pilih atau upload kunci dulu.", "error");
             return;
         }
 
@@ -415,10 +413,10 @@
             const res = await fetch('/kunci/update-kunci-manual', { method: 'POST', body: formData });
             const result = await res.json();
             if (result.status === 'success') {
-                showToast("Perubahan kunci berhasil disimpan!", "success");
+                if (typeof showToast === "function") showToast("Perubahan kunci berhasil disimpan!", "success");
             }
         } catch (error) {
-            showToast("Gagal menyimpan perubahan", "error");
+            if (typeof showToast === "function") showToast("Gagal menyimpan perubahan", "error");
         }
     }
 
@@ -445,7 +443,6 @@
             if (result.status === 'success') {
                 document.getElementById('resultSection').classList.remove('hidden');
                 
-                // Render Kartu Hasil Scan ke HTML
                 containerHasil.innerHTML = result.data.map((siswa, idx) => `
                     <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-blue-400 transition-all"
                         data-telegram-id="${siswa.telegram_message_id || ''}">
@@ -458,13 +455,13 @@
                                 <span class="text-xl font-black leading-none">${siswa.skor}</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <input type="text" value="${siswa.nama}" 
+                                <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}" 
                                     class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
                                     placeholder="Nama Siswa">
                                 <div class="flex items-center gap-1.5 mt-0.5">
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID:</span>
-                                    <input type="text" value="${siswa.nomor_peserta}" 
-                                        data-old-id="${siswa.nomor_peserta}" 
+                                    <input type="text" value="${siswa.nomor_peserta || ''}" 
+                                        data-old-id="${siswa.nomor_peserta || ''}" 
                                         class="font-bold text-xs text-blue-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-blue-50 rounded px-1.5 py-0.5 outline-none transition-all" 
                                         placeholder="No Peserta">
                                 </div>
@@ -491,7 +488,7 @@
                                 <div class="flex flex-col items-center">
                                     <span class="text-[8px] font-bold text-gray-300 mb-0.5">${it.no}</span>
                                     <input type="text" maxlength="1" value="${it.siswa}" 
-                                        class="w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
+                                        class="item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
                                         ${it.status === 'correct' ? 'bg-green-50 border-green-200 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-200 text-red-700 focus:border-red-500'}">
                                 </div>
                             `).join('')}
@@ -499,19 +496,16 @@
                     </div>
                 `).join('');
                 
-                // Cek apakah ada minimal satu siswa yang is_duplicate bernilai true
                 const adaDuplikat = result.data.some(siswa => siswa.is_duplicate === true);
                 
                 if (adaDuplikat) {
-                    // Cari tahu nama-nama siswa yang duplikat buat dipajang di alert
                     const namaDuplikat = result.data
                         .filter(siswa => siswa.is_duplicate)
-                        .map(siswa => `• ${siswa.nama}`)
+                        .map(siswa => `• ${siswa.nama ? siswa.nama.toUpperCase() : ''}`)
                         .join('<br>');
 
                     if (typeof Swal !== "function") {
-                        // Backup jika library SweetAlert belum ter-load sempurna
-                        showToast("Beberapa LJK siswa sudah pernah dikoreksi!", "warning");
+                        if (typeof showToast === "function") showToast("Beberapa LJK siswa sudah pernah dikoreksi!", "warning");
                     } else {
                         Swal.fire({
                             title: 'Data Duplikat Terdeteksi!',
@@ -542,23 +536,23 @@
     function hitungUlangSiswa(idx) {
         const masterKunci = Array.from(document.querySelectorAll('#gridKunci input')).map(input => input.value.toUpperCase());
         const containerSiswa = document.getElementById(`det-${idx}`);
-        if (!containerSiswa) return;
+        if (!containerSiswa || masterKunci.length === 0) return;
 
-        const barisJawaban = containerSiswa.querySelectorAll('.flex.flex-col.items-center');
+        // Proteksi selektor: Hanya targetkan input kotak jawaban siswa (.item-jawaban-siswa)
+        const barisJawaban = containerSiswa.querySelectorAll('.item-jawaban-siswa');
         let benar = 0;
         let salah = 0;
 
-        barisJawaban.forEach((item, noUrut) => {
-            const inputSiswa = item.querySelector('input');
-            const jawabanSiswa = inputSiswa.value.toUpperCase();
-            const kunciBenar = masterKunci[noUrut];
+        barisJawaban.forEach((inputSiswa, noUrut) => {
+            const jawabanSiswa = inputSiswa.value.toUpperCase() || "-";
+            const kunciBenar = masterKunci[noUrut] || "";
 
-            if (jawabanSiswa === kunciBenar) {
+            if (jawabanSiswa === kunciBenar && kunciBenar !== "") {
                 benar++;
-                inputSiswa.className = "w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-green-50 border-green-200 text-green-700 focus:border-green-500";
+                inputSiswa.className = "item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-green-50 border-green-200 text-green-700 focus:border-green-500";
             } else {
                 salah++;
-                inputSiswa.className = "w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-red-50 border-red-200 text-red-700 focus:border-red-500";
+                inputSiswa.className = "item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs transition-all outline-none bg-red-50 border-red-200 text-red-700 focus:border-red-500";
             }
         });
 
@@ -566,9 +560,11 @@
         const skorBaru = totalSoal > 0 ? Math.round((benar / totalSoal) * 100) : 0;
 
         const card = containerSiswa.closest('.card-hope');
-        card.querySelector('.text-xl.font-black').innerText = skorBaru; // ID target disesuaikan (.text-xl)
-        card.querySelector('.text-green-700').innerText = benar;
-        card.querySelector('.text-red-700').innerText = salah;
+        if (card) {
+            card.querySelector('.text-xl.font-black').innerText = skorBaru;
+            card.querySelector('.text-green-700').innerText = benar;
+            card.querySelector('.text-red-700').innerText = salah;
+        }
     }
 
     function hitungSemuaSiswa() {
@@ -579,13 +575,14 @@
         });
     }
 
-    // REAL-TIME EVENT LISTENERS
+    // REAL-TIME EVENT LISTENERS (DIPERKETAT AGAR TIDAK CRASH)
     document.getElementById('gridKunci').addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT') hitungSemuaSiswa();
     });
 
     document.getElementById('containerHasil').addEventListener('input', (e) => {
-        if (e.target.tagName === 'INPUT') {
+        // Hanya hitung ulang jika yang diubah adalah kotak jawaban siswa (.item-jawaban-siswa)
+        if (e.target.classList.contains('item-jawaban-siswa')) {
             const containerSiswa = e.target.closest('[id^="det-"]');
             if (containerSiswa) {
                 const idx = containerSiswa.id.split('-')[1];
@@ -611,14 +608,11 @@
             
             const nomorPesertaBaru = inputNomor.value;
             const nomorPesertaLama = inputNomor.getAttribute('data-old-id');
-            
-            // 🌟 PERBAIKAN DI SINI BOLO: Ambil langsung dari element card utamanya!
             const telegramMessageId = card.getAttribute('data-telegram-id');
-            
-            const skor = parseInt(card.querySelector('.text-xl.font-black').innerText);
+            const skor = parseInt(card.querySelector('.text-xl.font-black').innerText) || 0;
             
             const detailJawaban = [];
-            const inputsDetail = document.querySelectorAll(`#det-${idx} input`);
+            const inputsDetail = document.querySelectorAll(`#det-${idx} .item-jawaban-siswa`);
             inputsDetail.forEach((inp, i) => {
                 detailJawaban.push({
                     no: i + 1,
@@ -627,11 +621,10 @@
             });
 
             dataFinal.push({
-                nama: nama,
+                nama: nama.toUpperCase(), // Otomatis jadikan kapital saat kirim ke DB Neon
                 nomor_peserta_lama: nomorPesertaLama, 
                 nomor_peserta_baru: nomorPesertaBaru,
                 skor: skor,
-                // Konversi ke Integer secara aman sebelum dikirim ke FastAPI Pydantic
                 telegram_message_id: (telegramMessageId && telegramMessageId !== "") ? parseInt(telegramMessageId) : null,
                 jawaban_detail: detailJawaban
             });
@@ -650,13 +643,14 @@
 
             const res = await response.json();
             if (response.ok) {
-                showToast("Data berhasil diperbarui ke database!", "success");
-                window.location.reload(); 
+                if (typeof showToast === "function") showToast("Data berhasil diperbarui ke database!", "success");
+                setTimeout(() => { window.location.reload(); }, 1000);
             } else {
                 alert("Error: " + (res.detail || "Gagal menyimpan"));
             }
         } catch (e) {
             console.error("Koneksi gagal", e);
+            if (typeof showToast === "function") showToast("Gagal menghubungi server", "error");
         } finally {
             btnSimpan.disabled = false;
             btnSimpan.innerHTML = 'Simpan Hasil Ke Database';
