@@ -38,7 +38,7 @@
     }
 
     .grid-cell-hope:focus-within {
-        border-color: #2563eb; 
+        border-color: #10b981; 
         background-color: #ffffff;
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
         transform: scale(1.03);
@@ -82,13 +82,13 @@
     }
 
     #selectKunci:hover {
-        border-color: #2563eb !important;
+        border-color: #10b981 !important;
         background-color: #ffffff !important;
     }
 
     #selectKunci:focus {
         outline: none !important;
-        border-color: #2563eb !important;
+        border-color: #10b981 !important;
     }
 
     .grid-table {
@@ -133,7 +133,7 @@
     
     <div class="relative bg-white p-6 rounded-xl border border-gray-200/60 shadow-sm">
         <div class="flex items-start gap-4">
-            <div class="w-8 h-8 bg-blue-600 text-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm shadow-md shadow-blue-100 z-10">1</div>
+            <div class="w-8 h-8 bg-emerald-500 text-white rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm shadow-md shadow-blue-100 z-10">1</div>
             
             <div class="flex-1 space-y-5">
                 <div>
@@ -145,8 +145,10 @@
                     <div class="lg:col-span-4 space-y-4">
                         <div class="border border-gray-200/70 p-4 rounded-xl space-y-3 bg-gray-50/30">
                             <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1.5">Gunakan Database</label>
-                                <select id="selectKunci" onchange="pakaiKunciLama(this)">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-grey-500 mb-1.5">Gunakan Database</label>
+                                
+                                <select id="selectKunci" onchange="pakaiKunciLama(this)" 
+                                    class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:ring-0 focus:border-emerald-500 transition-all">
                                     <option value="">-- Pilih Kunci Tersimpan --</option>
                                 </select>
                             </div>
@@ -156,7 +158,7 @@
                                 <hr class="border-gray-200/60 absolute top-1/2 w-full z-0">
                             </div>
 
-                            <button onclick="document.getElementById('fileKunci').click()" class="w-full py-6 border border-dashed border-gray-300 rounded-xl bg-white hover:border-blue-500 hover:bg-blue-50/20 transition-all flex flex-col items-center group">
+                            <button onclick="document.getElementById('fileKunci').click()" class="w-full py-6 border border-dashed border-gray-300 rounded-xl bg-white hover:border-emerald-500 hover:bg-emerald-50/20 transition-all flex flex-col items-center group">
                                 <input type="file" id="fileKunci" class="hidden" accept="image/*">
                                 <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                                     <i class="fas fa-cloud-upload-alt text-sm"></i>
@@ -169,14 +171,14 @@
                             <div>
                                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Mata Pelajaran</label>
                                 <div class="relative">
-                                    <input type="text" id="mapel" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Masukkan Mapel...">
+                                    <input type="text" id="mapel" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-emerald-500 focus:bg-white transition-all" placeholder="Masukkan Mapel...">
                                     <i class="fas fa-pen absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
                                 </div>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kelas</label>
                                 <div class="relative">
-                                    <input type="text" id="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Masukkan Kelas...">
+                                    <input type="text" id="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-emerald-500 focus:bg-white transition-all" placeholder="Masukkan Kelas...">
                                     <i class="fas fa-graduation-cap absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
                                 </div>
                             </div>
@@ -217,7 +219,7 @@
                 </div>
 
                 <section id="step2Section" class="opacity-40 pointer-events-none transition-all duration-300">
-                    <div class="border border-dashed border-gray-300 p-8 rounded-xl text-center bg-gray-50/50 relative overflow-hidden group hover:border-blue-500 hover:bg-white transition-all">
+                    <div class="border border-dashed border-gray-300 p-8 rounded-xl text-center bg-gray-50/50 relative overflow-hidden group hover:border-emerald-500 hover:bg-white transition-all">
                         <input type="file" id="fileLJK" class="hidden" accept="image/*" multiple>
                         
                         <div class="inline-flex w-12 h-12 bg-blue-600 rounded-xl items-center justify-center mb-3 text-white shadow-md shadow-blue-100 group-hover:scale-105 transition-transform">
@@ -225,7 +227,7 @@
                         </div>
                         
                         <h3 class="text-sm font-bold mb-1 text-gray-800 uppercase tracking-tight">Mulai Proses Koreksi Massal</h3>
-                        <p class="text-gray-400 mb-4 max-w-md mx-auto text-[11px] leading-relaxed">Sistem AI Gemini akan langsung membaca, menghitung skor, dan mencocokkan lembar jawab santri secara real-time.</p>
+                        <p class="text-gray-400 mb-4 max-w-md mx-auto text-[11px] leading-relaxed">Sistem AI Gemini akan langsung membaca, menghitung skor, dan mencocokkan lembar jawab siswa secara real-time.</p>
                         
                         <button id="btnMulaiScan" disabled onclick="document.getElementById('fileLJK').click()"
                                 class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold uppercase text-[10px] tracking-wider hover:bg-blue-700 transition-all disabled:opacity-40 shadow-sm">
@@ -243,7 +245,7 @@
                 <h3 class="text-lg font-black text-gray-800 uppercase tracking-tight">Hasil Pemeriksaan Berkas</h3>
                 <p class="text-xs text-gray-400 mt-0.5">Laporan nilai siswa hasil ekstraksi kecerdasan buatan.</p>
             </div>
-            <button onclick="simpanHasilKeDatabase()" class="px-5 py-2.5 bg-green-600 text-white rounded-lg font-bold uppercase text-[10px] tracking-wider hover:bg-green-700 shadow-sm transition-all">
+            <button onclick="simpanHasilKeDatabase()" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold uppercase text-[10px] tracking-wider hover:bg-blue-700 shadow-sm transition-all">
                 Simpan Hasil Ke Database
             </button>
         </div>
@@ -283,23 +285,23 @@
         // Gunakan Array map & join untuk menghindari overload parse DOM innerHTML +=
         gridKunci.innerHTML = data.map((val, i) => `
             <div class="grid-cell-hope group">
-                <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-blue-600 transition-colors">${i+1}</span>
+                <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-emerald-500 transition-colors">${i+1}</span>
                 <input type="text" maxlength="1" value="${val}" 
                     class="kunci-input w-full text-center font-jakarta font-black text-sm bg-transparent border-none p-0 focus:ring-0 uppercase text-gray-700">
             </div>
         `).join('');
     }
 
-    // FUNGSI AKTIVASI STEP 2
+    // FUNGSI AKTIVASI STEP 2 
     function activateStep2() {
         const step2Icon = document.getElementById('step2Icon');
         const step2Header = document.getElementById('step2Header');
         const step2Section = document.getElementById('step2Section');
         const btn = document.getElementById('btnMulaiScan');
 
-        step2Icon.style.backgroundColor = "#2563eb"; // blue-600
+        step2Icon.style.backgroundColor = "#10b981"; // emerald-500
         step2Icon.style.color = "white";
-        step2Icon.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.2)";
+        step2Icon.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.2)";
         
         step2Header.style.opacity = "1";
         step2Section.style.opacity = "1";
@@ -444,25 +446,25 @@
                 document.getElementById('resultSection').classList.remove('hidden');
                 
                 containerHasil.innerHTML = result.data.map((siswa, idx) => `
-                    <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-blue-400 transition-all"
+                    <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-emerald-500 transition-all"
                         data-telegram-id="${siswa.telegram_message_id || ''}">
                         
                         ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase z-20">Duplikat</div>' : ''}
                         
                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex flex-col items-center justify-center shadow-md shrink-0">
+                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex flex-col items-center justify-center shadow-md shrink-0">
                                 <span class="text-[7px] font-black uppercase opacity-60 leading-none mb-0.5">Skor</span>
                                 <span class="text-xl font-black leading-none">${siswa.skor}</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}" 
-                                    class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
+                                    class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
                                     placeholder="Nama Siswa">
                                 <div class="flex items-center gap-1.5 mt-0.5">
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID:</span>
                                     <input type="text" value="${siswa.nomor_peserta || ''}" 
                                         data-old-id="${siswa.nomor_peserta || ''}" 
-                                        class="font-bold text-xs text-blue-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 focus:bg-blue-50 rounded px-1.5 py-0.5 outline-none transition-all" 
+                                        class="font-bold text-xs text-emerald-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-emerald-50/50 rounded px-1.5 py-0.5 outline-none transition-all" 
                                         placeholder="No Peserta">
                                 </div>
                             </div>
@@ -479,7 +481,7 @@
                             </div>
                         </div>
 
-                        <button onclick="toggleDetail('det-${idx}')" class="w-full py-2 bg-gray-50 border border-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                        <button onclick="toggleDetail('det-${idx}')" class="w-full py-2 bg-gray-50 border border-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                             Edit / Analisis Jawaban <i class="fas fa-edit ml-1"></i>
                         </button>
 
@@ -511,7 +513,7 @@
                             title: 'Data Duplikat Terdeteksi!',
                             html: `Siswa berikut sudah dikoreksi sebelumnya pada mapel ini:<br><br><b class="text-red-500">${namaDuplikat}</b><br><br>Nilai lama otomatis dimuat dari database Neon.`,
                             icon: 'warning',
-                            confirmButtonColor: '#2563eb',
+                            confirmButtonColor: '#10b981',
                             confirmButtonText: 'Oke'
                         });
                     }
@@ -569,7 +571,7 @@
 
     function hitungSemuaSiswa() {
         const semuaDetail = document.querySelectorAll('[id^="det-"]');
-        semuaDetail.forEach(el => {
+        allDetail.forEach(el => {
             const idx = el.id.split('-')[1];
             hitungUlangSiswa(idx);
         });

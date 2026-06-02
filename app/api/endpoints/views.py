@@ -140,8 +140,8 @@ async def koreksi_page(
         )
 
 
-@router.get("/manajemen-kelas", response_class=HTMLResponse)
-async def manajemen_kelas(
+@router.get("/manajemen-siswa", response_class=HTMLResponse)
+async def manajemen_siswa(
     request: Request, 
     page: int = Query(1, ge=1),
     search: str = Query(None),
@@ -193,7 +193,7 @@ async def manajemen_kelas(
 
     return templates.TemplateResponse(
         request= request,
-        name="kelas.html", 
+        name="siswa.html", 
         context= {
             "request": request,
             "user": current_user,

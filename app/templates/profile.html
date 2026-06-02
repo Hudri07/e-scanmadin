@@ -21,7 +21,7 @@
                         {{ user.full_name if user.full_name else 'Administrator' }}
                     </h2>
                     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1.5">
-                        <span class="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                        <span class="text-emerald-600 bg-emerald-50 border border-emerald-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
                             Admin Madrasah
                         </span>
                         <span class="text-gray-500 bg-gray-50 border border-gray-200 text-[10px] font-semibold px-2 py-0.5 rounded-md">
@@ -42,12 +42,13 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form id="masterProfileForm" class="bg-white border border-gray-200/60 shadow-sm rounded-2xl p-6 space-y-6">
         
-        <div class="bg-white border border-gray-200/60 shadow-sm rounded-2xl p-6 flex flex-col justify-between">
-            <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            
+            <div class="pb-6 md:pb-0 space-y-4">
                 <div class="flex items-center mb-5 border-b border-gray-50 pb-3">
-                    <div class="w-9 h-9 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mr-3 border border-blue-100/50">
+                    <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center mr-3 border border-emerald-100/50">
                         <i class="fas fa-user text-xs"></i>
                     </div>
                     <div>
@@ -56,75 +57,66 @@
                     </div>
                 </div>
                 
-                <form id="updateProfileForm" class="space-y-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Nama Lengkap</label>
-                        <input type="text" name="full_name" value="{{ user.full_name }}" 
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                            placeholder="Contoh: Ahmad Hudri" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Alamat Email Resmi</label>
-                        <input type="email" name="email" value="{{ user.email or '' }}" 
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                            placeholder="email@madrasah.sch.id">
-                    </div>
-                    
-                    <div class="pt-2">
-                        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
-                            Simpan Profil
-                        </button>
-                    </div>
-                </form>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Nama Lengkap</label>
+                    <input type="text" name="full_name" value="{{ user.full_name }}" 
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 outline-none transition-all" 
+                        placeholder="Contoh: Ahmad Hudri" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Alamat Email Resmi</label>
+                    <input type="email" name="email" value="{{ user.email or '' }}" 
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 outline-none transition-all" 
+                        placeholder="email@madrasah.sch.id">
+                </div>
             </div>
-        </div>
 
-        <div class="bg-white border border-gray-200/60 shadow-sm rounded-2xl p-6 flex flex-col justify-between">
-            <div>
+            <div class="pt-6 md:pt-0 md:pl-8 space-y-4">
                 <div class="flex items-center mb-5 border-b border-gray-50 pb-3">
                     <div class="w-9 h-9 bg-red-50 text-red-500 rounded-lg flex items-center justify-center mr-3 border border-red-100/50">
                         <i class="fas fa-key text-xs"></i>
                     </div>
                     <div>
                         <h3 class="text-xs font-bold text-gray-800 tracking-tight">Kredensial Keamanan</h3>
-                        <p class="text-[10px] text-gray-400">Kelola otentikasi kata sandi berkala.</p>
+                        <p class="text-[10px] text-gray-400">Kosongkan jika tidak ingin mengubah password.</p>
                     </div>
                 </div>
                 
-                <form id="updatePasswordForm" class="space-y-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Password Baru</label>
-                        <div class="relative">
-                            <input type="password" id="new_password" name="new_password" 
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                                placeholder="••••••••" required>
-                            <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
-                                <i class="fas fa-eye text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Konfirmasi Ulang</label>
-                        <div class="relative">
-                            <input type="password" id="confirm_password" name="confirm_password" 
-                                class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 outline-none transition-all" 
-                                placeholder="••••••••" required>
-                            <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
-                                <i class="fas fa-eye text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-2">
-                        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-sm">
-                            Ganti Password
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Password Baru (Opsional)</label>
+                    <div class="relative">
+                        <input type="password" id="new_password" name="new_password" 
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 outline-none transition-all" 
+                            placeholder="••••••••">
+                        <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 transition-colors">
+                            <i class="fas fa-eye text-xs"></i>
                         </button>
                     </div>
-                </form>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-0.5">Konfirmasi Ulang Password Baru</label>
+                    <div class="relative">
+                        <input type="password" id="confirm_password" name="confirm_password" 
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-xs text-gray-700 focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 outline-none transition-all" 
+                            placeholder="••••••••">
+                        <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 transition-colors">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
+
         </div>
 
-    </div>
+        <div class="pt-4 border-t border-gray-100 flex justify-end">
+            <button type="submit" id="submitBtn" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl transition-all font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 flex items-center justify-center space-x-2">
+                <i id="submitIcon" class="fas fa-save text-sm"></i>
+                <span id="submitText">Simpan Perubahan</span>
+            </button>
+        </div>
+
+    </form>
+
 </div>
 {% endblock %}
 
@@ -142,42 +134,96 @@
         }
     }
 
-    // AJAX: UPDATE PROFIL
-    document.getElementById('updateProfileForm').onsubmit = async (e) => {
+    // AJAX: SUBMIT DENGAN LOADING STATE
+    document.getElementById('masterProfileForm').onsubmit = async (e) => {
         e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const submitIcon = document.getElementById('submitIcon');
+        const submitText = document.getElementById('submitText');
+        
         const formData = new FormData(e.target);
-        try {
-            const res = await fetch('/profile/update', { method: 'POST', body: formData });
-            if(res.ok) {
-                showToast("Informasi profil berhasil diperbarui!", "success");
-                const newName = formData.get('full_name');
-                document.getElementById('display_full_name').innerText = newName;
-            } else {
-                showToast("Gagal menyimpan pembaruan profil.", "error");
-            }
-        } catch(err) {
-            showToast("Gagal menghubungi server database.", "error");
-        }
-    };
+        const newPassword = formData.get('new_password');
+        const confirmPassword = formData.get('confirm_password');
 
-    // AJAX: UPDATE PASSWORD
-    document.getElementById('updatePasswordForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        if(formData.get('new_password') !== formData.get('confirm_password')) {
-            return showToast("Konfirmasi verifikasi kata sandi tidak cocok!", "error");
-        }
-        try {
-            const res = await fetch('/profile/change-password', { method: 'POST', body: formData });
-            if(res.ok) {
-                showToast("Kata sandi berhasil dikonfigurasi ulang.", "success");
-                e.target.reset();
-            } else {
-                const data = await res.json();
-                showToast(data.detail || "Gagal memperbarui kredensial sandi.", "error");
+        // Validasi awal password
+        if (newPassword || confirmPassword) {
+            if (newPassword !== confirmPassword) {
+                return showToast("Konfirmasi verifikasi kata sandi tidak cocok!", "error");
             }
-        } catch(err) {
-            showToast("Koneksi jaringan menuju server terputus.", "error");
+        }
+
+        // ELEMEN LOADING AKTIF (Tombol di-disable dan diganti teksnya)
+        submitBtn.disabled = true;
+        submitText.innerText = "Menyimpan...";
+        submitIcon.className = "fas fa-spinner fa-spin text-sm"; // Ganti icon jadi spinner putar
+
+        const requests = [];
+
+        // 1. Setup Request Profil
+        const profileData = new FormData();
+        profileData.append('full_name', formData.get('full_name'));
+        profileData.append('email', formData.get('email'));
+        
+        requests.push(
+            fetch('/profile/update', { method: 'POST', body: profileData })
+            .then(res => ({ type: 'profile', ok: res.ok }))
+            .catch(() => ({ type: 'profile', ok: false }))
+        );
+
+        // 2. Setup Request Password (jika diisi)
+        if (newPassword) {
+            const passwordData = new FormData();
+            passwordData.append('new_password', newPassword);
+            passwordData.append('confirm_password', confirmPassword);
+
+            requests.push(
+                fetch('/profile/change-password', { method: 'POST', body: passwordData })
+                .then(async res => {
+                    const ok = res.ok;
+                    let detail = "Gagal memperbarui kredensial sandi.";
+                    if (!ok) {
+                        try { const data = await res.json(); detail = data.detail || detail; } catch(e){}
+                    }
+                    return { type: 'password', ok, detail };
+                })
+                .catch(() => ({ type: 'password', ok: false, detail: "Koneksi jaringan menuju server terputus." }))
+            );
+        }
+
+        try {
+            // Jalankan request paralel
+            const results = await Promise.all(requests);
+            
+            const profileRes = results.find(r => r.type === 'profile');
+            const passwordRes = results.find(r => r.type === 'password');
+
+            // Handling respon profil
+            if (profileRes && profileRes.ok) {
+                document.getElementById('display_full_name').innerText = formData.get('full_name');
+                showToast("Informasi profil berhasil diperbarui!", "success");
+            } else if (profileRes && !profileRes.ok) {
+                showToast("Gagal menyimpan pembaruan data profil.", "error");
+            }
+
+            // Handling respon password
+            if (passwordRes) {
+                if (passwordRes.ok) {
+                    showToast("Kata sandi berhasil dikonfigurasi ulang.", "success");
+                    document.getElementById('new_password').value = '';
+                    document.getElementById('confirm_password').value = '';
+                } else {
+                    showToast(passwordRes.detail, "error");
+                }
+            }
+
+        } catch (err) {
+            showToast("Gagal menghubungi server database.", "error");
+        } finally {
+            // ELEMEN LOADING MATI (Tombol dikembalikan ke keadaan semula, sukses ataupun gagal)
+            submitBtn.disabled = false;
+            submitText.innerText = "Simpan Perubahan";
+            submitIcon.className = "fas fa-save text-sm";
         }
     };
 </script>

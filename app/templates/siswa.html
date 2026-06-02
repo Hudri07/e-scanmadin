@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}Manajemen Siswa - E-Tashih{% endblock %}
-{% block hero_title %}Manajemen Siswa & Kelas{% endblock %}
+{% block page_title %}Manajemen Siswa{% endblock %}
+{% block hero_title %}Manajemen Siswa{% endblock %}
 {% block hero_subtitle %}Kelola database Siswa dan hasil ujian secara terorganisir dalam satu panel modern.{% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
                 <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Pilih Kelas</label>
                 <div class="relative">
                     <select id="kelasFilterSelect" onchange="handleKelasSelectChange(this)" 
-                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 font-bold text-xs outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700 appearance-none cursor-pointer">
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700 appearance-none cursor-pointer">
                         <option value="">-- Pilih Kelas --</option>
                         {% if kelas_list %}
                             {% for k in kelas_list %}
@@ -30,7 +31,7 @@
                 <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Pencarian Anggota</label>
                 <div class="relative">
                     <input type="text" id="fastSearch" placeholder="Ketik nama siswa yang dicari..." 
-                        class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all placeholder-gray-400 text-gray-700">
+                        class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all placeholder-gray-400 text-gray-700">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 text-xs transition-colors"></i>
                 </div>
             </div>
@@ -83,7 +84,7 @@
                         </tr>
                     </thead>
                     <tbody id="studentTableBody" class="divide-y divide-gray-100">
-                        </tbody>
+                    </tbody>
                 </table>
 
                 <div id="paginationNav"></div>
@@ -109,18 +110,18 @@
             
             <div class="space-y-1">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">Nomor Peserta Ujian</label>
-                <input type="text" id="nomor_peserta" name="nomor_peserta" placeholder="Contoh: 26-06-0001" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700" required>
+                <input type="text" id="nomor_peserta" name="nomor_peserta" placeholder="Contoh: 26-06-0001" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700" required>
             </div>
             
             <div class="space-y-1">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">Nama Lengkap Siswa</label>
-                <input type="text" id="nama" name="nama" oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama lengkap..." class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700" required>
+                <input type="text" id="nama" name="nama" oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama lengkap..." class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700" required>
             </div>
             
             <div class="space-y-1">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-0.5">Penempatan Kelas</label>
                 <div class="relative">
-                    <select id="kelas" name="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all text-gray-700 appearance-none cursor-pointer" required>
+                    <select id="kelas" name="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-semibold text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700 appearance-none cursor-pointer" required>
                         <option value="">-- Pilih Kelas --</option>
                         {% if kelas_list %}
                             {% for k in kelas_list %}
@@ -132,8 +133,9 @@
                 </div>
             </div>
             
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-2 shadow-sm">
-                Simpan Ke Database
+            <button type="submit" id="siswaSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-2 shadow-sm flex items-center justify-center space-x-2">
+                <i id="siswaSubmitIcon" class="fas fa-database text-xs"></i>
+                <span id="siswaSubmitText">Simpan Ke Database</span>
             </button>
         </form>
     </div>
@@ -181,16 +183,13 @@
         const container = document.getElementById('siswaContainer');
         const welcome = document.getElementById('welcomeMessage');
         
-        // Ambil data dasar sesuai kelas terpilih
         const baseFiltered = allStudents.filter(s => s.kelas === namaKelas);
         document.getElementById('selectedClassName').innerText = "Rombongan Belajar: " + namaKelas;
         document.getElementById('studentCount').innerText = baseFiltered.length + " Siswa";
         
-        // Simpan ke state terfilter global untuk pagination
         dataTerfilter = [...baseFiltered];
         halamanSekarang = 1;
 
-        // Render tabel data halaman pertama
         renderTabelSiswa();
 
         welcome.classList.add('hidden');
@@ -201,7 +200,6 @@
         const tableBody = document.getElementById('studentTableBody');
         tableBody.innerHTML = "";
 
-        // Hitung indeks potong array untuk halaman aktif
         const indeksMulai = (halamanSekarang - 1) * barisPerHalaman;
         const indeksSelesai = indeksMulai + barisPerHalaman;
         const dataHalamanIni = dataTerfilter.slice(indeksMulai, indeksSelesai);
@@ -267,7 +265,6 @@
             tableBody.innerHTML += row;
         });
 
-        // Update tampilan navigasi halaman tombol angka di bawah tabel
         renderPaginationControls(dataTerfilter.length);
     }
 
@@ -326,7 +323,6 @@
         document.getElementById('siswaContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Pencarian realtime dikombinasikan dengan pagination
     document.getElementById('fastSearch').addEventListener('input', function() {
         const keyword = this.value.toLowerCase().trim();
         const baseFiltered = allStudents.filter(s => s.kelas === currentFilteredClass);
@@ -417,10 +413,16 @@
 
     function closeModal() { modal.classList.add('hidden'); }
 
+    // FORM SUBMIT SISWA DENGAN LOADING STATE
     form.onsubmit = async (e) => {
         e.preventDefault();
-        const oldNo = document.getElementById('old_nomor_peserta').value;
         
+        // Deklarasi target DOM Tombol Loading
+        const submitBtn = document.getElementById('siswaSubmitBtn');
+        const submitIcon = document.getElementById('siswaSubmitIcon');
+        const submitText = document.getElementById('siswaSubmitText');
+
+        const oldNo = document.getElementById('old_nomor_peserta').value;
         const namaInput = document.getElementById('nama');
         namaInput.value = namaInput.value.toUpperCase();
 
@@ -432,6 +434,11 @@
         const inputKelas = document.getElementById('kelas').value;
 
         try {
+            // AKTIFKAN LOADING STATE
+            submitBtn.disabled = true;
+            submitText.innerText = "Menyimpan Ke Database...";
+            submitIcon.className = "fas fa-spinner fa-spin text-xs";
+
             const res = await fetch(url, { method: 'POST', body: formData });
             
             if (res.ok) {
@@ -467,6 +474,11 @@
             }
         } catch (err) { 
             showToast("Kesalahan jaringan atau server down", "error"); 
+        } finally {
+            // MATIKAN LOADING STATE (Kembalikan tombol seperti semula)
+            submitBtn.disabled = false;
+            submitText.innerText = "Simpan Ke Database";
+            submitIcon.className = "fas fa-database text-xs";
         }
     };
 

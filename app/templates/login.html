@@ -47,7 +47,7 @@
         backdrop-filter: blur(10px);
         padding: 3rem 2.5rem;
         border-radius: 2.5rem;
-        box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.08), 0 10px 20px -10px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.08), 0 10px 20px -10px rgba(0, 0, 0, 0.04);
         width: 100%;
         max-width: 440px;
         border: 1px solid rgba(226, 232, 240, 0.8);
@@ -55,8 +55,8 @@
     }
 
     .logo-box h1 {
-        color: #3b82f6; 
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: #10b981; 
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -77,8 +77,8 @@
 
     .hope-input:focus {
         background-color: white;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
     }
 
     .password-group {
@@ -98,7 +98,7 @@
     }
 
     .password-toggle:hover {
-        color: #3b82f6;
+        color: #10b981;
     }
 
     .btn-login {
@@ -116,8 +116,13 @@
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 0 12px 20px -8px rgba(59, 130, 246, 0.5);
         margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
+    /* Biru lebih tegas */
     .btn-login:hover {
         transform: translateY(-2px);
         box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
@@ -125,6 +130,15 @@
 
     .btn-login:active {
         transform: translateY(0);
+    }
+
+    /* STATE MEMPROSES DATA (DISABLED)*/
+    .btn-login:disabled {
+        background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%) !important;
+        color: #1e3a8a !important;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     #error-msg {
@@ -140,46 +154,10 @@
         text-align: center;
         animation: fadeInUp 0.3s ease;
     }
-
-    /* 🌟 FULL SCREEN OVERLAY LOADING TENGAH LAYAR */
-    #global-loader {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(244, 246, 249, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .spinner-modern {
-        width: 56px;
-        height: 56px;
-        border: 5px solid #e2e8f0;
-        border-bottom-color: #3b82f6;
-        border-radius: 50%;
-        display: inline-block;
-        box-sizing: border-box;
-        animation: rotation 0.8s linear infinite;
-    }
-
-    @keyframes rotation {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="global-loader">
-    <div class="spinner-modern"></div>
-</div>
-
 <div class="login-container">
     <div class="login-card">
         <div class="logo-box text-center mb-8">
@@ -192,7 +170,7 @@
             <i class="fas fa-exclamation-triangle mr-1.5"></i> Username atau password salah!
         </div>
 
-        <form id="loginForm" autocomplete="off">
+        <form id="formLogin" autocomplete="off">
             <div class="mb-4">
                 <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 pl-1">Username</label>
                 <input type="text" name="username" id="username" class="hope-input" placeholder="Masukkan username" required>
@@ -208,8 +186,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">
-                Masuk Sekarang</i>
+            <button type="submit" id="btnLoginSubmit" class="btn-login">
+                <span id="btnText">Masuk Sekarang</span>
             </button>
         </form>
 
@@ -237,16 +215,19 @@
         }
     }
 
-    const loginForm = document.getElementById('loginForm');
+    const formLogin = document.getElementById('formLogin');
     const errorMsg = document.getElementById('error-msg');
-    const globalLoader = document.getElementById('global-loader');
+    
+    const btnLoginSubmit = document.getElementById('btnLoginSubmit');
+    const btnText = document.getElementById('btnText');
 
-    loginForm.addEventListener('submit', async (e) => {
+    formLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.style.display = 'none';
 
-        // 🌟 TAMPILKAN LOADING DI TENGAH LAYAR
-        globalLoader.style.display = 'flex';
+        // PROSES LOADING INLINE BUTTON
+        btnLoginSubmit.disabled = true;
+        btnText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses Data...';
 
         const formData = new FormData();
         formData.append('username', document.getElementById('username').value);
@@ -261,15 +242,21 @@
             if (response.ok) {
                 window.location.href = '/dashboard';
             } else {
-                // SEMBUNYIKAN LOADING JIKA GAGAL
-                globalLoader.style.display = 'none';
+                btnLoginSubmit.disabled = false;
+                btnText.innerText = 'Masuk Sekarang';
+                
                 errorMsg.style.display = 'block';
                 document.getElementById('password').value = '';
             }
         } catch (err) {
-            // SEMBUNYIKAN LOADING JIKA SERVER ERROR
-            globalLoader.style.display = 'none';
-            alert("Gagal menghubungi server FastAPI.");
+            btnLoginSubmit.disabled = false;
+            btnText.innerText = 'Masuk Sekarang';
+            
+            if (typeof showToast === "function") {
+                showToast("Gagal menghubungi server FastAPI.");
+            } else {
+                showToast("Gagal menghubungi server FastAPI.");
+            }
         }
     });
 </script>
