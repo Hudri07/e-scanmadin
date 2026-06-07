@@ -141,7 +141,7 @@ async def koreksi_page(
 
 
 @router.get("/manajemen-siswa", response_class=HTMLResponse)
-async def manajemen_siswa(
+async def manajemen_siswas(
     request: Request, 
     page: int = Query(1, ge=1),
     search: str = Query(None),

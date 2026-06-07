@@ -169,14 +169,14 @@
 
                         <div class="border border-gray-200/70 p-4 rounded-xl space-y-3 bg-white">
                             <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Mata Pelajaran</label>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1 required">Mata Pelajaran</label>
                                 <div class="relative">
                                     <input type="text" id="mapel" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-emerald-500 focus:bg-white transition-all" placeholder="Masukkan Mapel...">
                                     <i class="fas fa-pen absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Kelas</label>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1 required">Kelas</label>
                                 <div class="relative">
                                     <input type="text" id="kelas" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-emerald-500 focus:bg-white transition-all" placeholder="Masukkan Kelas...">
                                     <i class="fas fa-graduation-cap absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-300"></i>
@@ -271,6 +271,7 @@
 {% block extra_js %}
 <script>
     let currentKunciId = null;
+    let globalSiswaCount = 0;
 
     // FUNGSI RENDER GRID KUNCI MASTER
     function renderGrid(data) {
@@ -282,7 +283,6 @@
         gridKunci.classList.remove('hidden');
         actionKunci.classList.remove('hidden');
 
-        // Gunakan Array map & join untuk menghindari overload parse DOM innerHTML +=
         gridKunci.innerHTML = data.map((val, i) => `
             <div class="grid-cell-hope group">
                 <span class="text-[9px] font-black text-gray-300 uppercase mb-0.5 group-hover:text-emerald-500 transition-colors">${i+1}</span>
@@ -299,7 +299,7 @@
         const step2Section = document.getElementById('step2Section');
         const btn = document.getElementById('btnMulaiScan');
 
-        step2Icon.style.backgroundColor = "#10b981"; // emerald-500
+        step2Icon.style.backgroundColor = "#10b981"; 
         step2Icon.style.color = "white";
         step2Icon.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.2)";
         
@@ -339,9 +339,7 @@
             if (editKunciId) {
                 select.value = editKunciId;
                 pakaiKunciLama(select);
-                if (typeof showToast === "function") {
-                    showToast("Kunci jawaban otomatis dimuat!", "success");
-                }
+
             }
         } catch (e) {
             console.error("Gagal muat list master kunci:", e);
@@ -350,7 +348,12 @@
 
     function pakaiKunciLama(select) {
         const opt = select.options[select.selectedIndex];
-        if (!opt || !opt.value) return;
+        if (!opt || !opt.value) {
+            if (typeof showToast === "function") {
+                showToast("Silakan pilih kunci jawaban dari dropdown!", "warning");
+            }
+            return;
+        }
 
         currentKunciId = opt.value;
         document.getElementById('mapel').value = opt.dataset.mapel;
@@ -358,12 +361,21 @@
         
         renderGrid(JSON.parse(opt.dataset.json));
         activateStep2();
+
+        if (typeof showToast === "function") {
+            showToast("Kunci jawaban berhasil dimuat!", "success");
+        }
     }
 
     // UPLOAD FOTO KUNCI (PROSES GEMINI AI)
     document.getElementById('fileKunci').onchange = async function(e) {
         const file = e.target.files[0];
-        if(!file) return;
+        if (!file) {
+            if (typeof showToast === "function") {
+                showToast("Silakan pilih file foto kunci!", "warning");
+            }
+            return;
+        }
         
         const loading = document.getElementById('loadingGemini');
         loading.classList.remove('hidden');
@@ -376,13 +388,17 @@
             const result = await res.json();
             if(result.status === 'success') {
                 currentKunciId = result.id;
-                document.getElementById('mapel').value = result.mata_pelajaran || "NA";
-                document.getElementById('kelas').value = result.kelas || "NA";
+                document.getElementById('mapel').value = (result.mata_pelajaran || "NA").toUpperCase();
+                document.getElementById('kelas').value = (result.kelas || "NA").toUpperCase();
                 renderGrid(result.data);
                 activateStep2();
-                if (typeof showToast === "function") showToast("Kunci Berhasil Diekstrak AI", "success");
+                if (typeof showToast === "function") {
+                    showToast("Kunci berhasil diekstrak AI!", "success");
+                }
             } else {
-                if (typeof showToast === "function") showToast("Gagal memproses kunci", "error");
+                if (typeof showToast === "function") {
+                    showToast("Gagal memproses kunci!", "error");
+                }
             }
         } catch (error) {
             console.error(error);
@@ -402,6 +418,21 @@
 
         const mapelBaru = document.getElementById('mapel').value;
         const kelasBaru = document.getElementById('kelas').value;
+
+        if (!mapelBaru) {
+            if (typeof showToast === "function") {
+                showToast("Mata pelajaran tidak boleh kosong!", "error");
+            }
+            return;
+        }
+        
+        if (!kelasBaru) {
+            if (typeof showToast === "function") {
+                showToast("Kelas tidak boleh kosong!", "error");
+            }
+            return;
+        }
+        
         const inputs = document.querySelectorAll('.kunci-input');
         const jawabanBaru = Array.from(inputs).map(input => input.value.toUpperCase() || "-");
 
@@ -445,58 +476,68 @@
             if (result.status === 'success') {
                 document.getElementById('resultSection').classList.remove('hidden');
                 
-                containerHasil.innerHTML = result.data.map((siswa, idx) => `
-                    <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-emerald-500 transition-all"
-                        data-telegram-id="${siswa.telegram_message_id || ''}">
-                        
-                        ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase z-20">Duplikat</div>' : ''}
-                        
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex flex-col items-center justify-center shadow-md shrink-0">
-                                <span class="text-[7px] font-black uppercase opacity-60 leading-none mb-0.5">Skor</span>
-                                <span class="text-xl font-black leading-none">${siswa.skor}</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}" 
-                                    class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
-                                    placeholder="Nama Siswa">
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID:</span>
-                                    <input type="text" value="${siswa.nomor_peserta || ''}" 
-                                        data-old-id="${siswa.nomor_peserta || ''}" 
-                                        class="font-bold text-xs text-emerald-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-emerald-50/50 rounded px-1.5 py-0.5 outline-none transition-all" 
-                                        placeholder="No Peserta">
+                // Generate HTML secara aman tanpa menghapus data yang sudah ada di layar
+                const htmlBaru = result.data.map((siswa) => {
+                    // Ambil nilai indeks global saat ini untuk ID unik elemen HTML
+                    const idx = globalSiswaCount; 
+                    globalSiswaCount++; // Naikkan counter agar upload berikutnya mendapat ID baru
+
+                    return `
+                        <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-emerald-500 transition-all"
+                            data-telegram-id="${siswa.telegram_message_id || ''}">
+                            
+                            ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase z-20">Duplikat</div>' : ''}
+                            
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex flex-col items-center justify-center shadow-md shrink-0">
+                                    <span class="text-[7px] font-black uppercase opacity-60 leading-none mb-0.5">Skor</span>
+                                    <span class="text-xl font-black leading-none">${siswa.skor}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}" 
+                                        class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
+                                        placeholder="Nama Siswa">
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">ID:</span>
+                                        <input type="text" value="${siswa.nomor_peserta || ''}" 
+                                            data-old-id="${siswa.nomor_peserta || ''}" 
+                                            class="font-bold text-xs text-emerald-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-emerald-50/50 rounded px-1.5 py-0.5 outline-none transition-all" 
+                                            placeholder="No Peserta">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="flex gap-3 mb-4">
-                            <div class="flex-1 bg-green-50/50 p-2 rounded-lg border border-green-100 text-center">
-                                <div class="text-[9px] font-bold text-green-600 uppercase tracking-wide">Benar</div>
-                                <div class="text-base font-black text-green-700">${siswa.detail ? siswa.detail.benar : 0}</div>
-                            </div>
-                            <div class="flex-1 bg-red-50/50 p-2 rounded-lg border border-red-100 text-center">
-                                <div class="text-[9px] font-bold text-red-600 uppercase tracking-wide">Salah</div>
-                                <div class="text-base font-black text-red-700">${siswa.detail ? siswa.detail.salah : 0}</div>
-                            </div>
-                        </div>
-
-                        <button onclick="toggleDetail('det-${idx}')" class="w-full py-2 bg-gray-50 border border-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
-                            Edit / Analisis Jawaban <i class="fas fa-edit ml-1"></i>
-                        </button>
-
-                        <div id="det-${idx}" class="hidden mt-3 pt-3 border-t border-gray-100 grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-                            ${(siswa.perbandingan || []).map(it => `
-                                <div class="flex flex-col items-center">
-                                    <span class="text-[8px] font-bold text-gray-300 mb-0.5">${it.no}</span>
-                                    <input type="text" maxlength="1" value="${it.siswa}" 
-                                        class="item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
-                                        ${it.status === 'correct' ? 'bg-green-50 border-green-200 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-200 text-red-700 focus:border-red-500'}">
+                            <div class="flex gap-3 mb-4">
+                                <div class="flex-1 bg-green-50/50 p-2 rounded-lg border border-green-100 text-center">
+                                    <div class="text-[9px] font-bold text-green-600 uppercase tracking-wide">Benar</div>
+                                    <div class="text-base font-black text-green-700">${siswa.detail ? siswa.detail.benar : 0}</div>
                                 </div>
-                            `).join('')}
+                                <div class="flex-1 bg-red-50/50 p-2 rounded-lg border border-red-100 text-center">
+                                    <div class="text-[9px] font-bold text-red-600 uppercase tracking-wide">Salah</div>
+                                    <div class="text-base font-black text-red-700">${siswa.detail ? siswa.detail.salah : 0}</div>
+                                </div>
+                            </div>
+
+                            <button onclick="toggleDetail('det-${idx}')" class="w-full py-2 bg-gray-50 border border-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                                Edit / Analisis Jawaban <i class="fas fa-edit ml-1"></i>
+                            </button>
+
+                            <div id="det-${idx}" class="hidden mt-3 pt-3 border-t border-gray-100 grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+                                ${(siswa.perbandingan || []).map(it => `
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-[8px] font-bold text-gray-300 mb-0.5">${it.no}</span>
+                                        <input type="text" maxlength="1" value="${it.siswa}" 
+                                            class="item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
+                                            ${it.status === 'correct' ? 'bg-green-50 border-green-200 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-200 text-red-700 focus:border-red-500'}">
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                
+                // FIXED: Gunakan append (insertAdjacentHTML) agar data lama TIDAK HILANG saat file baru di-upload
+                containerHasil.insertAdjacentHTML('beforeend', htmlBaru);
                 
                 const adaDuplikat = result.data.some(siswa => siswa.is_duplicate === true);
                 
@@ -519,11 +560,12 @@
                     }
                 } else {
                     if (typeof showToast === "function") {
-                        showToast("Semua LJK berhasil diekstraksi!", "success");
+                        showToast("LJK baru berhasil ditambahkan!", "success");
                     }
                 }
 
-                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+                // Scroll perlahan ke hasil terbaru yang baru saja dimasukkan
+                containerHasil.lastElementChild.scrollIntoView({ behavior: 'smooth' });
             }
         } catch (error) {
             console.error(error);
@@ -531,6 +573,7 @@
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalContent;
+            e.target.value = ''; // Reset input file agar user bisa mendeteksi file yang sama jika di-upload ulang
         }
     };
 
@@ -540,7 +583,6 @@
         const containerSiswa = document.getElementById(`det-${idx}`);
         if (!containerSiswa || masterKunci.length === 0) return;
 
-        // Proteksi selektor: Hanya targetkan input kotak jawaban siswa (.item-jawaban-siswa)
         const barisJawaban = containerSiswa.querySelectorAll('.item-jawaban-siswa');
         let benar = 0;
         let salah = 0;
@@ -571,19 +613,18 @@
 
     function hitungSemuaSiswa() {
         const semuaDetail = document.querySelectorAll('[id^="det-"]');
-        allDetail.forEach(el => {
+        semuaDetail.forEach(el => { // <-- FIXED: Variabel sebelumnya allDetail (ReferenceError)
             const idx = el.id.split('-')[1];
             hitungUlangSiswa(idx);
         });
     }
 
-    // REAL-TIME EVENT LISTENERS (DIPERKETAT AGAR TIDAK CRASH)
+    // REAL-TIME EVENT LISTENERS
     document.getElementById('gridKunci').addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT') hitungSemuaSiswa();
     });
 
     document.getElementById('containerHasil').addEventListener('input', (e) => {
-        // Hanya hitung ulang jika yang diubah adalah kotak jawaban siswa (.item-jawaban-siswa)
         if (e.target.classList.contains('item-jawaban-siswa')) {
             const containerSiswa = e.target.closest('[id^="det-"]');
             if (containerSiswa) {
@@ -600,6 +641,25 @@
         const dataFinal = [];
 
         if (semuaKartu.length === 0) return;
+
+        // Validasi Awal: Cegah pengiriman jika ada field penting yang kosong
+        let adaFormKosong = false;
+        semuaKartu.forEach((card) => {
+            const nama = card.querySelector('input[placeholder="Nama Siswa"]').value.trim();
+            const nomorPeserta = card.querySelector('input[placeholder="No Peserta"]').value.trim();
+            if (!nama || !nomorPeserta) {
+                adaFormKosong = true;
+            }
+        });
+
+        if (adaFormKosong) {
+            if (typeof showToast === "function") {
+                showToast("Nama Siswa dan No Peserta tidak boleh kosong sebelum disimpan!", "error");
+            } else {
+                alert("Nama Siswa dan No Peserta tidak boleh kosong!");
+            }
+            return;
+        }
 
         btnSimpan.disabled = true;
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> MENYIMPAN KE FASTAPI...';
@@ -623,7 +683,7 @@
             });
 
             dataFinal.push({
-                nama: nama.toUpperCase(), // Otomatis jadikan kapital saat kirim ke DB Neon
+                nama: nama.toUpperCase(), 
                 nomor_peserta_lama: nomorPesertaLama, 
                 nomor_peserta_baru: nomorPesertaBaru,
                 skor: skor,

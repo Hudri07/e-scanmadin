@@ -32,7 +32,7 @@
                 font-family: "Plus Jakarta Sans", sans-serif;
             }
 
-            /* 🟢 DISAMAKAN: Mengubah warna background header shape jadi Hijau Emerald (#059669) biar serasi dengan sidebar */
+            /* Mengubah warna background header shape jadi Hijau Emerald (#059669) biar serasi dengan sidebar */
             .header-shape {
                 position: absolute;
                 top: 0;
@@ -52,6 +52,39 @@
 
             #mainContent {
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            @media (max-width: 767px) {
+                #sidebar {
+                    transform: translateX(-100%);
+                }
+                #mainContent {
+                    margin-left: 0 !important;
+                }
+                .sidebar-open #sidebar {
+                    transform: translateX(0);
+                }
+            }
+
+            .sidebar-closed #sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar-closed #mainContent {
+                margin-left: 0 !important;
+            }
+
+            .menu-item {
+                transition: all 0.3s ease;
+                color: #6b7280;
+            }
+            .menu-item:hover {
+                background: rgba(5, 150, 105, 0.05);
+                color: #059669;
+            }
+            .menu-item.active {
+                background: #059669;
+                color: #ffffff;
+                box-shadow: 0 4px 12px -2px rgba(5, 150, 105, 0.3);
             }
 
             @media (max-width: 767px) {
@@ -111,7 +144,7 @@
                 transition: all 0.2s ease;
             }
 
-            /* 🟢 DISAMAKAN: Efek glass header sekarang berbasis warna Hijau Emerald */
+            /* Efek glass header sekarang berbasis warna Hijau Emerald */
             .glass-header {
                 background: rgba(5, 150, 105, 0.2);
                 backdrop-filter: blur(8px);
@@ -368,6 +401,32 @@
                     setTimeout(() => toast.remove(), 500);
                 }, 4000);
             }
+
+            // --- OTOMATIS REDIRECT LOGOUT JIKA SESI EXPIRED (GLOBAL FETCH INTERCEPTOR) ---
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                try {
+                    const response = await originalFetch(...args);
+                    
+                    // Deteksi jika server merespons dengan status 401 (Unauthorized) atau 403 (Forbidden)
+                    if (response.status === 401 || response.status === 403) {
+                        console.warn("Sesi telah habis atau tidak sah. Mengalihkan ke halaman login...");
+                        
+                        // Menampilkan pemberitahuan kilat sebelum dilempar keluar (opsional)
+                        if (typeof showToast === "function") {
+                            showToast("Sesi Anda telah berakhir. Silakan login kembali.", "error");
+                        }
+                        
+                        // Eksekusi pengalihan instan ke rute login tanpa menunggu user me-refresh
+                        setTimeout(() => {
+                            window.location.href = "/login";
+                        }, 800);
+                    }
+                    return response;
+                } catch (error) {
+                    return Promise.reject(error);
+                }
+            };
         </script>
         {% block extra_js %}{% endblock %}
     </body>

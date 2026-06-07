@@ -43,7 +43,7 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
     if username is None:
         raise HTTPException(status_code=401, detail="Format token PASETO salah")
 
-    # Cari user di DB Supabase
+    # Cari user di DB 
     user = db.query(UserTable).filter(UserTable.username == username).first()
     if user is None:
         raise HTTPException(status_code=401, detail="User tidak terdaftar")

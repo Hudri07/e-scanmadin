@@ -49,7 +49,7 @@
                         <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Aktivitas Koreksi Terbaru</h3>
                         <p class="text-[11px] text-gray-400 mt-0.5">Daftar lembar hasil ujian santri yang baru selesai dipindai.</p>
                     </div>
-                    <a href="/manajemen-kelas" class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg transition hover:bg-blue-600 hover:text-white uppercase tracking-wider">
+                    <a href="/manajemen-siswa" class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg transition hover:bg-blue-600 hover:text-white uppercase tracking-wider">
                         Lihat Semua <i class="fas fa-arrow-right ml-1 text-[8px]"></i>
                     </a>
                 </div>
@@ -138,51 +138,240 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('trenKoreksiChart').getContext('2d');
-    
-    // Setup Efek Gradient Area Di Bawah Garis Tren
-    const gradientArea = ctx.createLinearGradient(0, 0, 0, 300);
-    gradientArea.addColorStop(0, 'rgba(37, 99, 235, 0.23)');
-    gradientArea.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
+    // ✅ UI/UX UPGRADE: TUTORIAL ONBOARDING STEP-BY-STEP (Premium Minimalist Look)
+    function tampilkanTutorialOnboarding() {
+        const sudahPernahTutorial = localStorage.getItem('sudahPernahTutorial');
+        if (sudahPernahTutorial) return;
 
-    // Data Fallback Dinamis (Jika data grafik per hari belum terlempar dari backend)
-    const labelsTren = JSON.parse('{{ labels_grafik | tojson | safe }}') || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Aha'];
-    const dataTren = JSON.parse('{{ values_grafik | tojson | safe }}') || [12, 19, 8, 15, 24, 30, 5];
+        let stepAktif = 0;
+        const totalStep = 3;
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labelsTren,
-            datasets: [{
-                label: 'LJK Sukses',
-                data: dataTren,
-                borderColor: '#2563eb', // Blue 600
-                borderWidth: 2.5,
-                backgroundColor: gradientArea,
-                fill: true,
-                tension: 0.35, // Membuat lekukan garis smooth elegan
-                pointBackgroundColor: '#2563eb',
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6', drawBorder: false },
-                    ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
-                }
+        const steps = [
+            {
+                icon: 'fa-cloud-upload-alt',
+                warna: 'emerald',
+                shadowColor: 'rgba(16, 185, 129, 0.3)',
+                judul: 'Konfigurasi Kunci Jawaban',
+                desc: 'Upload foto kunci jawaban atau pilih dari database. Sistem AI Gemini akan otomatis mengekstrak jawaban pilihan ganda.',
+                tips: ['Gunakan foto yang jelas dan terang', 'Posisi kamera tegak lurus dengan kunci']
             },
-            plugins: {
-                legend: { display: false }
+            {
+                icon: 'fa-camera-retro',
+                warna: 'blue',
+                shadowColor: 'rgba(59, 130, 246, 0.3)',
+                judul: 'Scan LJK Siswa',
+                desc: 'Upload foto lembar jawab siswa (bisa sekaligus banyak). Sistem akan otomatis koreksi dan hitung skor berdasarkan kunci.',
+                tips: ['Upload beberapa LJK sekaligus untuk efisiensi', 'Pastikan tidak ada bayangan di LJK']
+            },
+            {
+                icon: 'fa-save',
+                warna: 'orange',
+                shadowColor: 'rgba(249, 115, 22, 0.3)',
+                judul: 'Simpan Hasil ke Database',
+                desc: 'Review hasil koreksi, edit jika perlu, lalu simpan ke database untuk laporan, analisis, dan rekam jejak santri.',
+                tips: ['Review skor sebelum simpan', 'Data tersimpan otomatis di database Neon']
             }
+        ];
+
+        // 1. Render Dasar Struktur Overlay Tanpa Bayangan Pojok Mengganggu
+        const overlay = document.createElement('div');
+        overlay.id = 'tutorialOverlay';
+        overlay.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4 transition-opacity duration-300';
+        overlay.innerHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-[modalScaleUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
+                <!-- Header Clean Gradasi Premium -->
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 relative">
+                    <div class="relative z-10 flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center border border-white/20 backdrop-blur-sm">
+                            <i class="fas fa-graduation-cap text-2xl text-emerald-100"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-black tracking-tight">Selamat Datang!</h2>
+                            <p class="text-emerald-100/80 text-xs font-semibold uppercase tracking-wider">Panduan Kilat E-Tashih</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Wrapper Konten Step dengan Animasi Transisi -->
+                <div class="p-6">
+                    <div id="stepContent" class="opacity-100 transform translate-y-0 transition-all duration-300"></div>
+                </div>
+                
+                <!-- Footer Navigasi Minimalis -->
+                <div id="stepNavigation" class="bg-slate-50/80 backdrop-blur-sm px-6 py-4 flex justify-between items-center border-t border-slate-100"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // 2. Fungsi Utama Update Konten secara Smooth
+        function updateModalTutorial() {
+            const stepContentContainer = document.getElementById('stepContent');
+            const stepData = steps[stepAktif];
+            
+            // Berikan efek transisi keluar sebentar sebelum ganti text
+            stepContentContainer.style.opacity = '0';
+            stepContentContainer.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                const warnaBg = stepData.warna === 'emerald' ? 'bg-emerald-50/60' : (stepData.warna === 'blue' ? 'bg-blue-50/60' : 'bg-orange-50/60');
+                const warnaBorder = stepData.warna === 'emerald' ? 'border-emerald-100' : (stepData.warna === 'blue' ? 'border-blue-100' : 'border-orange-100');
+                const warnaIcon = stepData.warna === 'emerald' ? 'bg-emerald-600' : (stepData.warna === 'blue' ? 'bg-blue-600' : 'bg-orange-600');
+                const warnaText = stepData.warna === 'emerald' ? 'text-emerald-700' : (stepData.warna === 'blue' ? 'text-blue-700' : 'text-orange-700');
+
+                // Render Elemen Utama Inside Card
+                stepContentContainer.innerHTML = `
+                    <div class="flex flex-col sm:flex-row gap-5">
+                        <!-- Icon dengan Glow Effect dibelakangnya -->
+                        <div class="flex-shrink-0 flex justify-center sm:justify-start">
+                            <div class="w-14 h-14 ${warnaIcon} text-white rounded-2xl flex items-center justify-center relative transition-all duration-500" style="box-shadow: 0 8px 20px ${stepData.shadowColor}">
+                                <i class="fas ${stepData.icon} text-xl animate-[pulseGlow_2s_infinite]"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Deskripsi Konten -->
+                        <div class="flex-1 min-w-0">
+                            <div class="mb-1">
+                                <span class="text-[10px] font-bold ${warnaText} uppercase tracking-widest bg-white border ${warnaBorder} px-2.5 py-1 rounded-full">Langkah ${stepAktif + 1} dari ${totalStep}</span>
+                            </div>
+                            <h3 class="text-base font-extrabold text-slate-800 mt-2 mb-1.5">${stepData.judul}</h3>
+                            <p class="text-xs text-slate-500 leading-relaxed mb-4">${stepData.desc}</p>
+                            
+                            <!-- Box Tips Berwarna Soft -->
+                            <div class="${warnaBg} border ${warnaBorder} rounded-xl p-3.5">
+                                <div class="flex gap-2.5">
+                                    <i class="fas fa-lightbulb text-amber-500 text-sm flex-shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <h4 class="text-[11px] font-bold text-slate-700 mb-1">Tips Sukses:</h4>
+                                        <ul class="text-[11px] text-slate-600 space-y-1 font-medium">
+                                            ${stepData.tips.map(tip => `<li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full ${warnaIcon}"></span>${tip}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Kembalikan opacity menjadi terlihat (Efek Fade In & Slide Up)
+                stepContentContainer.style.opacity = '1';
+                stepContentContainer.style.transform = 'translateY(0)';
+
+                // Render Progress Dots Modern (Garis Lonjong Aktif)
+                let dotsHtml = '';
+                for (let i = 0; i < totalStep; i++) {
+                    dotsHtml += `<div class="h-2 rounded-full transition-all duration-300 ${i === stepAktif ? 'bg-emerald-600 w-6' : 'bg-slate-200 w-2'}"></div>`;
+                }
+
+                const tombolKembali = stepAktif > 0 
+                    ? `<button id="btnTutorialBack" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-colors">
+                            Kembali
+                       </button>` 
+                    : '<div></div>';
+
+                const tombolLanjut = stepAktif === totalStep - 1
+                    ? `<button id="btnTutorialNext" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-bold text-[11px] uppercase tracking-wider transition shadow-md shadow-emerald-600/20 flex items-center gap-1">
+                            Mulai <i class="fas fa-check text-[10px]"></i>
+                       </button>`
+                    : `<button id="btnTutorialNext" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-bold text-[11px] uppercase tracking-wider transition shadow-md shadow-emerald-600/20 flex items-center gap-1">
+                            Lanjut <i class="fas fa-chevron-right text-[9px]"></i>
+                       </button>`;
+
+                document.getElementById('stepNavigation').innerHTML = `
+                    <div class="flex items-center gap-1.5">${dotsHtml}</div>
+                    <div class="flex gap-2 items-center">${tombolKembali} ${tombolLanjut}</div>
+                `;
+
+                // Pasang Event Klik Event Listener Baru
+                if (stepAktif > 0) {
+                    document.getElementById('btnTutorialBack').addEventListener('click', () => {
+                        stepAktif--;
+                        updateModalTutorial();
+                    });
+                }
+                
+                document.getElementById('btnTutorialNext').addEventListener('click', () => {
+                    if (stepAktif < totalStep - 1) {
+                        stepAktif++;
+                        updateModalTutorial();
+                    } else {
+                        const overlayContainer = document.getElementById('tutorialOverlay');
+                        if (overlayContainer) {
+                            overlayContainer.style.opacity = '0';
+                            setTimeout(() => overlayContainer.remove(), 300);
+                        }
+                        localStorage.setItem('sudahPernahTutorial', 'true');
+                    }
+                });
+
+            }, 200);
         }
+
+        // Jalankan Inisiasi
+        updateModalTutorial();
+    }
+    
+    // Tambahan Animasi CSS Tingkat Lanjut (Micro-interactions)
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes modalScaleUp {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Jalankan seluruh fungsi dashboard setelah DOM siap
+    window.addEventListener('DOMContentLoaded', () => {
+        tampilkanTutorialOnboarding();
+        
+        // --- Inisialisasi Chart.js ---
+        const ctx = document.getElementById('trenKoreksiChart').getContext('2d');
+        const gradientArea = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientArea.addColorStop(0, 'rgba(37, 99, 235, 0.23)');
+        gradientArea.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
+        
+        const labelsTren = JSON.parse('{{ labels_grafik | tojson | safe }}') || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Aha'];
+        const dataTren = JSON.parse('{{ values_grafik | tojson | safe }}') || [12, 19, 8, 15, 24, 30, 5];
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labelsTren,
+                datasets: [{
+                    label: 'LJK Sukses',
+                    data: dataTren,
+                    borderColor: '#2563eb',
+                    borderWidth: 2.5,
+                    backgroundColor: gradientArea,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#2563eb',
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6', drawBorder: false },
+                        ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af', font: { size: 10, weight: '600' } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
     });
 </script>
 {% endblock %}
