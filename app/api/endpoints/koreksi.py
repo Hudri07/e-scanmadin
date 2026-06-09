@@ -136,7 +136,6 @@ async def scan_bulk(
         raise HTTPException(status_code=400, detail="Kunci jawaban tidak ditemukan!")
 
     kunci_jawaban = json.loads(kunci_db.kunci_json) if isinstance(kunci_db.kunci_json, str) else kunci_db.kunci_json
-    hasil_bulk = []
     
     # Fungsi pembantu untuk memproses satu file (Helper Function)
     async def proses_single_file(file: UploadFile):
@@ -144,18 +143,29 @@ async def scan_bulk(
         file_path = os.path.join(UPLOAD_DIR, f"temp_{unique_id}_{file.filename}")
         
         try:
-            # OPTIMASI: Alirkan file langsung ke storage tanpa memuat semua ke RAM
+            # Alirkan file langsung ke storage tanpa memuat semua ke RAM
             with open(file_path, "wb") as buffer:
                 while content := await file.read(1024 * 1024):  # Baca per 1MB
                     buffer.write(content)
 
-            # Jalankan OMR (gunakan asyncio.to_thread untuk blocking function)
+            # Jalankan OMR 
             hasil_omr = await asyncio.to_thread(scan_jawaban, file_path)
-            jawaban_siswa = hasil_omr.get("jawaban")
-            nomor_omr = hasil_omr.get("nomor", "0000")
+            
+            if not hasil_omr:
+                return {"nama": file.filename, "message": "Gagal memproses gambar LJK", "status": "error"}
 
-            # Gabungkan format nomor peserta
-            nomor_peserta = f"26-06-0056-1-{nomor_omr}"
+            # Ambil data dari kembalian OMR Service kita yang baru
+            nama_siswa = hasil_omr.get("nama", "Tanpa Nama")
+            nomor_omr = hasil_omr.get("nomor", "000")
+            jawaban_siswa = hasil_omr.get("jawaban", [])
+
+            # Jika nama_siswa kosong atau spasi doang, beri fallback nama file
+            if not nama_siswa.strip():
+                nama_siswa = "Tanpa Nama / Tidak Terbaca"
+
+            # Gabungkan format nomor peserta dengan validasi tanda hubung ganda
+            nomor_omr_clean = nomor_omr.replace("-", "0") if "-" in nomor_omr else nomor_omr
+            nomor_peserta = f"26-06-0056-1-{nomor_omr_clean}"
 
             # --- CEK DUPLIKAT NILAI ---
             exists = db.query(models.HasilUjianTable).filter(
@@ -165,25 +175,20 @@ async def scan_bulk(
                 )
             ).first()
 
-            # ✅ PENTING: Panggil LLM untuk SEMUA file (termasuk duplikat) agar nama selalu terdeteksi
-            identitas = await asyncio.to_thread(get_identitas_siswa, file_path) 
-            nama_siswa = identitas.get("nama", "Tanpa Nama")
-
             if exists:
-                # ✅ Untuk duplikat: ambil skor dari database saja, jangan hitung ulang
+                # Untuk duplikat: ambil skor dari database saja, jangan hitung ulang
                 detail_benar = 0
                 detail_salah = 0
                 perbandingan = []
                 
                 if jawaban_siswa:
-                    # Hitung detail benar/salah untuk informasi saja (tidak untuk skor)
                     _, detail_benar, detail_salah, perbandingan = hitung_skor(jawaban_siswa, kunci_jawaban)
                 
                 return {
-                    "nama": nama_siswa,  # ← Dari LLM (pastikan nama terdeteksi)
+                    "nama": nama_siswa,  
                     "nomor_peserta": nomor_peserta,
                     "is_duplicate": True, 
-                    "skor": exists.skor,  # ← Ambil dari database saja (tidak hitung ulang)
+                    "skor": exists.skor,  
                     "detail": {"benar": detail_benar, "salah": detail_salah},
                     "perbandingan": perbandingan,
                     "telegram_message_id": exists.telegram_message_id,
@@ -191,7 +196,6 @@ async def scan_bulk(
                 }
 
             # File tidak duplikat - lanjutkan proses normal
-            # Ambil file content untuk telegram
             with open(file_path, "rb") as f:
                 file_bytes = f.read()
 
@@ -204,7 +208,7 @@ async def scan_bulk(
             tele_msg_id = await send_to_telegram(file_bytes, file.filename, caption)
 
             # --- PROSES SKOR ---
-            if jawaban_siswa:
+            if jawaban_siswa and len(jawaban_siswa) > 0:
                 skor, benar, salah, perbandingan = hitung_skor(jawaban_siswa, kunci_jawaban)
                 return {
                     "nama": nama_siswa,
@@ -217,7 +221,7 @@ async def scan_bulk(
                 }
             else:
                 return {
-                    "nama": file.filename, 
+                    "nama": nama_siswa, 
                     "message": "Gagal mendeteksi jawaban pada lembar LJK",
                     "status": "error"
                 }
@@ -234,7 +238,7 @@ async def scan_bulk(
             if os.path.exists(file_path): 
                 os.remove(file_path)
 
-    # 2. EKSEKUSI PARALEL: Memproses banyak file sekaligus menggunakan asyncio.gather
+    # Memproses banyak file sekaligus menggunakan asyncio.gather
     tasks = [proses_single_file(file) for file in files]
     hasil_bulk = await asyncio.gather(*tasks)
             
