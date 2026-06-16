@@ -613,7 +613,7 @@
 
     function hitungSemuaSiswa() {
         const semuaDetail = document.querySelectorAll('[id^="det-"]');
-        semuaDetail.forEach(el => { // <-- FIXED: Variabel sebelumnya allDetail (ReferenceError)
+        semuaDetail.forEach(el => {
             const idx = el.id.split('-')[1];
             hitungUlangSiswa(idx);
         });
@@ -664,7 +664,7 @@
         btnSimpan.disabled = true;
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> MENYIMPAN KE FASTAPI...';
 
-        semuaKartu.forEach((card, idx) => {
+        semuaKartu.forEach((card) => {
             const nama = card.querySelector('input[placeholder="Nama Siswa"]').value;
             const inputNomor = card.querySelector('input[placeholder="No Peserta"]');
             
@@ -674,7 +674,8 @@
             const skor = parseInt(card.querySelector('.text-xl.font-black').innerText) || 0;
             
             const detailJawaban = [];
-            const inputsDetail = document.querySelectorAll(`#det-${idx} .item-jawaban-siswa`);
+            
+            const inputsDetail = card.querySelectorAll('.item-jawaban-siswa');
             inputsDetail.forEach((inp, i) => {
                 detailJawaban.push({
                     no: i + 1,

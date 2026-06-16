@@ -217,19 +217,30 @@
         }
 
         dataHalamanIni.forEach((s) => {
+            console.log(s.nama, s.nilai_lengkap);
             let nilaiHtml = "";
             let aksiPDF = "";
 
             if (s.nilai_lengkap && s.nilai_lengkap.length > 0) {
-                nilaiHtml = s.nilai_lengkap.slice(0, 1).map(n => `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center border border-blue-100">${n.skor}</div>
-                        <div>
-                            <p class="text-[11px] font-bold text-gray-700 leading-none">${n.mapel}</p>
-                            <span class="text-[9px] font-semibold text-green-600 uppercase tracking-tight block mt-0.5">Sudah Koreksi</span>
-                        </div>
+                nilaiHtml = `
+                    <div class="grid grid-cols-2 gap-3">
+                        ${s.nilai_lengkap.map(n => `
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center border border-blue-100">
+                                    ${n.skor}
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-bold text-gray-700 leading-none">
+                                        ${n.mapel}
+                                    </p>
+                                    <span class="text-[9px] font-semibold text-green-600 uppercase tracking-tight block mt-0.5">
+                                        Sudah Koreksi
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
-                `).join('');
+                `;
 
                 aksiPDF = `
                     <button onclick='unduhPDF(${JSON.stringify(s)})' class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all border border-red-100" title="Unduh PDF">
@@ -341,12 +352,23 @@
         const filtered = allStudents.filter(s => s.kelas === currentFilteredClass);
         if (filtered.length === 0) return showToast("Tidak ada data untuk diekspor", "info");
 
-        const dataEkspor = filtered.map(s => ({
-            nomor_peserta: s.nomor_peserta,
-            nama: s.nama,
-            mapel: (s.nilai_lengkap?.length > 0) ? s.nilai_lengkap[0].mapel : "-",
-            skor: (s.nilai_lengkap?.length > 0) ? s.nilai_lengkap[0].skor : 0
-        }));
+        const dataEkspor = filtered.flatMap(s => {
+            if (!s.nilai_lengkap || s.nilai_lengkap.length === 0) {
+                return [{
+                    nomor_peserta: s.nomor_peserta,
+                    nama: s.nama,
+                    mapel: "-",
+                    skor: 0
+                }];
+            }
+
+            return s.nilai_lengkap.map(n => ({
+                nomor_peserta: s.nomor_peserta,
+                nama: s.nama,
+                mapel: n.mapel,
+                skor: n.skor
+            }));
+        });
 
         try {
             const response = await fetch('/unduh/ekspor-excel', {

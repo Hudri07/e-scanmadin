@@ -137,29 +137,26 @@ async def scan_bulk(
 
     kunci_jawaban = json.loads(kunci_db.kunci_json) if isinstance(kunci_db.kunci_json, str) else kunci_db.kunci_json
     
-    # Fungsi pembantu untuk memproses satu file (Helper Function)
+    # Helper function untuk memproses satu file di dalam memori (Irit RAM Server Gratisan)
     async def proses_single_file(file: UploadFile):
-        unique_id = uuid.uuid4().hex
-        file_path = os.path.join(UPLOAD_DIR, f"temp_{unique_id}_{file.filename}")
-        
         try:
-            # Alirkan file langsung ke storage tanpa memuat semua ke RAM
-            with open(file_path, "wb") as buffer:
-                while content := await file.read(1024 * 1024):  # Baca per 1MB
-                    buffer.write(content)
+            # ⚡ OPTIMASI UTAMA: Baca file langsung ke RAM Bytes, tidak perlu tulis ke data/uploads/
+            file_bytes = await file.read()
 
-            # Jalankan OMR 
-            hasil_omr = await asyncio.to_thread(scan_jawaban, file_path)
+            # Jalankan OMR Service menggunakan Thread Pool agar FastAPI tidak macet (Non-blocking)
+            # Mengirim data bytes ke fungsi omr_service yang baru
+            hasil_omr = await asyncio.to_thread(scan_jawaban, file_bytes)
             
             if not hasil_omr:
                 return {"nama": file.filename, "message": "Gagal memproses gambar LJK", "status": "error"}
 
-            # Ambil data dari kembalian OMR Service kita yang baru
+            # Ambil data dari kembalian OMR Service terbaru
             nama_siswa = hasil_omr.get("nama", "Tanpa Nama")
             nomor_omr = hasil_omr.get("nomor", "000")
             jawaban_siswa = hasil_omr.get("jawaban", [])
+            gambar_bukti_b64 = hasil_omr.get("gambar_bukti", "") # 💎 Base64 String baru untuk Frontend
 
-            # Jika nama_siswa kosong atau spasi doang, beri fallback nama file
+            # Jika nama_siswa kosong atau hanya spasi, beri fallback nama file
             if not nama_siswa.strip():
                 nama_siswa = "Tanpa Nama / Tidak Terbaca"
 
@@ -176,7 +173,7 @@ async def scan_bulk(
             ).first()
 
             if exists:
-                # Untuk duplikat: ambil skor dari database saja, jangan hitung ulang
+                # Ambil skor dari database saja jika duplikat, jangan hitung ulang
                 detail_benar = 0
                 detail_salah = 0
                 perbandingan = []
@@ -192,22 +189,21 @@ async def scan_bulk(
                     "detail": {"benar": detail_benar, "salah": detail_salah},
                     "perbandingan": perbandingan,
                     "telegram_message_id": exists.telegram_message_id,
+                    "gambar_bukti": gambar_bukti_b64, # Tetap sertakan gambar ke frontend meskipun duplikat
                     "message": "Siswa ini sudah dikoreksi sebelumnya."
                 }
 
-            # File tidak duplikat - lanjutkan proses normal
-            with open(file_path, "rb") as f:
-                file_bytes = f.read()
-
-            # INTEGRASI TELEGRAM
+            # --- PROSES INTEGRASI TELEGRAM ---
             caption = (f" Koreksi Berhasil\n\n"
                       f" Siswa: {nama_siswa}\n"
                       f" Nomor: {nomor_peserta}\n"
                       f" Mapel: {mapel_aktif}\n")
             
+            # Jika Anda ingin mengirim gambar asli yang polos ke Telegram: gunakan `file_bytes`
+            # Namun, jika nanti Anda ingin mengirim gambar hasil lingkaran ke Telegram, Anda harus mengonversi kembali string base64 ke bytes di sini. Kita pakai `file_bytes` asli dulu agar aman.
             tele_msg_id = await send_to_telegram(file_bytes, file.filename, caption)
 
-            # --- PROSES SKOR ---
+            # --- PROSES HITUNG SKOR ---
             if jawaban_siswa and len(jawaban_siswa) > 0:
                 skor, benar, salah, perbandingan = hitung_skor(jawaban_siswa, kunci_jawaban)
                 return {
@@ -217,28 +213,25 @@ async def scan_bulk(
                     "is_duplicate": False,
                     "detail": {"benar": benar, "salah": salah}, 
                     "perbandingan": perbandingan, 
-                    "telegram_message_id": tele_msg_id
+                    "telegram_message_id": tele_msg_id,
+                    "gambar_bukti": gambar_bukti_b64 # 💎 Dikirim balik ke JavaScript Frontend Anda
                 }
             else:
                 return {
-                    "nama": nama_siswa, 
+                    "nama": file.filename, 
                     "message": "Gagal mendeteksi jawaban pada lembar LJK",
                     "status": "error"
                 }
                 
         except Exception as e:
-            print(f"ERROR processing {file.filename}: {e}")
+            print(f"❌ ERROR memproses {file.filename}: {e}")
             return {
                 "nama": file.filename, 
                 "message": f"Gagal proses: {str(e)}",
                 "status": "error"
             }
-            
-        finally:
-            if os.path.exists(file_path): 
-                os.remove(file_path)
 
-    # Memproses banyak file sekaligus menggunakan asyncio.gather
+    # Memproses banyak file secara paralel/simultan memanfaatkan resource server gratisan secara optimal
     tasks = [proses_single_file(file) for file in files]
     hasil_bulk = await asyncio.gather(*tasks)
             

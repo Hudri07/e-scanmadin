@@ -54,7 +54,7 @@ async def ekspor_pdf(data: dict):
     
     # --- 1. HEADER TENGAH ---
     pdf.set_font("Times", "B", 14)
-    pdf.cell(0, 8, "DAFTAR NILAI AKHIR BERSAMA", ln=True, align="C")
+    pdf.cell(0, 8, "DAFTAR NILAI AKHIR", ln=True, align="C")
     pdf.cell(0, 8, "MADRASAH DINIYAH TAKMILIYAH AWALIYAH", ln=True, align="C")
     pdf.set_font("Times", "", 12)
     pdf.cell(0, 8, f"TAHUN PEMBELAJARAN {tahun_hijri_str} / {tahun_masehi_str}", ln=True, align="C")
@@ -83,7 +83,7 @@ async def ekspor_pdf(data: dict):
     if not list_nilai:
         list_nilai = [{
             "mapel": data.get('mapel', '-'),
-            "nilai_angka": data.get('skora', '0')
+            "nilai_angka": data.get('skor', '0')
         }]
 
     pdf.set_font("Times", "", 11)
@@ -93,7 +93,7 @@ async def ekspor_pdf(data: dict):
         pdf.cell(10, 8, str(i), border=1, align="C")
         pdf.cell(100, 8, item.get('mapel', '-'), border=1)
         pdf.cell(40, 8, str(angka), border=1, align="C") 
-    pdf.cell(40, 8, terbilang_nilai(angka), border=1, align="C", ln=1)
+        pdf.cell(40, 8, terbilang_nilai(angka), border=1, align="C", ln=1)
 
     total_nilai = 0
     for item in list_nilai:
@@ -117,7 +117,6 @@ async def ekspor_pdf(data: dict):
     # --- 4. TANGGAL & TANDA TANGAN ---
     tgl_hijri = get_tgl_hijriyah ()
     tgl_masehi = datetime.now().strftime("%d %B %Y")
-    tgl_hijri = get_tgl_hijriyah()
 
     # Lokasi, Tgl Hijriyah & Masehi
     pdf.set_font("Times", "", 11)
