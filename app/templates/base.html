@@ -203,6 +203,10 @@
                         <i class="fas fa-camera-retro text-base w-5"></i>
                         <span>Koreksi LJK</span>
                     </a>
+                    <a href="/riwayat-ujian" class="menu-item {% if '/riwayat-ujian' in request.path %}active{% endif %} flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold">
+                        <i class="fas fa-history text-base w-5"></i>
+                        <span>Riwayat Ujian</span>
+                    </a>
                 </nav>
 
                 <div class="p-4 border-t border-gray-100 mt-auto bg-white flex-shrink-0">
@@ -237,6 +241,7 @@
                                     {% if '/dashboard' in request.path %} Dashboard 
                                     {% elif '/manajemen-siswa' in request.path %} Manajemen Siswa 
                                     {% elif '/koreksi' in request.path %} Koreksi LJK 
+                                    {% elif '/riwayat-ujian' in request.path %} Riwayat Ujian
                                     {% elif '/profile' in request.path %} Profil Akun 
                                     {% else %} Overview {% endif %}
                                 {% endblock %}

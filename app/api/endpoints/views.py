@@ -139,7 +139,6 @@ async def koreksi_page(
             }
         )
 
-
 @router.get("/manajemen-siswa", response_class=HTMLResponse)
 async def manajemen_siswas(
     request: Request, 
@@ -224,3 +223,51 @@ async def manajemen_kunci_page(
             "user": current_user
         }
     )
+
+@router.get("/riwayat-ujian", response_class=HTMLResponse)
+async def riwayat_ujian_page(
+    request: Request,
+    current_user: UserTable = Depends(get_current_user)
+):
+    """Merender halaman HTML utama untuk Riwayat Ujian"""
+    return templates.TemplateResponse(
+        request=request,
+        name="riwayat_ujian.html",
+        context={"user": current_user}
+    )
+
+@router.get("/api/riwayat-ujian")
+async def get_api_riwayat_ujian(
+    db: Session = Depends(get_db),
+    current_user: UserTable = Depends(get_current_user)
+):
+    """Menyuplai data JSON"""
+    riwayat_raw = db.query(HasilUjianTable, SiswaTable).join(
+        SiswaTable, HasilUjianTable.nomor_peserta == SiswaTable.nomor_peserta
+    ).order_by(HasilUjianTable.id.desc()).all()
+    
+    tz_jakarta = pytz.timezone('Asia/Jakarta')
+    daftar_riwayat = []
+    
+    for hasil, siswa in riwayat_raw:
+        tanggal_db = hasil.tanggal
+        if tanggal_db and isinstance(tanggal_db, datetime):
+            if tanggal_db.tzinfo is None:
+                tanggal_wib = tz_jakarta.localize(tanggal_db)
+            else:
+                tanggal_wib = tanggal_db.astimezone(tz_jakarta)
+            tanggal_str = tanggal_wib.strftime('%d %b %Y - %H:%M')
+        else:
+            tanggal_str = str(tanggal_db)[:16] if tanggal_db else "-"
+
+        daftar_riwayat.append({
+            "id_hasil": hasil.id,
+            "nomor_peserta": hasil.nomor_peserta,
+            "nama": siswa.nama,
+            "kelas": siswa.kelas,
+            "mapel": hasil.mapel,
+            "skor": hasil.skor,
+            "tanggal": tanggal_str
+        })
+        
+    return {"sukses": True, "riwayat": daftar_riwayat}

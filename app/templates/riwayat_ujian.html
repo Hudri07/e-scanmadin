@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Riwayat Ujian - E-Tashih{% endblock %}
+{% block page_title %}Riwayat Hasil Ujian{% endblock %}
+{% block hero_title %}Riwayat Hasil Ujian{% endblock %}
+{% block hero_subtitle %}Pantau, saring, dan rekapitulasi data hasil koreksi LJK secara terorganisir dalam satu panel modern.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    
+    <div class="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+            
+            <div class="w-full group">
+                <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Pilih Kelas</label>
+                <div class="relative">
+                    <select id="filterKelas" onchange="jalankanFilter()" 
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700 appearance-none cursor-pointer">
+                        <option value="">-- Semua Kelas --</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                </div>
+            </div>
+
+            <div class="w-full group">
+                <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Mata Pelajaran</label>
+                <div class="relative">
+                    <select id="filterMapel" onchange="jalankanFilter()" 
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all text-gray-700 appearance-none cursor-pointer">
+                        <option value="">-- Semua Mapel --</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                </div>
+            </div>
+
+            <div class="w-full group">
+                <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Pencarian Siswa</label>
+                <div class="relative">
+                    <input type="text" id="inputCari" oninput="jalankanFilter()" placeholder="Ketik nama atau nomor peserta..." 
+                        class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:bg-white focus:border-emerald-500 transition-all placeholder-gray-400 text-gray-700">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 text-xs transition-colors"></i>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+        
+        <div id="welcomeMessage" class="h-[400px] flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-spinner fa-spin text-xl text-blue-500"></i>
+            </div>
+            <h4 class="text-gray-800 font-bold text-base">Memuat Data Riwayat</h4>
+            <p class="text-gray-400 text-xs mt-1 max-w-xs leading-relaxed">Sistem sedang menyinkronkan seluruh database riwayat hasil ujian.</p>
+        </div>
+
+        <div id="riwayatContainer" class="hidden animate-in fade-in duration-200">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 md:p-6 gap-4 border-b border-gray-100 bg-gray-50/50">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <h2 id="filterStatusTitle" class="text-sm md:text-base font-black text-gray-800 tracking-tight uppercase">
+                        Semua Rekapitulasi LJK
+                    </h2>
+                    <span id="riwayatCount" class="text-blue-600 bg-blue-50 border border-blue-100 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider whitespace-nowrap">
+                        0 Data Ujian
+                    </span>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50/80 border-b border-gray-200 text-[11px] uppercase tracking-wider text-gray-500 font-bold">
+                        <tr>
+                            <th class="px-6 py-3.5 w-1/12 text-center">Skor</th>
+                            <th class="px-6 py-3.5 w-4/12">Identitas Siswa</th>
+                            <th class="px-6 py-3.5 w-2/12">Kelas</th>
+                            <th class="px-6 py-3.5 w-3/12">Mata Pelajaran</th>
+                            <th class="px-6 py-3.5 w-2/12">Waktu Koreksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="riwayatTableBody" class="divide-y divide-gray-100 text-sm font-medium text-gray-700">
+                        </tbody>
+                </table>
+
+                <div id="paginationNav"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // State Penampung Data
+    let semuaRiwayat = [];
+    let dataTerfilter = [];
+    let halamanSekarang = 1;
+    const barisPerHalaman = 10; // Default menampilkan 10 baris per halaman
+
+    // Ambil data pertama kali saat DOM selesai dimuat
+    document.addEventListener("DOMContentLoaded", async () => {
+        await ambilDataRiwayat();
+    });
+
+    // Mengambil data mentah JSON dari endpoint backend baru yang kamu buat
+    async function ambilDataRiwayat() {
+        try {
+            const response = await fetch('/api/riwayat-ujian');
+            const data = await response.json();
+            
+            if (data.sukses) {
+                semuaRiwayat = data.riwayat;
+                dataTerfilter = [...semuaRiwayat];
+                
+                // Isi Dropdown Filter secara dinamis & otomatis
+                isiDropdownFilter(semuaRiwayat);
+                
+                // Ubah Tampilan interface dari Loading ke Container utama
+                document.getElementById('welcomeMessage').classList.add('hidden');
+                document.getElementById('riwayatContainer').classList.remove('hidden');
+                
+                renderTabelRiwayat();
+            } else {
+                showToast("Gagal memuat rekap riwayat ujian", "error");
+            }
+        } catch (error) {
+            console.error("Kesalahan jaringan:", error);
+            showToast("Gagal menyambung ke server", "error");
+        }
+    }
+
+    // Mengisi data select option secara otomatis & urut
+    function isiDropdownFilter(data) {
+        const setKelas = new Set();
+        const setMapel = new Set();
+
+        data.forEach(item => {
+            if(item.kelas) setKelas.add(item.kelas);
+            if(item.mapel) setMapel.add(item.mapel);
+        });
+
+        const selectKelas = document.getElementById("filterKelas");
+        const selectMapel = document.getElementById("filterMapel");
+
+        Array.from(setKelas).sort().forEach(kls => {
+            selectKelas.innerHTML += `<option value="${kls}">Kelas ${kls}</option>`;
+        });
+
+        Array.from(setMapel).sort().forEach(mpl => {
+            selectMapel.innerHTML += `<option value="${mpl}">${mpl}</option>`;
+        });
+    }
+
+    // Logic Saring Data Kombinasi (Kelas + Mapel + Input Kata Kunci)
+    function jalankanFilter() {
+        const kataKunci = document.getElementById("inputCari").value.toLowerCase().trim();
+        const kelasDipilih = document.getElementById("filterKelas").value;
+        const mapelDipilih = document.getElementById("filterMapel").value;
+
+        // Perubahan Judul Dinamis berdasar dropdown aktif
+        let judul = "Semua Rekapitulasi LJK";
+        if (kelasDipilih && mapelDipilih) judul = `Rekap Kelas ${kelasDipilih} • ${mapelDipilih}`;
+        else if (kelasDipilih) judul = `Rekap Kelas ${kelasDipilih}`;
+        else if (mapelDipilih) judul = `Mata Pelajaran ${mapelDipilih}`;
+        document.getElementById('filterStatusTitle').innerText = judul;
+
+        dataTerfilter = semuaRiwayat.filter(item => {
+            const cocokKataKunci = item.nama.toLowerCase().includes(kataKunci) || 
+                                  item.nomor_peserta.toLowerCase().includes(kataKunci);
+            const cocokKelas = kelasDipilih === "" || item.kelas === kelasDipilih;
+            const cocokMapel = mapelDipilih === "" || item.mapel === mapelDipilih;
+
+            return cocokKataKunci && cocokKelas && cocokMapel;
+        });
+
+        halamanSekarang = 1; // Reset halaman ke awal tiap menyaring
+        renderTabelRiwayat();
+    }
+
+    // Render Data Baris demi Baris ke Tabel HTML
+    function renderTabelRiwayat() {
+        const tableBody = document.getElementById('riwayatTableBody');
+        tableBody.innerHTML = "";
+
+        document.getElementById('riwayatCount').innerText = dataTerfilter.length + " Data Ujian";
+
+        const indeksMulai = (halamanSekarang - 1) * barisPerHalaman;
+        const indeksSelesai = indeksMulai + barisPerHalaman;
+        const dataHalamanIni = dataTerfilter.slice(indeksMulai, indeksSelesai);
+
+        if(dataHalamanIni.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-xs text-gray-400 italic font-medium">
+                        Tidak ada data riwayat ujian yang cocok atau data kosong.
+                    </td>
+                </tr>
+            `;
+            renderPaginationControls(0);
+            return;
+        }
+
+        dataHalamanIni.forEach((r) => {
+            const row = `
+                <tr class="hover:bg-gray-50/60 transition-colors">
+                    <td class="px-6 py-3.5 text-center">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center border border-blue-100 mx-auto shadow-sm">
+                            ${r.skor}
+                        </div>
+                    </td>
+                    <td class="px-6 py-3.5">
+                        <p class="font-bold text-gray-800 text-sm leading-tight">${r.nama}</p>
+                        <p class="text-[11px] text-gray-400 font-semibold mt-0.5 tracking-tight">${r.nomor_peserta}</p>
+                    </td>
+                    <td class="px-6 py-3.5">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-600 border border-gray-200/40">
+                            Kelas ${r.kelas}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3.5 font-bold text-gray-700 text-xs sm:text-sm">${r.mapel}</td>
+                    <td class="px-6 py-3.5 text-xs font-bold text-gray-400 tracking-tight">${r.tanggal}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        renderPaginationControls(dataTerfilter.length);
+    }
+
+    // Render Navigasi Pagination Persis Kembar dengan Manajemen Siswa
+    function renderPaginationControls(totalData) {
+        const penampungNavigasi = document.getElementById('paginationNav');
+        if (!penampungNavigasi) return;
+
+        const totalHalaman = Math.ceil(totalData / barisPerHalaman) || 1;
+        
+        let htmlNav = `
+            <div class="flex items-center justify-between p-4 bg-white border-t border-gray-100 text-xs font-semibold text-gray-500">
+                <div>
+                    Menampilkan <span class="text-gray-800 font-bold">${totalData > 0 ? (halamanSekarang - 1) * barisPerHalaman + 1 : 0}</span> 
+                    sampai <span class="text-gray-800 font-bold">${Math.min(halamanSekarang * barisPerHalaman, totalData)}</span> 
+                    dari <span class="text-gray-800 font-bold">${totalData}</span> data riwayat
+                </div>
+                <div class="flex items-center gap-1">
+                    <button onclick="pindahHalaman(${halamanSekarang - 1})" ${halamanSekarang === 1 ? 'disabled' : ''} 
+                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent transition-all">
+                        <i class="fas fa-chevron-left text-[10px]"></i>
+                    </button>
+        `;
+
+        for (let i = 1; i <= totalHalaman; i++) {
+            if (i === 1 || i === totalHalaman || (i >= halamanSekarang - 1 && i <= halamanSekarang + 1)) {
+                htmlNav += `
+                    <button onclick="pindahHalaman(${i})" 
+                        class="px-3 py-1.5 rounded-lg border transition-all ${halamanSekarang === i ? 'bg-blue-600 border-blue-600 text-white font-bold shadow-sm' : 'border-gray-200 hover:bg-gray-50'}" >
+                        ${i}
+                    </button>
+                `;
+            } else if (i === halamanSekarang - 2 || i === halamanSekarang + 2) {
+                htmlNav += `<span class="px-1 text-gray-300">...</span>`;
+            }
+        }
+
+        htmlNav += `
+                    <button onclick="pindahHalaman(${halamanSekarang + 1})" ${halamanSekarang === totalHalaman ? 'disabled' : ''} 
+                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent transition-all">
+                        <i class="fas fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        penampungNavigasi.innerHTML = htmlNav;
+    }
+
+    // Perpindahan halaman dengan efek scroll smooth ke atas tabel
+    function pindahHalaman(tujuanHalaman) {
+        const totalHalaman = Math.ceil(dataTerfilter.length / barisPerHalaman) || 1;
+        if (tujuanHalaman < 1 || tujuanHalaman > totalHalaman) return;
+        
+        halamanSekarang = tujuanHalaman;
+        renderTabelRiwayat();
+        
+        document.getElementById('riwayatContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+</script>
+{% endblock %}
