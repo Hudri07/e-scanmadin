@@ -484,7 +484,8 @@
 
                     return `
                         <div class="card-hope relative overflow-hidden bg-white border border-gray-200/60 shadow-sm rounded-xl p-5 group hover:border-emerald-500 transition-all"
-                            data-telegram-id="${siswa.telegram_message_id || ''}">
+                            data-telegram-id="${siswa.telegram_message_id || ''}"
+                            data-is-duplicate="${siswa.is_duplicate || false}">
                             
                             ${siswa.is_duplicate ? '<div class="absolute top-0 right-0 bg-yellow-400 text-black text-[9px] font-black px-3 py-0.5 rounded-bl-lg uppercase z-20">Duplikat</div>' : ''}
                             
@@ -494,7 +495,8 @@
                                     <span class="text-xl font-black leading-none">${siswa.skor}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}" 
+                                    <input type="text" value="${siswa.nama ? siswa.nama.toUpperCase() : ''}"
+                                        oninput="this.value = this.value.toUpperCase()" 
                                         class="w-full font-jakarta font-bold text-base text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-emerald-500 focus:bg-gray-50 rounded-lg px-1.5 py-0.5 outline-none transition-all" 
                                         placeholder="Nama Siswa">
                                     <div class="flex items-center gap-1.5 mt-0.5">
@@ -513,7 +515,7 @@
                                     <div class="text-base font-black text-green-700">${siswa.detail ? siswa.detail.benar : 0}</div>
                                 </div>
                                 <div class="flex-1 bg-red-50/50 p-2 rounded-lg border border-red-100 text-center">
-                                    <div class="text-[9px] font-bold text-red-600 uppercase tracking-wide">Salah</div>
+                                 <div class="text-[9px] font-bold text-red-600 uppercase tracking-wide">Salah</div>
                                     <div class="text-base font-black text-red-700">${siswa.detail ? siswa.detail.salah : 0}</div>
                                 </div>
                             </div>
@@ -526,7 +528,11 @@
                                 ${(siswa.perbandingan || []).map(it => `
                                     <div class="flex flex-col items-center">
                                         <span class="text-[8px] font-bold text-gray-300 mb-0.5">${it.no}</span>
-                                        <input type="text" maxlength="1" value="${it.siswa}" 
+                                        <input type="text" 
+                                            maxlength="1" 
+                                            value="${it.siswa ? it.siswa.toUpperCase() : '-'}" 
+                                            oninput="this.value = this.value.toUpperCase()" 
+                                            onclick="this.select()"
                                             class="item-jawaban-siswa w-full text-center p-1 font-black rounded-md border text-xs uppercase transition-all outline-none
                                             ${it.status === 'correct' ? 'bg-green-50 border-green-200 text-green-700 focus:border-green-500' : 'bg-red-50 border-red-200 text-red-700 focus:border-red-500'}">
                                     </div>
@@ -645,6 +651,7 @@
         // Validasi Awal: Cegah pengiriman jika ada field penting yang kosong
         let adaFormKosong = false;
         semuaKartu.forEach((card) => {
+            if (card.getAttribute('data-is-duplicate') === 'true') return;
             const nama = card.querySelector('input[placeholder="Nama Siswa"]').value.trim();
             const nomorPeserta = card.querySelector('input[placeholder="No Peserta"]').value.trim();
             if (!nama || !nomorPeserta) {
@@ -665,6 +672,10 @@
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> MENYIMPAN KE FASTAPI...';
 
         semuaKartu.forEach((card) => {
+            if (card.getAttribute('data-is-duplicate') === 'true') {
+                return; 
+            }
+
             const nama = card.querySelector('input[placeholder="Nama Siswa"]').value;
             const inputNomor = card.querySelector('input[placeholder="No Peserta"]');
             
@@ -692,6 +703,16 @@
                 jawaban_detail: detailJawaban
             });
         });
+
+        // Cek apakah ada data baru yang tersisa untuk disimpan
+        if (dataFinal.length === 0) {
+            if (typeof showToast === "function") {
+                showToast("Tidak ada data LJK baru yang perlu disimpan!", "warning");
+            } else {
+                alert("Tidak ada data baru untuk disimpan.");
+            }
+            return;
+        }
 
         try {
             const response = await fetch('/api/simpan-hasil', {

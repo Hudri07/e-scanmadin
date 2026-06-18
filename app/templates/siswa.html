@@ -163,7 +163,7 @@
     let currentFilteredClass = "";
     let targetDeleteNo = null;
     let halamanSekarang = 1;
-    const barisPerHalaman = 10;
+    const barisPerHalaman = 5;
 
     function handleKelasSelectChange(selectObj) {
         if(selectObj.value !== "") {
@@ -217,23 +217,22 @@
         }
 
         dataHalamanIni.forEach((s) => {
-            console.log(s.nama, s.nilai_lengkap);
             let nilaiHtml = "";
             let aksiPDF = "";
-
+            
             if (s.nilai_lengkap && s.nilai_lengkap.length > 0) {
                 nilaiHtml = `
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-full">
                         ${s.nilai_lengkap.map(n => `
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center border border-blue-100">
+                            <div class="flex items-center space-x-2.5 p-1.5 sm:p-0 rounded-lg bg-gray-50/50 sm:bg-transparent border border-gray-100 sm:border-transparent">
+                                <div class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-lg bg-blue-50 text-blue-600 font-black text-[10px] sm:text-xs flex items-center justify-center border border-blue-100">
                                     ${n.skor}
                                 </div>
-                                <div>
-                                    <p class="text-[11px] font-bold text-gray-700 leading-none">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight truncate" title="${n.mapel}">
                                         ${n.mapel}
                                     </p>
-                                    <span class="text-[9px] font-semibold text-green-600 uppercase tracking-tight block mt-0.5">
+                                    <span class="text-[8px] sm:text-[9px] font-semibold text-green-600 uppercase tracking-tight block mt-0.5">
                                         Sudah Koreksi
                                     </span>
                                 </div>
@@ -248,7 +247,7 @@
                     </button>
                 `;
             } else {
-                nilaiHtml = `<span class="text-gray-400 italic text-xs font-medium pl-1">Belum Terkoreksi</span>`;
+                nilaiHtml = `<span class="text-gray-400 italic text-[11px] font-medium pl-1 block">Belum Terkoreksi</span>`;
             }
 
             const row = `

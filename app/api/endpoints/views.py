@@ -166,16 +166,10 @@ async def manajemen_siswas(
             )
         )
     
-    # 4. Pagination (Limit 10 per halaman)
-    limit = 10
-    total_siswa = query.count()
-    total_pages = (total_siswa + limit - 1) // limit if total_siswa > 0 else 1
-    offset = (page - 1) * limit
+    # 4. Eksekusi data
+    data_siswa_raw = db.query(SiswaTable).all()
     
-    # 5. Eksekusi data
-    data_siswa_raw = query.offset(offset).limit(limit).all()
-    
-    # 6. Susun data dengan nilai
+    # 5. Susun data dengan nilai
     siswa_data = []
     for s in data_siswa_raw:
         daftar_hasil = db.query(HasilUjianTable).filter(
@@ -200,7 +194,6 @@ async def manajemen_siswas(
             "siswa": siswa_data,
             "kelas_list": kelas_list,
             "current_page": page,
-            "total_pages": total_pages,
             "search": search,
             "active_kelas": kelas
         }
