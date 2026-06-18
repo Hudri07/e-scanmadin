@@ -5,29 +5,28 @@ import os
 def preprocessing(image_path):
     img = cv2.imread(image_path)
     if img is None:
+        print("Error: Gambar tidak ditemukan.")
         return None
     
-    # Resize pakai Lanczos4
+    # 1. Original RGB (untuk display)
+    img_original_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    
+    # 2. Resize menggunakan INTER_AREA
     width, height = 1500, 2000
-    img_resized = cv2.resize(img, (width, height), interpolation=cv2.INTER_LANCZOS4)
+    img_resized = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
     
-    # Bilateral Filter
-    denoised = cv2.bilateralFilter(img_resized, 7, 50, 50)
-
-    # LAB Space
-    lab = cv2.cvtColor(denoised, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
+    # 3. Grayscale
+    gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
     
-    # CLAHE
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l)
+    # 4. Gaussian Blur(untuk menghilangkan noise serat kertas sebelum thresholding)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     
-    img_final = cv2.merge((cl, a, b))
-    im_final = cv2.cvtColor(img_final, cv2.COLOR_LAB2BGR)
-
-    gaussian = cv2.GaussianBlur(im_final, (0, 0), 2.0)
-    # Rumus: Result = Original + (Original - Blurred) * Amount
-    im_final = cv2.addWeighted(im_final, 1.5, gaussian, -0.5, 0)
+    # 5. Adaptive Thresholding (Mengubah menjadi Hitam-Putih Mutlak/Biner)
+    # Block size 21 dan C=10 bisa disesuaikan. Semakin besar C, kertas semakin putih bersih.
+    im_final = cv2.adaptiveThreshold(
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+        cv2.THRESH_BINARY, 21, 11
+    )
 
     # Save hasil
     base_name = os.path.splitext(image_path)[0] 
